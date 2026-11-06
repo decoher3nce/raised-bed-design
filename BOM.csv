@@ -1,0 +1,29 @@
+Section,Item,Qty,Unit,Spec,Source,Notes
+Lumber,2x8 x 10 ft,4,ea,"Cedar, redwood, or ground-contact treated",Model (Bed Lumber),"Side boards, used full length (no cut)"
+Lumber,2x8 x 12 ft,4,ea,"Cedar, redwood, or ground-contact treated",Model (Bed Lumber),"Side boards, used full length (no cut)"
+Lumber,2x8 x 14 ft,4,ea,"Cedar, redwood, or ground-contact treated",Model (Bed Lumber),"Side boards, used full length (no cut)"
+Lumber,2x8 x 16 ft,4,ea,"Cedar, redwood, or ground-contact treated",Model (Bed Lumber),"Side boards, used full length (no cut)"
+Lumber,2x8 x 8 ft,7,ea,"Cedar, redwood, or ground-contact treated",Model (Bed Lumber),End boards: 12 x 48 in (2 per board); 4 x 21 in (4 per board)
+Lumber,2x4 x 8 ft,13,ea,"Cedar, redwood, or ground-contact treated",Model (Bed Lumber),"14 corner posts x 14.5 in (6 per board, 3 boards) + 2 trellis posts, uncut 8 ft (2 boards) + 2 arch sills x 60.5 in (1 per board, 2 boards; the 35 3/8 in offcut of each is one stake) + 20 mid-span posts and 4 arch stakes x 23 7/8 in (2 from the sill offcuts, then 4 per board from 6 more boards)"
+Hardware,"#9 x 3 in exterior structural screws, star drive",136,ea,Coated for treated lumber; stainless 305/316 for cedar or redwood,Derived from model,Side boards into the corner post edges (64) + corner ties into end grain (64) + arch stakes into the sill ends (8); buy one 5 lb box (about 350); 1 lb boxes hold only about 70
+Hardware,"#9 x 2.5 in exterior structural screws, star drive",144,ea,Same finish as the 3 in screws,Derived from model,"Side boards into the mid-span post faces (80) + end boards into the corner post faces (64); buy 2 x 1 lb boxes (about 180), or one 5 lb box (about 450) for plenty of spares"
+Hardware,"#9 x 1.25 in exterior screws, star drive",20,ea,"Same finish; short enough to stay inside a 1.5 in post, stake or sill",Derived from model,"Hog-wire panel to the trellis posts (2 each), arch stakes (2 each) and sills (4 each), each through a fender washer; a 1 lb box holds about 180"
+Hardware,1/4 x 1 in galvanized fender washers,20,ea,Under the panel screws,Derived from model,One per panel screw; the washer beside a wire traps it against the wood
+Pavers,Concrete paver 12 x 12 x 1.5 in,74,ea,"about 18 lb each, 1,328 lb total",Model (Small Pavers),"38 Walkway along the top edge (2 rows, 15 in pitch); 11 Path between Bed D (16 ft) and Bed C (14 ft), 18 in pitch; 10 Path between Bed C (14 ft) and Bed B (12 ft), 18 in pitch; 8 Path between Bed B (12 ft) and Bed A (10 ft), 18 in pitch; 7 Path west of Bed A (10 ft), 18 in pitch"
+Pavers,Paver leveling base (crushed stone or all-purpose sand),25,0.5 cu ft bag,"2 in under each paver, 12.3 cu ft",Estimate,Not in model
+Arches,"Hog-wire / cattle panel, 16 ft long, 4 x 4 in mesh",1,ea,"4-gauge galvanized, 48 to 60 in wide",Model (Hogwire Arches),"Bent over 75 in between the Bed A and Bed B centrelines, feet on 2x4 sills on the ground: 37 in straight legs, crown 76 in above grade, held near the top by the two 8 ft inside corner posts, no T-posts. Model wires are 60 in wide at 4 in pitch. Arch BC is parked (hidden) in the model"
+Drip,"3/4 x 3/4 x 1/2 in PVC reducer tee, slip",4,ea,Schedule 40,Model (Drip Irrigation),"One per bed on the 3/4 in main, 8 in beyond the far end board and 6 1/8 in deep"
+Drip,"1/2 in PVC pipe, schedule 40, 10 ft",1,ea,115 in needed in 20 pieces,Model (Drip Irrigation),Per bed 6 1/4 + 9 + 6 + 3 1/2 + 4 in; 2 5/8 in spare after the kerfs
+Drip,"1/2 in PVC 90 degree elbow, slip",12,ea,Schedule 40,Model (Drip Irrigation),3 per bed: at the bottom of the riser and on each side of the wall
+Drip,"1/2 in PVC ball valve, slip x slip",4,ea,Lever handle,Model (Drip Irrigation),"3 7/8 in above grade on the outside of the far end wall, between the two clamps"
+Drip,1/2 in FPT x 4-port 1/4 in barb drip manifold head,4,ea,,Model (Drip Irrigation),"Top at 16 3/8 in, 1 7/8 in above the wall top, inside the bed"
+Drip,"1/2 in PVC male adapter, slip x MPT",4,ea,Threads the head onto the riser,Derived from model,Not modelled; use a female adapter instead if your head is male
+Drip,1/2 in stand-off pipe clamp,8,ea,Galvanized or UV-stable plastic,Model (Drip Irrigation),"Two per bed at 1 1/2 and 8 3/4 in, each on one board"
+Drip,#8 x 1 in exterior pan-head screws,16,ea,Same finish as the bed screws,Derived from model,Two per clamp
+Drip,"PVC primer and cement, small cans",1,set,,Estimate,40 slip joints in all
+Drip,PTFE thread tape,1,roll,,Estimate,Head onto the male adapter
+Drip (reference),"3/4 in sprinkler main, existing",25.9,ft,6 elbows if routed as drawn,Model (3/4 in main (existing)),"Stair-step 8 in beyond the far end boards, 6 1/8 in deep; drawn only to place the tees"
+Soil,Raised-bed soil mix,7.47,cu yd,202 cu ft at 14.5 in deep,Derived from model,2x10 alternative: 9.55 cu yd
+Optional,"Hardware cloth 1/2 in, 48 in wide (under beds)",56,lin ft,Gopher / vole barrier,Estimate,"Not in model; one strip per bed, trimmed to 21 in wide for Bed D"
+Hoops,"Low-tunnel hoop, 1 in tube, 40 in wide x 57 in tall",6,ea,"136 in of tube each (11.4 ft), 68 ft in all",Model (Garden Hoops),"6 over Bed C (14 ft) at 31 in pitch, the first and last 5 in inside the end boards; 36 in legs pushed through the 14.5 in of soil to grade, 21.5 in of straight leg above the soil. 11.4 ft each, so 10 ft sticks need a coupling in one leg; 12 ft stock makes one-piece hoops"
+Optional (hidden in model),"Single-tube garden arch, 1 in tube, 7 ft wide x 7 ft tall",1,ea,216 in of tube (18 ft),"Model (Garden Arch, hidden)",Superseded by Arch AB at the same spot

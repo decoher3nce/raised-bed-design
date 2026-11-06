@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Raised Bed Design BOM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  /* plan: a worksite ledger. Sturdy grotesque display, humanist body; orange = lumber, blue = arches and tie screws, hatched neutral = pavers. */
+  --bg: #f4f3ef; --panel: #ffffff; --ink: #1d1f22; --muted: #5d6168; --line: #d6d4cc; --soft: #ebe9e2;
+  --lumber: #eb6834; --arch: #2a78d6; --accent: #2a78d6; --focus: #2a78d6;
+  --font-display: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --font-body: "Source Sans 3", "Segoe UI", Roboto, sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #1a1a19; --panel: #232322; --ink: #efeee9; --muted: #b3b1a8; --line: #3a3a37; --soft: #2c2c2a;
+    --lumber: #d95926; --arch: #3987e5; --accent: #3987e5; --focus: #8fbcf0;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #1a1a19; --panel: #232322; --ink: #efeee9; --muted: #b3b1a8; --line: #3a3a37; --soft: #2c2c2a;
+  --lumber: #d95926; --arch: #3987e5; --accent: #3987e5; --focus: #8fbcf0;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 17px; line-height: 1.5; }
+h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; margin: 0; letter-spacing: -0.01em; }
+h1 { font-size: clamp(1.9rem, 4vw, 2.6rem); line-height: 1.1; }
+h2 { font-size: 1.35rem; margin-bottom: 0.6rem; }
+h3 { font-size: 1.1rem; }
+h3 small { font-weight: 500; color: var(--muted); font-family: var(--font-body); font-size: 0.95rem; margin-left: 0.4rem; }
+p { margin: 0 0 0.8rem; max-width: 68ch; }
+.muted { color: var(--muted); }
+a { color: var(--accent); }
+code { font-size: 0.9em; background: var(--soft); padding: 1px 5px; border-radius: 4px; }
+.wrap { max-width: 1080px; margin: 0 auto; padding: 0 16px 48px; }
+header.top { padding: 32px 0 16px; display: flex; flex-wrap: wrap; gap: 16px; align-items: end; justify-content: space-between; }
+header.top .meta { color: var(--muted); font-size: 0.95rem; }
+nav.sticky { position: sticky; top: 0; z-index: 5; background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--line); margin: 0 -16px; padding: 8px 16px; display: flex; gap: 6px; overflow-x: auto; align-items: center; }
+nav.sticky a { color: var(--ink); text-decoration: none; font-size: 0.92rem; padding: 6px 10px; border-radius: 999px; white-space: nowrap; }
+nav.sticky a:hover, nav.sticky a:focus-visible { background: var(--soft); outline: none; }
+button { font: inherit; font-size: 0.9rem; color: var(--ink); background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 6px 12px; cursor: pointer; }
+button:hover { background: var(--soft); }
+button:focus-visible, .seg button:focus-visible, a:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.seg button { border: 0; border-radius: 0; background: var(--panel); }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+section { padding: 28px 0 8px; scroll-margin-top: 56px; }
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 16px 0 8px; }
+.tile { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; }
+.tile .n { font-family: var(--font-display); font-size: 1.9rem; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1.1; }
+.tile .l { color: var(--muted); font-size: 0.9rem; margin-top: 4px; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 18px; margin: 12px 0; }
+.bed-card { overflow-x: auto; }   /* the per-bed cut tables run a few px wide at phone width */
+.card header { display: flex; gap: 14px; align-items: flex-start; margin-bottom: 10px; }
+.letter { flex: 0 0 auto; width: 44px; height: 44px; border-radius: 10px; background: var(--lumber); color: #fff; font-family: var(--font-display); font-weight: 700; font-size: 1.5rem; display: grid; place-items: center; }
+.tablewrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 0.95rem; font-variant-numeric: tabular-nums; }
+th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { color: var(--muted); font-weight: 600; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.04em; }
+tbody tr:hover { background: var(--soft); }
+td b { font-variant-numeric: tabular-nums; }
+.src { display: inline-block; font-size: 0.78rem; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--line); white-space: nowrap; }
+.src.model { border-color: var(--arch); color: var(--arch); }
+.src.derived { border-color: var(--lumber); color: var(--lumber); }
+.src.est { border-style: dashed; color: var(--muted); }
+.legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 0.9rem; color: var(--muted); margin: 8px 0 0; }
+.legend > span { display: inline-flex; align-items: center; gap: 6px; }
+.sw-lumber { width: 14px; height: 14px; background: var(--lumber); border-radius: 3px; }
+.sw-arch { width: 14px; height: 14px; border: 2px dashed var(--arch); border-radius: 3px; }
+.sw-hoop { width: 16px; height: 4px; background: var(--arch); border-radius: 2px; }
+.sw-drip { width: 18px; height: 0; border-top: 2px dashed currentColor; opacity: 0.8; }
+.sw-paver { width: 14px; height: 14px; border: 1px solid currentColor; border-radius: 2px; background: repeating-linear-gradient(45deg, transparent 0 2px, currentColor 2px 3px); opacity: 0.7; }
+figure { margin: 12px 0 0; }
+figure .scroll { overflow-x: auto; }
+figure svg { display: block; max-width: 100%; height: auto; }
+figure.plan svg { min-width: 680px; }
+figure.detail { max-width: 600px; }
+figure.wide { max-width: 820px; }
+figcaption { color: var(--muted); font-size: 0.92rem; margin-top: 8px; max-width: 72ch; }
+.two { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; }
+figure .bed:hover path, figure .bed:hover rect { filter: brightness(1.1); }
+figure .arch:hover rect { fill-opacity: 0.25; }
+figure .pv:hover rect { opacity: 1; stroke-width: 1.4; }
+#tip { position: fixed; pointer-events: none; background: var(--ink); color: var(--bg); padding: 6px 10px; border-radius: 8px; font-size: 0.88rem; max-width: 320px; display: none; z-index: 10; box-shadow: 0 6px 20px rgba(0,0,0,0.25); }
+ul { padding-left: 1.2rem; max-width: 72ch; }
+li { margin-bottom: 4px; }
+.sw { font-variant-numeric: tabular-nums; }
+textarea.copytext { width: 100%; min-height: 160px; font: 0.85rem/1.4 ui-monospace, Menlo, monospace; background: var(--soft); color: var(--ink); border: 1px solid var(--line); border-radius: 8px; padding: 10px; display: none; margin-top: 10px; }
+.toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 8px; }
+.note { border-left: 3px solid var(--lumber); padding: 6px 12px; background: var(--soft); border-radius: 0 8px 8px 0; margin: 10px 0; max-width: 72ch; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+@media (max-width: 520px) { body { font-size: 16px; } .card header { flex-direction: column; } }
+</style>
+</head>
+<body>
+<div id="tip" role="tooltip"></div>
+<div class="wrap">
+<header class="top">
+  <div>
+    <h1>Raised Bed Design: bill of materials</h1>
+    <div class="meta">From the Fusion design "Raised Bed Design", extracted 2026-11-06. Counts come from model bodies; derived and estimated rows are marked.</div>
+  </div>
+  <div class="toolbar">
+    <div class="seg" role="group" aria-label="Wall lumber"><button type="button" data-l="8" aria-pressed="true">2x8 walls</button><button type="button" data-l="10" aria-pressed="false">2x10 walls</button></div>
+    <button type="button" id="themeBtn">Dark theme</button>
+  </div>
+</header>
+<nav class="sticky" aria-label="Sections">
+  <a href="#plan">Plan</a><a href="#shopping">Shopping list</a><a href="#screws">Screws</a><a href="#cuts">Cut list</a><a href="#pavers">Pavers</a><a href="#arches">Trellis arches</a><a href="#hoops">Hoops</a><a href="#drip">Drip</a><a href="#soil">Soil</a><a href="#optional">Optional</a><a href="#model">Model notes</a>
+</nav>
+
+<div class="tiles">
+  <div class="tile"><div class="n">23</div><div class="l"><span class="nom">2x8</span> boards + 13 x 2x4</div></div>
+  <div class="tile"><div class="n">300</div><div class="l">screws: 136 x 3 in, 144 x 2.5 in</div></div>
+  <div class="tile"><div class="n">74</div><div class="l">12 x 12 in pavers, 1,328 lb</div></div>
+  <div class="tile"><div class="n">1</div><div class="l">16 ft hog-wire arch: 2 x 8 ft posts, 2 sills, 4 stakes</div></div>
+  <div class="tile"><div class="n">6</div><div class="l">low-tunnel hoops over Bed C, 31 in pitch, 68 ft of 1 in tube</div></div>
+  <div class="tile"><div class="n">4</div><div class="l">drip risers: 4 tees, 12 elbows, 4 valves, 1 x 10 ft of 1/2 in pipe</div></div>
+  <div class="tile"><div class="n"><span class="sw" data-v8="7.5" data-v10="9.5">7.5</span></div><div class="l">cu yd of soil</div></div>
+</div>
+
+<section id="plan">
+  <h2>Plan</h2>
+  <p>Four beds in a 24 ft x 18 ft plot. Side boards run full length on the outside and the end boards sit between them, so every side board is a stock length and every end board is 48 in (21 in for Bed D). 2x4 posts stand inside each corner, edge-on to the side boards, and lie flat against the long walls at mid-span, where they run 24 in long and are driven 9.5 in into the ground. The hog-wire arch between beds A and B stands on 2x4 sills at the bed centrelines and is held near its crown by the two inside corner posts at the near end, uncut 8 ft 2x4s set 20 in deep. Letters follow the arch names in the model: Arch AB spans beds A and B; Arch BC is modeled but parked. 6 low-tunnel hoops of 1 in tube (the blue bars) cover Bed C at 31 in pitch, the first and last 5 in inside the end boards.</p>
+  <div class="legend"><span><i class="sw-lumber"></i><span>bed walls and posts (<span class="nom">2x8</span>, 2x4)</span></span><span><i class="sw-arch"></i><span>hog-wire arch footprint</span></span><span><i class="sw-hoop"></i><span>low-tunnel hoops (solid bars, a dot at each leg)</span></span><span><i class="sw-drip"></i><span>drip main (dash-dot, buried) and risers (circles)</span></span><span><i class="sw-paver"></i><span>12 x 12 pavers</span></span></div>
+  <figure class="plan">
+    <div class="scroll"><svg viewBox="0 0 832 848" role="img" aria-label="Plan view of the four beds, paver walkway and paths, the hog-wire arch, the low-tunnel hoops over Bed C, and the drip main with a riser at the far end of every bed" xmlns="http://www.w3.org/2000/svg">
+<defs><pattern id="hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="6" stroke="currentColor" stroke-width="1" opacity="0.45"/></pattern><marker id="dim" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1 L8 5 L2 9" fill="none" stroke="currentColor" stroke-width="1.4"/></marker></defs>
+<polygon points="776.0,56.0 56.0,56.0 56.0,528.5 776.0,768.5" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.8"/>
+<line x1="56.0" y1="228.5" x2="776.0" y2="228.5" stroke="currentColor" stroke-width="1" stroke-dasharray="4 4" opacity="0.6"/>
+<line x1="56.0" y1="146.0" x2="776.0" y2="146.0" stroke="currentColor" stroke-width="1" stroke-dasharray="4 4" opacity="0.6"/>
+<text x="416.0" y="105.0" text-anchor="middle" font-size="12" fill="currentColor" opacity="0.75">36 in strip (site sketch only)</text>
+<text x="416.0" y="141.0" text-anchor="middle" font-size="12" fill="currentColor" opacity="0.75">walkway: 2 rows of pavers, 15 in pitch</text>
+<g class="pv" data-tip="12x12 Paver: 38 pavers, Walkway along the top edge (2 rows, 15 in pitch)">
+<rect x="746.0" y="191.0" width="30.0" height="30.0" fill="url(#hatch)" stroke="currentColor" stroke-width="0.8" opacity="0.9"/>
+<rect x="708.5" y="191.0" width="30.0" height="30.0" fill="url(#hatch)" stroke="currentColor" stroke-width="0.8" opacity="0.9"/>
+<rect x="671.0" y="191.0" width="30.0" height="30.0" fill="url(#hatch)" stroke="currentColor" stroke-width="0.8" opacity="0.9"/>
+<rect x="633.5" y="191.0" width="30.0" height="30.0" fill="url(#hatch)" stroke="currentColor" stroke-width="0.8" opacity="0.9"/>
+<rect x="596.0" y="191.0" width="30.0" height="30.0" fill="url(#hatch)" stroke="currentColor" stroke-width="0.8" opacity="0.9"/>
+<rect x="558.5" y="191.0" width="30.0" height="30.0" fill="url(#hatch)" stroke="currentColor" stroke-width="0.8" opacity="0.9"/>
+<rect x="521.0" y="191.0" width="30.0" height="30.0" fill="url(#hatch)" stroke="currentColor" stroke-width="0.8" opacity="0.9"/>
+<rect x="483.5" y="191.0" width="30.0" height="30.0" fill="url(#hatch)" stroke="currentColor" stroke-width="0.8" opacity="0.9"/>
+<rect x="446.0" y="191.0" width="30.0" height="30.0" fill="url(#hatch)" stroke="currentColor" stroke-width="0.8" opacity="0.9"/>
+<rect x="408.5" y="191.0" width="30.0" height="30.0" fill="url(#hatch)" stroke="currentColor" stroke-width="0.8" opacity="0.9"/>
+<rect x="371.0" y="191.0" width="30.0" height="30.0" fill="url(#hatch)" stroke="currentColor" stroke-width="0.8" opacity="0.9"/>
+<rect x="333.5" y="191.0" width="30.0" height="30.0" fill="url(#hatch)" stroke="currentColor" stroke-width="0.8" opacity="0.9"/>
+<rect x="296.0" y="191.0" width="30.0" height="30.0" fill="url(#hatch)" stroke="currentColor" stroke-width="0.8" opacity="0.9"/>
+<rect x="258.5" y="191.0" width="30.0" height="30.0" fill="url(#hatch)" stroke="currentColor" stroke-width="0.8" opacity="0.9"/>
+<rect x="221.0" y="191.0" width="30.0" height="30.0" fill="url(#hatch)" stroke="currentColor" stroke-width="0.8" opacity="0.9"/>
+<rect x="183.5" y="191.0" width="30.0" height="30.0" fill="url(#hatch)" stroke="currentColor" stroke-width="0.8" opacity="0.9"/>
+<rect x="146.0" y="191.0" width="30.0" height="30.0" fill="url(#hatch)" stroke="currentColor" stroke-width="0.8" opacity="0.9"/>
+<rect x="108.5" y="191.0" width="30.0" height="30.0" fill="url(#hatch)" stroke="currentColor" stroke-width="0.8" opacity="0.9"/>
+<rect x="71.0" y="191.0" width="30.0" height="30.0" fill="url(#hatch)" stroke="currentColor" stroke-width="0.8" opacity="0.9"/>
+<rect x="746.0" y="153.5" width="30.0" height="30.0" fill="url(#hatch)" stroke="currentColor" stroke-width="0.8" opacity="0.9"/>
+<rect x="708.5" y="153.5" width="30.0" height="30.0" fill="url(#hatch)" stroke="currentColor" stroke-width="0.8" opacity="0.9"/>
+<rect x="671.0" y="153.5" width="30.0" height="30.0" fill="url(#hatch)" stroke="currentColor" stroke-width="0.8" opacity="0.9"/>
+<rect x="633.5" y="153.5" width="30.0" height="30.0" fill="url(#hatch)" stroke="currentColor" stroke-width="0.8" opacity="0.9"/>
+<rect x="596.0" y="153.5" width="30.0" height="30.0" fill="url(#hatch)" stroke="currentColor" stroke-width="0.8" opacity="0.9"/>
+<rect x="558.5" y="153.5" width="30.0" height="30.0" fill="url(#hatch)" stroke="currentColor" stroke-width="0.8" opacity="0.9"/>
+<rect x="521.0" y="153.5" width="30.0" height="30.0" fill="url(#hatch)" stroke="currentColor" stroke-width="0.8" opacity="0.9"/>
+<rect x="483.5" y="153.5" width="30.0" height="30.0" fill="url(#hatch)" stroke="currentColor" stroke-width="0.8" opacity="0.9"/>
+<rect x="446.0" y="153.5" width="30.0" height="30.0" fill="url(#hatch)" stroke="currentColor" stroke-width="0.8" opacity="0.9"/>
+<rect x="408.5" y="153.5" width="30.0" height="30.0" fill="url(#hatch)" stroke="currentColor" stroke-width="0.8" opacity="0.9"/>
+<rect x="371.0" y="153.5" width="30.0" height="30.0" fill="url(#hatch)" stroke="currentColor" stroke-width="0.8" opacity="0.9"/>
+<rect x="333.5" y="153.5" width="30.0" height="30.0" fill="url(#hatch)" stroke="currentColor" stroke-width="0.8" opacity="0.9"/>
+<rect x="296.0" y="153.5" width="30.0" height="30.0" fill="url(#hatch)" stroke="currentColor" stroke-width="0.8" opacity="0.9"/>
+<rect x="258.5" y="153.5" width="30.0" height="30.0" fill="url(#hatch)" stroke="currentColor" stroke-width="0.8" opacity="0.9"/>
+<rect x="221.0" y="153.5" width="30.0" height="30.0" fill="url(#hatch)" stroke="currentColor" stroke-width="0.8" opacity="0.9"/>
+<rect x="183.5" y="153.5" width="30.0" height="30.0" fill="url(#hatch)" stroke="currentColor" stroke-width="0.8" opacity="0.9"/>
+<rect x="146.0" y="153.5" width="30.0" height="30.0" fill="url(#hatch)" stroke="currentColor" stroke-width="0.8" opacity="0.9"/>
+<rect x="108.5" y="153.5" width="30.0" height="30.0" fill="url(#hatch)" stroke="currentColor" stroke-width="0.8" opacity="0.9"/>
+<rect x="71.0" y="153.5" width="30.0" height="30.0" fill="url(#hatch)" stroke="currentColor" stroke-width="0.8" opacity="0.9"/>
+</g>
+<g class="pv" data-tip="First Bed Path: 11 pavers, Path between Bed D (16 ft) and Bed C (14 ft), 18 in pitch">
+<rect x="671.0" y="236.0" width="30.0" height="30.0" fill="url(#hatch)" stroke="currentColor" stroke-width="0.8" opacity="0.9"/>
+<rect x="671.0" y="281.0" width="30.0" height="30.0" fill="url(#hatch)" stroke="currentColor" stroke-width="0.8" opacity="0.9"/>
+<rect x="671.0" y="326.0" width="30.0" height="30.0" fill="url(#hatch)" stroke="currentColor" stroke-width="0.8" opacity="0.9"/>
+<rect x="671.0" y="371.0" width="30.0" height="30.0" fill="url(#hatch)" stroke="currentColor" stroke-width="0.8" opacity="0.9"/>
+<rect x="671.0" y="416.0" width="30.0" height="30.0" fill="url(#hatch)" stroke="currentColor" stroke-width="0.8" opacity="0.9"/>
+<rect x="671.0" y="461.0" width="30.0" height="30.0" fill="url(#hatch)" stroke="currentColor" stroke-width="0.8" opacity="0.9"/>
+<rect x="671.0" y="506.0" width="30.0" height="30.0" fill="url(#hatch)" stroke="currentColor" stroke-width="0.8" opacity="0.9"/>
+<rect x="671.0" y="551.0" width="30.0" height="30.0" fill="url(#hatch)" stroke="currentColor" stroke-width="0.8" opacity="0.9"/>
+<rect x="671.0" y="596.0" width="30.0" height="30.0" fill="url(#hatch)" stroke="currentColor" stroke-width="0.8" opacity="0.9"/>
+<rect x="671.0" y="641.0" width="30.0" height="30.0" fill="url(#hatch)" stroke="currentColor" stroke-width="0.8" opacity="0.9"/>
+<rect x="671.0" y="686.0" width="30.0" height="30.0" fill="url(#hatch)" stroke="currentColor" stroke-width="0.8" opacity="0.9"/>
+</g>
+<g class="pv" data-tip="Second Bed Path: 10 pavers, Path between Bed C (14 ft) and Bed B (12 ft), 18 in pitch">
+<rect x="483.5" y="236.0" width="30.0" height="30.0" fill="url(#hatch)" stroke="currentColor" stroke-width="0.8" opacity="0.9"/>
+<rect x="483.5" y="281.0" width="30.0" height="30.0" fill="url(#hatch)" stroke="currentColor" stroke-width="0.8" opacity="0.9"/>
+<rect x="483.5" y="326.0" width="30.0" height="30.0" fill="url(#hatch)" stroke="currentColor" stroke-width="0.8" opacity="0.9"/>
+<rect x="483.5" y="371.0" width="30.0" height="30.0" fill="url(#hatch)" stroke="currentColor" stroke-width="0.8" opacity="0.9"/>
+<rect x="483.5" y="416.0" width="30.0" height="30.0" fill="url(#hatch)" stroke="currentColor" stroke-width="0.8" opacity="0.9"/>
+<rect x="483.5" y="461.0" width="30.0" height="30.0" fill="url(#hatch)" stroke="currentColor" stroke-width="0.8" opacity="0.9"/>
+<rect x="483.5" y="506.0" width="30.0" height="30.0" fill="url(#hatch)" stroke="currentColor" stroke-width="0.8" opacity="0.9"/>
+<rect x="483.5" y="551.0" width="30.0" height="30.0" fill="url(#hatch)" stroke="currentColor" stroke-width="0.8" opacity="0.9"/>
+<rect x="483.5" y="596.0" width="30.0" height="30.0" fill="url(#hatch)" stroke="currentColor" stroke-width="0.8" opacity="0.9"/>
+<rect x="483.5" y="641.0" width="30.0" height="30.0" fill="url(#hatch)" stroke="currentColor" stroke-width="0.8" opacity="0.9"/>
+</g>
+<g class="pv" data-tip="Third Paver Path: 8 pavers, Path between Bed B (12 ft) and Bed A (10 ft), 18 in pitch">
+<rect x="296.0" y="236.0" width="30.0" height="30.0" fill="url(#hatch)" stroke="currentColor" stroke-width="0.8" opacity="0.9"/>
+<rect x="296.0" y="281.0" width="30.0" height="30.0" fill="url(#hatch)" stroke="currentColor" stroke-width="0.8" opacity="0.9"/>
+<rect x="296.0" y="326.0" width="30.0" height="30.0" fill="url(#hatch)" stroke="currentColor" stroke-width="0.8" opacity="0.9"/>
+<rect x="296.0" y="371.0" width="30.0" height="30.0" fill="url(#hatch)" stroke="currentColor" stroke-width="0.8" opacity="0.9"/>
+<rect x="296.0" y="416.0" width="30.0" height="30.0" fill="url(#hatch)" stroke="currentColor" stroke-width="0.8" opacity="0.9"/>
+<rect x="296.0" y="461.0" width="30.0" height="30.0" fill="url(#hatch)" stroke="currentColor" stroke-width="0.8" opacity="0.9"/>
+<rect x="296.0" y="506.0" width="30.0" height="30.0" fill="url(#hatch)" stroke="currentColor" stroke-width="0.8" opacity="0.9"/>
+<rect x="296.0" y="551.0" width="30.0" height="30.0" fill="url(#hatch)" stroke="currentColor" stroke-width="0.8" opacity="0.9"/>
+</g>
+<g class="pv" data-tip="Fourth Paver Path: 7 pavers, Path west of Bed A (10 ft), 18 in pitch">
+<rect x="108.5" y="236.0" width="30.0" height="30.0" fill="url(#hatch)" stroke="currentColor" stroke-width="0.8" opacity="0.9"/>
+<rect x="108.5" y="281.0" width="30.0" height="30.0" fill="url(#hatch)" stroke="currentColor" stroke-width="0.8" opacity="0.9"/>
+<rect x="108.5" y="326.0" width="30.0" height="30.0" fill="url(#hatch)" stroke="currentColor" stroke-width="0.8" opacity="0.9"/>
+<rect x="108.5" y="371.0" width="30.0" height="30.0" fill="url(#hatch)" stroke="currentColor" stroke-width="0.8" opacity="0.9"/>
+<rect x="108.5" y="416.0" width="30.0" height="30.0" fill="url(#hatch)" stroke="currentColor" stroke-width="0.8" opacity="0.9"/>
+<rect x="108.5" y="461.0" width="30.0" height="30.0" fill="url(#hatch)" stroke="currentColor" stroke-width="0.8" opacity="0.9"/>
+<rect x="108.5" y="506.0" width="30.0" height="30.0" fill="url(#hatch)" stroke="currentColor" stroke-width="0.8" opacity="0.9"/>
+</g>
+<g class="bed" data-tip="Bed A: 51 in x 10 ft outside, 2 x 2x8 = 14.5 in tall, 8 2x4 posts + 1 arch sill with 2 stakes, 78 screws, soil 47 cu ft">
+<path d="M153.5 228.5 H281.0 V528.5 H153.5 Z M157.2 232.2 H277.2 V524.8 H157.2 Z" fill="var(--lumber)" fill-rule="evenodd" stroke="var(--lumber)" stroke-width="1.2"/>
+<rect x="157.2" y="232.2" width="120.0" height="292.5" fill="var(--lumber)" opacity="0.12"/>
+<rect x="268.5" y="521.0" width="8.8" height="3.8" fill="var(--lumber)" opacity="0.85"/>
+<rect x="157.2" y="521.0" width="8.8" height="3.8" fill="var(--lumber)" opacity="0.85"/>
+<rect x="157.2" y="232.2" width="8.8" height="3.8" fill="var(--lumber)" opacity="0.85"/>
+<rect x="157.2" y="326.8" width="3.8" height="8.8" fill="var(--lumber)" opacity="0.85"/>
+<rect x="273.5" y="421.4" width="3.8" height="8.8" fill="var(--lumber)" opacity="0.85"/>
+<rect x="273.5" y="326.8" width="3.8" height="8.8" fill="var(--lumber)" opacity="0.85"/>
+<rect x="157.2" y="421.4" width="3.8" height="8.8" fill="var(--lumber)" opacity="0.85"/>
+<rect x="268.5" y="232.2" width="8.8" height="3.8" fill="var(--lumber)" opacity="0.85"/>
+<rect x="212.9" y="236.0" width="8.8" height="151.2" fill="var(--lumber)" opacity="0.85"/>
+<rect x="212.9" y="387.2" width="8.8" height="3.8" fill="var(--lumber)" opacity="0.85"/>
+<rect x="212.9" y="232.2" width="8.8" height="3.8" fill="var(--lumber)" opacity="0.85"/>
+<text x="217.2" y="372.5" text-anchor="middle" font-size="26" font-weight="700" fill="currentColor">A</text>
+<text x="217.2" y="392.5" text-anchor="middle" font-size="12" fill="currentColor">10 ft</text>
+<text x="217.2" y="406.5" text-anchor="middle" font-size="12" fill="currentColor">51 in wide</text>
+</g>
+<g class="bed" data-tip="Bed B: 51 in x 12 ft outside, 2 x 2x8 = 14.5 in tall, 8 2x4 posts + 1 arch sill with 2 stakes, 78 screws, soil 56 cu ft">
+<path d="M341.0 228.5 H468.5 V588.5 H341.0 Z M344.8 232.2 H464.8 V584.8 H344.8 Z" fill="var(--lumber)" fill-rule="evenodd" stroke="var(--lumber)" stroke-width="1.2"/>
+<rect x="344.8" y="232.2" width="120.0" height="352.5" fill="var(--lumber)" opacity="0.12"/>
+<rect x="456.0" y="232.2" width="8.8" height="3.8" fill="var(--lumber)" opacity="0.85"/>
+<rect x="456.0" y="581.0" width="8.8" height="3.8" fill="var(--lumber)" opacity="0.85"/>
+<rect x="344.8" y="581.0" width="8.8" height="3.8" fill="var(--lumber)" opacity="0.85"/>
+<rect x="344.8" y="346.8" width="3.8" height="8.8" fill="var(--lumber)" opacity="0.85"/>
+<rect x="461.0" y="461.4" width="3.8" height="8.8" fill="var(--lumber)" opacity="0.85"/>
+<rect x="461.0" y="346.8" width="3.8" height="8.8" fill="var(--lumber)" opacity="0.85"/>
+<rect x="344.8" y="461.4" width="3.8" height="8.8" fill="var(--lumber)" opacity="0.85"/>
+<rect x="344.8" y="232.2" width="8.8" height="3.8" fill="var(--lumber)" opacity="0.85"/>
+<rect x="400.4" y="236.0" width="8.8" height="151.2" fill="var(--lumber)" opacity="0.85"/>
+<rect x="400.4" y="387.2" width="8.8" height="3.8" fill="var(--lumber)" opacity="0.85"/>
+<rect x="400.4" y="232.2" width="8.8" height="3.8" fill="var(--lumber)" opacity="0.85"/>
+<text x="404.8" y="402.5" text-anchor="middle" font-size="26" font-weight="700" fill="currentColor">B</text>
+<text x="404.8" y="422.5" text-anchor="middle" font-size="12" fill="currentColor">12 ft</text>
+<text x="404.8" y="436.5" text-anchor="middle" font-size="12" fill="currentColor">51 in wide</text>
+</g>
+<g class="bed" data-tip="Bed C: 51 in x 14 ft outside, 2 x 2x8 = 14.5 in tall, 10 2x4 posts, 72 screws, soil 66 cu ft; 6 low-tunnel hoops at 31 in pitch">
+<path d="M528.5 228.5 H656.0 V648.5 H528.5 Z M532.2 232.2 H652.2 V644.8 H532.2 Z" fill="var(--lumber)" fill-rule="evenodd" stroke="var(--lumber)" stroke-width="1.2"/>
+<rect x="532.2" y="232.2" width="120.0" height="412.5" fill="var(--lumber)" opacity="0.12"/>
+<rect x="643.5" y="641.0" width="8.8" height="3.8" fill="var(--lumber)" opacity="0.85"/>
+<rect x="532.2" y="641.0" width="8.8" height="3.8" fill="var(--lumber)" opacity="0.85"/>
+<rect x="643.5" y="232.2" width="8.8" height="3.8" fill="var(--lumber)" opacity="0.85"/>
+<rect x="532.2" y="232.2" width="8.8" height="3.8" fill="var(--lumber)" opacity="0.85"/>
+<rect x="532.2" y="434.1" width="3.8" height="8.8" fill="var(--lumber)" opacity="0.85"/>
+<rect x="532.2" y="333.2" width="3.8" height="8.8" fill="var(--lumber)" opacity="0.85"/>
+<rect x="648.5" y="535.1" width="3.8" height="8.8" fill="var(--lumber)" opacity="0.85"/>
+<rect x="648.5" y="434.1" width="3.8" height="8.8" fill="var(--lumber)" opacity="0.85"/>
+<rect x="648.5" y="333.2" width="3.8" height="8.8" fill="var(--lumber)" opacity="0.85"/>
+<rect x="532.2" y="535.1" width="3.8" height="8.8" fill="var(--lumber)" opacity="0.85"/>
+<text x="592.2" y="432.5" text-anchor="middle" font-size="26" font-weight="700" fill="currentColor">C</text>
+<text x="592.2" y="452.5" text-anchor="middle" font-size="12" fill="currentColor">14 ft</text>
+<text x="592.2" y="466.5" text-anchor="middle" font-size="12" fill="currentColor">51 in wide</text>
+</g>
+<g class="bed" data-tip="Bed D: 24 in x 16 ft outside, 2 x 2x8 = 14.5 in tall, 10 2x4 posts, 72 screws, soil 33 cu ft">
+<path d="M716.0 228.5 H776.0 V708.5 H716.0 Z M719.8 232.2 H772.2 V704.8 H719.8 Z" fill="var(--lumber)" fill-rule="evenodd" stroke="var(--lumber)" stroke-width="1.2"/>
+<rect x="719.8" y="232.2" width="52.5" height="472.5" fill="var(--lumber)" opacity="0.12"/>
+<rect x="763.5" y="701.0" width="8.8" height="3.8" fill="var(--lumber)" opacity="0.85"/>
+<rect x="719.8" y="701.0" width="8.8" height="3.8" fill="var(--lumber)" opacity="0.85"/>
+<rect x="763.5" y="232.2" width="8.8" height="3.8" fill="var(--lumber)" opacity="0.85"/>
+<rect x="719.8" y="232.2" width="8.8" height="3.8" fill="var(--lumber)" opacity="0.85"/>
+<rect x="719.8" y="464.1" width="3.8" height="8.8" fill="var(--lumber)" opacity="0.85"/>
+<rect x="719.8" y="348.2" width="3.8" height="8.8" fill="var(--lumber)" opacity="0.85"/>
+<rect x="768.5" y="580.1" width="3.8" height="8.8" fill="var(--lumber)" opacity="0.85"/>
+<rect x="768.5" y="464.1" width="3.8" height="8.8" fill="var(--lumber)" opacity="0.85"/>
+<rect x="768.5" y="348.2" width="3.8" height="8.8" fill="var(--lumber)" opacity="0.85"/>
+<rect x="719.8" y="580.1" width="3.8" height="8.8" fill="var(--lumber)" opacity="0.85"/>
+<text x="746.0" y="462.5" text-anchor="middle" font-size="26" font-weight="700" fill="currentColor">D</text>
+<text x="746.0" y="482.5" text-anchor="middle" font-size="12" fill="currentColor">16 ft</text>
+<text x="746.0" y="496.5" text-anchor="middle" font-size="12" fill="currentColor">24 in wide</text>
+</g>
+<text x="686.0" y="741.0" text-anchor="middle" font-size="11" fill="currentColor" opacity="0.75" transform="rotate(-90 686.0 741.0)">24 in gap</text>
+<text x="498.5" y="741.0" text-anchor="middle" font-size="11" fill="currentColor" opacity="0.75" transform="rotate(-90 498.5 741.0)">24 in gap</text>
+<text x="311.0" y="741.0" text-anchor="middle" font-size="11" fill="currentColor" opacity="0.75" transform="rotate(-90 311.0 741.0)">24 in gap</text>
+<g class="arch" data-tip="Arch AB: 16 ft hog-wire panel between the centrelines of Bed A (10 ft) and Bed B (12 ft), 75 in chord, feet on 2x4 sills on the ground, crown 76 in above grade, held by the two 8 ft inside corner posts">
+<rect x="216.6" y="236.0" width="188.8" height="151.2" fill="var(--arch)" fill-opacity="0.12" stroke="var(--arch)" stroke-width="2" stroke-dasharray="7 5"/>
+<text x="311.0" y="258.5" text-anchor="middle" font-size="12" font-weight="600" fill="var(--arch)">Arch AB</text>
+</g>
+<g class="hoops" data-tip="Garden Hoops: 6 low-tunnel hoops of 1 in tube over Bed C, 31 in pitch, 40 in wide, 57 in tall, 11.4 ft of tube each">
+<rect x="541.0" y="243.5" width="102.6" height="2.5" rx="1" fill="var(--arch)" stroke="var(--arch)" stroke-width="0.8"/>
+<rect x="541.0" y="321.0" width="102.6" height="2.5" rx="1" fill="var(--arch)" stroke="var(--arch)" stroke-width="0.8"/>
+<rect x="541.0" y="398.5" width="102.6" height="2.5" rx="1" fill="var(--arch)" stroke="var(--arch)" stroke-width="0.8"/>
+<rect x="541.0" y="476.0" width="102.6" height="2.5" rx="1" fill="var(--arch)" stroke="var(--arch)" stroke-width="0.8"/>
+<rect x="541.0" y="553.5" width="102.6" height="2.5" rx="1" fill="var(--arch)" stroke="var(--arch)" stroke-width="0.8"/>
+<rect x="541.0" y="631.0" width="102.6" height="2.5" rx="1" fill="var(--arch)" stroke="var(--arch)" stroke-width="0.8"/>
+<circle cx="542.2" cy="244.8" r="2.6" fill="var(--panel)" stroke="var(--arch)" stroke-width="1.2"/>
+<circle cx="642.3" cy="244.8" r="2.6" fill="var(--panel)" stroke="var(--arch)" stroke-width="1.2"/>
+<circle cx="542.2" cy="322.2" r="2.6" fill="var(--panel)" stroke="var(--arch)" stroke-width="1.2"/>
+<circle cx="642.3" cy="322.2" r="2.6" fill="var(--panel)" stroke="var(--arch)" stroke-width="1.2"/>
+<circle cx="542.2" cy="399.8" r="2.6" fill="var(--panel)" stroke="var(--arch)" stroke-width="1.2"/>
+<circle cx="642.3" cy="399.8" r="2.6" fill="var(--panel)" stroke="var(--arch)" stroke-width="1.2"/>
+<circle cx="542.2" cy="477.2" r="2.6" fill="var(--panel)" stroke="var(--arch)" stroke-width="1.2"/>
+<circle cx="642.3" cy="477.2" r="2.6" fill="var(--panel)" stroke="var(--arch)" stroke-width="1.2"/>
+<circle cx="542.2" cy="554.8" r="2.6" fill="var(--panel)" stroke="var(--arch)" stroke-width="1.2"/>
+<circle cx="642.3" cy="554.8" r="2.6" fill="var(--panel)" stroke="var(--arch)" stroke-width="1.2"/>
+<circle cx="542.2" cy="632.2" r="2.6" fill="var(--panel)" stroke="var(--arch)" stroke-width="1.2"/>
+<circle cx="642.3" cy="632.2" r="2.6" fill="var(--panel)" stroke="var(--arch)" stroke-width="1.2"/>
+<text x="592.2" y="287.5" text-anchor="middle" font-size="11" font-weight="600" fill="var(--arch)" paint-order="stroke" stroke="var(--panel)" stroke-width="3" stroke-linejoin="round">6 hoops, 31 in</text>
+</g>
+<g class="drip" data-tip="Drip: 3/4 in main (existing, drawn as a stair-step 8 in beyond the far end boards, 6 1/8 in deep) with a 1/2 in riser and ball valve on the outside of every far end wall, 9 in from the west face, and a 4-port 1/4 in head inside">
+<line x1="153.5" y1="548.5" x2="311.0" y2="548.5" stroke="currentColor" stroke-width="2" stroke-dasharray="6 3 1.5 3" opacity="0.8"/>
+<line x1="311.0" y1="608.5" x2="311.0" y2="548.5" stroke="currentColor" stroke-width="2" stroke-dasharray="6 3 1.5 3" opacity="0.8"/>
+<line x1="311.0" y1="608.5" x2="498.5" y2="608.5" stroke="currentColor" stroke-width="2" stroke-dasharray="6 3 1.5 3" opacity="0.8"/>
+<line x1="498.5" y1="668.5" x2="498.5" y2="608.5" stroke="currentColor" stroke-width="2" stroke-dasharray="6 3 1.5 3" opacity="0.8"/>
+<line x1="498.5" y1="668.5" x2="686.0" y2="668.5" stroke="currentColor" stroke-width="2" stroke-dasharray="6 3 1.5 3" opacity="0.8"/>
+<line x1="686.0" y1="728.5" x2="686.0" y2="668.5" stroke="currentColor" stroke-width="2" stroke-dasharray="6 3 1.5 3" opacity="0.8"/>
+<line x1="686.0" y1="728.5" x2="751.0" y2="728.5" stroke="currentColor" stroke-width="2" stroke-dasharray="6 3 1.5 3" opacity="0.8"/>
+<line x1="176.0" y1="548.5" x2="176.0" y2="528.5" stroke="currentColor" stroke-width="1.5" opacity="0.8"/>
+<circle cx="176.0" cy="531.6" r="4" fill="var(--panel)" stroke="currentColor" stroke-width="1.6"/>
+<line x1="363.5" y1="608.5" x2="363.5" y2="588.5" stroke="currentColor" stroke-width="1.5" opacity="0.8"/>
+<circle cx="363.5" cy="591.6" r="4" fill="var(--panel)" stroke="currentColor" stroke-width="1.6"/>
+<line x1="551.0" y1="668.5" x2="551.0" y2="648.5" stroke="currentColor" stroke-width="1.5" opacity="0.8"/>
+<circle cx="551.0" cy="651.6" r="4" fill="var(--panel)" stroke="currentColor" stroke-width="1.6"/>
+<line x1="738.5" y1="728.5" x2="738.5" y2="708.5" stroke="currentColor" stroke-width="1.5" opacity="0.8"/>
+<circle cx="738.5" cy="711.6" r="4" fill="var(--panel)" stroke="currentColor" stroke-width="1.6"/>
+<text x="217.2" y="738.0" text-anchor="middle" font-size="11" fill="currentColor" opacity="0.85">3/4 in main (dash-dot),</text>
+<text x="217.2" y="752.0" text-anchor="middle" font-size="11" fill="currentColor" opacity="0.85">risers at every far end</text>
+</g>
+<line x1="56.0" y1="34.0" x2="776.0" y2="34.0" stroke="currentColor" stroke-width="1" marker-start="url(#dim)" marker-end="url(#dim)"/>
+<text x="416.0" y="28.0" text-anchor="middle" font-size="12" fill="currentColor">24 ft</text>
+<line x1="800.0" y1="228.5" x2="800.0" y2="768.5" stroke="currentColor" stroke-width="1" marker-start="url(#dim)" marker-end="url(#dim)"/>
+<text x="806.0" y="498.5" font-size="12" fill="currentColor" transform="rotate(90 806.0 498.5)" text-anchor="middle">18 ft</text>
+<line x1="32.0" y1="228.5" x2="32.0" y2="528.5" stroke="currentColor" stroke-width="1" marker-start="url(#dim)" marker-end="url(#dim)"/>
+<text x="26.0" y="378.5" font-size="12" fill="currentColor" transform="rotate(-90 26.0 378.5)" text-anchor="middle">10 ft</text>
+</svg></div>
+    <figcaption>Top view, 1 px = 0.4 in. Hover or tap a bed, path or arch for its numbers. Beds are 24 in apart with one paver centered in each gap; the walkway strip is 33 in with two paver rows.</figcaption>
+  </figure>
+</section>
+
+<section id="shopping">
+  <h2>Shopping list</h2>
+  <div class="toolbar"><button type="button" id="copyBtn">Copy shopping list</button><span class="muted">Rows tagged <span class="src model">Model</span> are counted from the design, <span class="src derived">Derived</span> rows are computed from its geometry, and <span class="src est">Estimate</span> rows are not modeled.</span></div>
+  <textarea id="copyText" class="copytext" readonly aria-label="Shopping list as text">4 ea  2x8 x 10 ft  [Model (Bed Lumber)]
+4 ea  2x8 x 12 ft  [Model (Bed Lumber)]
+4 ea  2x8 x 14 ft  [Model (Bed Lumber)]
+4 ea  2x8 x 16 ft  [Model (Bed Lumber)]
+7 ea  2x8 x 8 ft  [Model (Bed Lumber)]
+13 ea  2x4 x 8 ft  [Model (Bed Lumber)]
+136 ea  #9 x 3 in exterior structural screws, star drive  [Derived from model]
+144 ea  #9 x 2.5 in exterior structural screws, star drive  [Derived from model]
+20 ea  #9 x 1.25 in exterior screws, star drive  [Derived from model]
+20 ea  1/4 x 1 in galvanized fender washers  [Derived from model]
+74 ea  Concrete paver 12 x 12 x 1.5 in  [Model (Small Pavers)]
+25 0.5 cu ft bag  Paver leveling base (crushed stone or all-purpose sand)  [Estimate]
+1 ea  Hog-wire / cattle panel, 16 ft long, 4 x 4 in mesh  [Model (Hogwire Arches)]
+4 ea  3/4 x 3/4 x 1/2 in PVC reducer tee, slip  [Model (Drip Irrigation)]
+1 ea  1/2 in PVC pipe, schedule 40, 10 ft  [Model (Drip Irrigation)]
+12 ea  1/2 in PVC 90 degree elbow, slip  [Model (Drip Irrigation)]
+4 ea  1/2 in PVC ball valve, slip x slip  [Model (Drip Irrigation)]
+4 ea  1/2 in FPT x 4-port 1/4 in barb drip manifold head  [Model (Drip Irrigation)]
+4 ea  1/2 in PVC male adapter, slip x MPT  [Derived from model]
+8 ea  1/2 in stand-off pipe clamp  [Model (Drip Irrigation)]
+16 ea  #8 x 1 in exterior pan-head screws  [Derived from model]
+1 set  PVC primer and cement, small cans  [Estimate]
+1 roll  PTFE thread tape  [Estimate]
+25.9 ft  3/4 in sprinkler main, existing  [Model (3/4 in main (existing))]
+7.47 cu yd  Raised-bed soil mix  [Derived from model]
+56 lin ft  Hardware cloth 1/2 in, 48 in wide (under beds)  [Estimate]
+6 ea  Low-tunnel hoop, 1 in tube, 40 in wide x 57 in tall  [Model (Garden Hoops)]
+1 ea  Single-tube garden arch, 1 in tube, 7 ft wide x 7 ft tall  [Model (Garden Arch, hidden)]</textarea>
+  <div class="card tablewrap"><table>
+    <thead><tr><th>Section</th><th>Item</th><th>Qty</th><th>Unit</th><th>Spec</th><th>Source</th><th>Notes</th></tr></thead>
+    <tbody><tr><td>Lumber</td><td>2x8 x 10 ft</td><td><b>4</b></td><td>ea</td><td>Cedar, redwood, or ground-contact treated</td><td><span class="src model">Model (Bed Lumber)</span></td><td>Side boards, used full length (no cut)</td></tr><tr><td>Lumber</td><td>2x8 x 12 ft</td><td><b>4</b></td><td>ea</td><td>Cedar, redwood, or ground-contact treated</td><td><span class="src model">Model (Bed Lumber)</span></td><td>Side boards, used full length (no cut)</td></tr><tr><td>Lumber</td><td>2x8 x 14 ft</td><td><b>4</b></td><td>ea</td><td>Cedar, redwood, or ground-contact treated</td><td><span class="src model">Model (Bed Lumber)</span></td><td>Side boards, used full length (no cut)</td></tr><tr><td>Lumber</td><td>2x8 x 16 ft</td><td><b>4</b></td><td>ea</td><td>Cedar, redwood, or ground-contact treated</td><td><span class="src model">Model (Bed Lumber)</span></td><td>Side boards, used full length (no cut)</td></tr><tr><td>Lumber</td><td>2x8 x 8 ft</td><td><b>7</b></td><td>ea</td><td>Cedar, redwood, or ground-contact treated</td><td><span class="src model">Model (Bed Lumber)</span></td><td>End boards: 12 x 48 in (2 per board); 4 x 21 in (4 per board)</td></tr><tr><td>Lumber</td><td>2x4 x 8 ft</td><td><b>13</b></td><td>ea</td><td>Cedar, redwood, or ground-contact treated</td><td><span class="src model">Model (Bed Lumber)</span></td><td>14 corner posts x 14.5 in (6 per board, 3 boards) + 2 trellis posts, uncut 8 ft (2 boards) + 2 arch sills x 60.5 in (1 per board, 2 boards; the 35 3/8 in offcut of each is one stake) + 20 mid-span posts and 4 arch stakes x 23 7/8 in (2 from the sill offcuts, then 4 per board from 6 more boards)</td></tr><tr><td>Hardware</td><td>#9 x 3 in exterior structural screws, star drive</td><td><b>136</b></td><td>ea</td><td>Coated for treated lumber; stainless 305/316 for cedar or redwood</td><td><span class="src derived">Derived from model</span></td><td>Side boards into the corner post edges (64) + corner ties into end grain (64) + arch stakes into the sill ends (8); buy one 5 lb box (about 350); 1 lb boxes hold only about 70</td></tr><tr><td>Hardware</td><td>#9 x 2.5 in exterior structural screws, star drive</td><td><b>144</b></td><td>ea</td><td>Same finish as the 3 in screws</td><td><span class="src derived">Derived from model</span></td><td>Side boards into the mid-span post faces (80) + end boards into the corner post faces (64); buy 2 x 1 lb boxes (about 180), or one 5 lb box (about 450) for plenty of spares</td></tr><tr><td>Hardware</td><td>#9 x 1.25 in exterior screws, star drive</td><td><b>20</b></td><td>ea</td><td>Same finish; short enough to stay inside a 1.5 in post, stake or sill</td><td><span class="src derived">Derived from model</span></td><td>Hog-wire panel to the trellis posts (2 each), arch stakes (2 each) and sills (4 each), each through a fender washer; a 1 lb box holds about 180</td></tr><tr><td>Hardware</td><td>1/4 x 1 in galvanized fender washers</td><td><b>20</b></td><td>ea</td><td>Under the panel screws</td><td><span class="src derived">Derived from model</span></td><td>One per panel screw; the washer beside a wire traps it against the wood</td></tr><tr><td>Pavers</td><td>Concrete paver 12 x 12 x 1.5 in</td><td><b>74</b></td><td>ea</td><td>about 18 lb each, 1,328 lb total</td><td><span class="src model">Model (Small Pavers)</span></td><td>38 Walkway along the top edge (2 rows, 15 in pitch); 11 Path between Bed D (16 ft) and Bed C (14 ft), 18 in pitch; 10 Path between Bed C (14 ft) and Bed B (12 ft), 18 in pitch; 8 Path between Bed B (12 ft) and Bed A (10 ft), 18 in pitch; 7 Path west of Bed A (10 ft), 18 in pitch</td></tr><tr><td>Pavers</td><td>Paver leveling base (crushed stone or all-purpose sand)</td><td><b>25</b></td><td>0.5 cu ft bag</td><td>2 in under each paver, 12.3 cu ft</td><td><span class="src est">Estimate</span></td><td>Not in model</td></tr><tr><td>Arches</td><td>Hog-wire / cattle panel, 16 ft long, 4 x 4 in mesh</td><td><b>1</b></td><td>ea</td><td>4-gauge galvanized, 48 to 60 in wide</td><td><span class="src model">Model (Hogwire Arches)</span></td><td>Bent over 75 in between the Bed A and Bed B centrelines, feet on 2x4 sills on the ground: 37 in straight legs, crown 76 in above grade, held near the top by the two 8 ft inside corner posts, no T-posts. Model wires are 60 in wide at 4 in pitch. Arch BC is parked (hidden) in the model</td></tr><tr><td>Drip</td><td>3/4 x 3/4 x 1/2 in PVC reducer tee, slip</td><td><b>4</b></td><td>ea</td><td>Schedule 40</td><td><span class="src model">Model (Drip Irrigation)</span></td><td>One per bed on the 3/4 in main, 8 in beyond the far end board and 6 1/8 in deep</td></tr><tr><td>Drip</td><td>1/2 in PVC pipe, schedule 40, 10 ft</td><td><b>1</b></td><td>ea</td><td>115 in needed in 20 pieces</td><td><span class="src model">Model (Drip Irrigation)</span></td><td>Per bed 6 1/4 + 9 + 6 + 3 1/2 + 4 in; 2 5/8 in spare after the kerfs</td></tr><tr><td>Drip</td><td>1/2 in PVC 90 degree elbow, slip</td><td><b>12</b></td><td>ea</td><td>Schedule 40</td><td><span class="src model">Model (Drip Irrigation)</span></td><td>3 per bed: at the bottom of the riser and on each side of the wall</td></tr><tr><td>Drip</td><td>1/2 in PVC ball valve, slip x slip</td><td><b>4</b></td><td>ea</td><td>Lever handle</td><td><span class="src model">Model (Drip Irrigation)</span></td><td>3 7/8 in above grade on the outside of the far end wall, between the two clamps</td></tr><tr><td>Drip</td><td>1/2 in FPT x 4-port 1/4 in barb drip manifold head</td><td><b>4</b></td><td>ea</td><td></td><td><span class="src model">Model (Drip Irrigation)</span></td><td>Top at 16 3/8 in, 1 7/8 in above the wall top, inside the bed</td></tr><tr><td>Drip</td><td>1/2 in PVC male adapter, slip x MPT</td><td><b>4</b></td><td>ea</td><td>Threads the head onto the riser</td><td><span class="src derived">Derived from model</span></td><td>Not modelled; use a female adapter instead if your head is male</td></tr><tr><td>Drip</td><td>1/2 in stand-off pipe clamp</td><td><b>8</b></td><td>ea</td><td>Galvanized or UV-stable plastic</td><td><span class="src model">Model (Drip Irrigation)</span></td><td>Two per bed at 1 1/2 and 8 3/4 in, each on one board</td></tr><tr><td>Drip</td><td>#8 x 1 in exterior pan-head screws</td><td><b>16</b></td><td>ea</td><td>Same finish as the bed screws</td><td><span class="src derived">Derived from model</span></td><td>Two per clamp</td></tr><tr><td>Drip</td><td>PVC primer and cement, small cans</td><td><b>1</b></td><td>set</td><td></td><td><span class="src est">Estimate</span></td><td>40 slip joints in all</td></tr><tr><td>Drip</td><td>PTFE thread tape</td><td><b>1</b></td><td>roll</td><td></td><td><span class="src est">Estimate</span></td><td>Head onto the male adapter</td></tr><tr><td>Drip (reference)</td><td>3/4 in sprinkler main, existing</td><td><b>25.9</b></td><td>ft</td><td>6 elbows if routed as drawn</td><td><span class="src model">Model (3/4 in main (existing))</span></td><td>Stair-step 8 in beyond the far end boards, 6 1/8 in deep; drawn only to place the tees</td></tr><tr><td>Soil</td><td>Raised-bed soil mix</td><td><b>7.47</b></td><td>cu yd</td><td>202 cu ft at 14.5 in deep</td><td><span class="src derived">Derived from model</span></td><td>2x10 alternative: 9.55 cu yd</td></tr><tr><td>Optional</td><td>Hardware cloth 1/2 in, 48 in wide (under beds)</td><td><b>56</b></td><td>lin ft</td><td>Gopher / vole barrier</td><td><span class="src est">Estimate</span></td><td>Not in model; one strip per bed, trimmed to 21 in wide for Bed D</td></tr><tr><td>Hoops</td><td>Low-tunnel hoop, 1 in tube, 40 in wide x 57 in tall</td><td><b>6</b></td><td>ea</td><td>136 in of tube each (11.4 ft), 68 ft in all</td><td><span class="src model">Model (Garden Hoops)</span></td><td>6 over Bed C (14 ft) at 31 in pitch, the first and last 5 in inside the end boards; 36 in legs pushed through the 14.5 in of soil to grade, 21.5 in of straight leg above the soil. 11.4 ft each, so 10 ft sticks need a coupling in one leg; 12 ft stock makes one-piece hoops</td></tr><tr><td>Optional (hidden in model)</td><td>Single-tube garden arch, 1 in tube, 7 ft wide x 7 ft tall</td><td><b>1</b></td><td>ea</td><td>216 in of tube (18 ft)</td><td><span class="src model">Model (Garden Arch, hidden)</span></td><td>Superseded by Arch AB at the same spot</td></tr></tbody>
+  </table></div>
+  <p class="muted">Lumber: 23 boards of <span class="nom">2x8</span>, 264 linear ft, plus 13 sticks of 2x4; about <span class="sw" data-v8="825 lb" data-v10="1,053 lb">825 lb</span> in the model. Use cedar, redwood or ground-contact treated stock; the model material is pine.</p>
+</section>
+
+<section id="screws">
+  <h2>Screw plan</h2>
+  <p>Every joint is a <span class="nom">2x8</span> board face-screwed to a 2x4 post: 2 screws per board per post, 1.75 in and 5.5 in up from the bottom edge of each board. Corner posts stand edge-on, 1.5 in edge against the side board and 3.5 in face against the end board, so the side-board screws there drive into 3.5 in of post. Mid-span posts lie flat, 3.5 in face against the side board, and run 24 in long so 9.5 in is driven into the ground; the screws into them are shorter and staggered across the face.</p>
+  <div class="card tablewrap"><table>
+    <thead><tr><th>Joint</th><th>Screw</th><th>Why that length and where</th><th>Count</th></tr></thead>
+    <tbody><tr><td>Side board into a corner post edge</td><td><b>#9 x 3 in</b></td><td>1.5 in through the board, 1.5 in into the post's 3.5 in depth. The target is only 1.5 in wide: mark the post centerline on the outside face before driving, 2.25 in from the board end.</td><td>2 per board per post</td></tr><tr><td>Side board into a mid-span post face</td><td><b>#9 x 2.5 in</b></td><td>1.5 in through the board, 1 in into the post's 1.5 in thickness; a 3 in screw would poke out the back. The face is 3.5 in wide, so stagger the pair 0.75 in either side of the post centerline, the lower screw to one side and the upper to the other. Drive the posts first, then screw the boards to them.</td><td>2 per board per post</td></tr><tr><td>End board into a corner post face</td><td><b>#9 x 2.5 in</b></td><td>Same joint as the mid-span posts: 1 in into the post's 1.5 in thickness. Center them 3.25 in from the board end.</td><td>2 per board per post</td></tr><tr><td>Corner tie through the side board into the end board's end grain</td><td><b>#9 x 3 in</b></td><td>Holds the corner closed. Pre-drill 1/8 in. Place at 2.75 in and 4.5 in up, 0.75 in from the board end, staggered off the post screws.</td><td>2 per corner per course</td></tr><tr><td>Hog-wire panel to the trellis posts, arch stakes and sills</td><td><b>#9 x 1.25 in</b> + 1 in fender washer</td><td>The washer beside a wire traps it against the wood, and 1.25 in stays inside a 1.5 in post, stake or sill so no tip pokes out the back. At the post top, one screw each side of the edge wire where it crosses the face; on each stake, beside two cross wires; along the sill, beside the bottom wire.</td><td>2 per post, 2 per stake, 4 per sill</td></tr><tr><td>Arch stake into the sill's end grain</td><td><b>#9 x 3 in</b></td><td>1.5 in through the stake, 1.5 in into the sill end. Pre-drill 1/8 in and drive from the stake's back before the end board goes on, 0.75 in up, 1 in either side of center.</td><td>2 per stake</td></tr></tbody>
+  </table></div>
+  <figure class="detail">
+    <svg viewBox="0 0 556 478" role="img" aria-label="Plan view of one corner and a mid-span post: side board outside, end board between the side boards, a 2x4 corner post edge-on inside the corner, a 2x4 mid-span post flat against the side board, and the screw groups drawn at true length" xmlns="http://www.w3.org/2000/svg">
+<defs><marker id="scr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M1 1 L9 5 L1 9 Z" fill="currentColor"/></marker><marker id="scrb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M1 1 L9 5 L1 9 Z" fill="var(--arch)"/></marker></defs>
+<rect x="82.0" y="102.0" width="434.0" height="336.0" fill="var(--lumber)" opacity="0.08"/>
+<rect x="40.0" y="60.0" width="42.0" height="378.0" fill="var(--lumber)" opacity="0.55" stroke="var(--lumber)" stroke-width="1.5"/>
+<rect x="82.0" y="60.0" width="434.0" height="42.0" fill="var(--lumber)" opacity="0.55" stroke="var(--lumber)" stroke-width="1.5"/>
+<rect x="82.0" y="102.0" width="98.0" height="42.0" fill="var(--lumber)" opacity="0.9" stroke="currentColor" stroke-width="1"/>
+<rect x="82.0" y="284.0" width="42.0" height="98.0" fill="var(--lumber)" opacity="0.9" stroke="currentColor" stroke-width="1"/>
+<line x1="28.8" y1="123.0" x2="124.0" y2="123.0" stroke="currentColor" stroke-width="2" marker-end="url(#scr)"/>
+<line x1="28.8" y1="312.0" x2="110.0" y2="312.0" stroke="currentColor" stroke-width="2" marker-end="url(#scr)"/>
+<line x1="28.8" y1="354.0" x2="110.0" y2="354.0" stroke="currentColor" stroke-width="2" marker-end="url(#scr)"/>
+<line x1="131.0" y1="48.8" x2="131.0" y2="130.0" stroke="currentColor" stroke-width="2" marker-end="url(#scr)"/>
+<line x1="28.8" y1="81.0" x2="124.0" y2="81.0" stroke="var(--arch)" stroke-width="2" stroke-dasharray="5 3" marker-end="url(#scrb)"/>
+<text x="194.0" y="85.0" font-size="12" fill="var(--arch)" paint-order="stroke" stroke="var(--panel)" stroke-width="3" stroke-linejoin="round">3 in tie into end grain</text>
+<text x="507.6" y="85.0" font-size="11" fill="currentColor" text-anchor="end" paint-order="stroke" stroke="var(--panel)" stroke-width="3" stroke-linejoin="round">end board</text>
+<text x="194.0" y="127.0" font-size="12" fill="currentColor" paint-order="stroke" stroke="var(--panel)" stroke-width="3" stroke-linejoin="round">3 in into the post edge, 3.5 in deep</text>
+<text x="194.0" y="142.0" font-size="11" fill="currentColor" opacity="0.7" paint-order="stroke" stroke="var(--panel)" stroke-width="3" stroke-linejoin="round">corner post, 1.5 x 3.5 in, edge-on</text>
+<text x="139.0" y="32.0" font-size="12" fill="currentColor">2.5 in into the post face, 1.5 in thick</text>
+<text x="140.8" y="316.0" font-size="12" fill="currentColor" paint-order="stroke" stroke="var(--panel)" stroke-width="3" stroke-linejoin="round">2.5 in: lower screw, 1.75 in up</text>
+<text x="140.8" y="358.0" font-size="12" fill="currentColor" paint-order="stroke" stroke="var(--panel)" stroke-width="3" stroke-linejoin="round">2.5 in: upper screw, 5.5 in up</text>
+<text x="82.0" y="398.0" font-size="11" fill="currentColor" opacity="0.7" paint-order="stroke" stroke="var(--panel)" stroke-width="3" stroke-linejoin="round">mid-span post, flat: 3.5 in face on the board, 0.75 in each side of center</text>
+<text x="61.0" y="454.0" font-size="11" fill="currentColor" text-anchor="middle">side board</text>
+<text x="320.0" y="228.0" font-size="11" fill="currentColor" opacity="0.6">soil side</text>
+</svg>
+    <figcaption>Plan view of a corner and the first mid-span post, looking down, with the screws drawn at true length. Arrows from the left are the side-board screws: 3 in into the corner post edge, 2.5 in into the mid-span post face, staggered 0.75 in either side of its centerline. The arrow from the top is a 2.5 in screw through the end board into the corner post face, and the dashed blue arrow is the corner tie into the end board's end grain. Each arrow is one screw per board course; the elevations show where they sit up the board.</figcaption>
+  </figure>
+  <div class="two">
+    <figure>
+      <svg viewBox="0 0 404 411" role="img" aria-label="Outside elevation of a side board at a corner: two courses, the end board end grain and the corner post behind it, post screws at 1.75 and 5.5 inches from the bottom of each board, corner ties at 2.75 and 4.5 inches" xmlns="http://www.w3.org/2000/svg">
+<rect x="30" y="34.0" width="198.0" height="159.5" fill="var(--lumber)" opacity="0.45" stroke="var(--lumber)" stroke-width="1.5"/>
+<rect x="30" y="193.5" width="198.0" height="159.5" fill="var(--lumber)" opacity="0.45" stroke="var(--lumber)" stroke-width="1.5"/>
+<rect x="30.0" y="28" width="33.0" height="331.0" fill="none" stroke="var(--arch)" stroke-width="1.2" stroke-dasharray="4 3"/>
+<rect x="63.0" y="28" width="33.0" height="331.0" fill="none" stroke="currentColor" stroke-width="1.2" stroke-dasharray="4 3"/>
+<text x="102.0" y="22" font-size="11" fill="currentColor">end grain and 2x4 corner post behind the side board</text>
+<circle cx="79.5" cy="155.0" r="4" fill="currentColor"/>
+<line x1="234.0" y1="155.0" x2="252.0" y2="155.0" stroke="currentColor" stroke-width="1"/>
+<text x="256.0" y="159.0" font-size="11" fill="currentColor">post screw, 1.75 in up</text>
+<circle cx="79.5" cy="72.5" r="4" fill="currentColor"/>
+<line x1="234.0" y1="72.5" x2="252.0" y2="72.5" stroke="currentColor" stroke-width="1"/>
+<text x="256.0" y="76.5" font-size="11" fill="currentColor">post screw, 5.5 in up</text>
+<circle cx="46.5" cy="133.0" r="4" fill="var(--arch)"/>
+<line x1="234.0" y1="133.0" x2="252.0" y2="133.0" stroke="var(--arch)" stroke-width="1" stroke-dasharray="3 2"/>
+<text x="256.0" y="137.0" font-size="11" fill="var(--arch)">corner tie, 2.75 in up</text>
+<circle cx="46.5" cy="94.5" r="4" fill="var(--arch)"/>
+<line x1="234.0" y1="94.5" x2="252.0" y2="94.5" stroke="var(--arch)" stroke-width="1" stroke-dasharray="3 2"/>
+<text x="256.0" y="98.5" font-size="11" fill="var(--arch)">corner tie, 4.5 in up</text>
+<circle cx="79.5" cy="314.5" r="4" fill="currentColor"/>
+<line x1="234.0" y1="314.5" x2="252.0" y2="314.5" stroke="currentColor" stroke-width="1"/>
+<text x="256.0" y="318.5" font-size="11" fill="currentColor">post screw, 1.75 in up</text>
+<circle cx="79.5" cy="232.0" r="4" fill="currentColor"/>
+<line x1="234.0" y1="232.0" x2="252.0" y2="232.0" stroke="currentColor" stroke-width="1"/>
+<text x="256.0" y="236.0" font-size="11" fill="currentColor">post screw, 5.5 in up</text>
+<circle cx="46.5" cy="292.5" r="4" fill="var(--arch)"/>
+<line x1="234.0" y1="292.5" x2="252.0" y2="292.5" stroke="var(--arch)" stroke-width="1" stroke-dasharray="3 2"/>
+<text x="256.0" y="296.5" font-size="11" fill="var(--arch)">corner tie, 2.75 in up</text>
+<circle cx="46.5" cy="254.0" r="4" fill="var(--arch)"/>
+<line x1="234.0" y1="254.0" x2="252.0" y2="254.0" stroke="var(--arch)" stroke-width="1" stroke-dasharray="3 2"/>
+<text x="256.0" y="258.0" font-size="11" fill="var(--arch)">corner tie, 4.5 in up</text>
+<text x="46.5" y="369.0" font-size="11" fill="var(--arch)" text-anchor="middle">tie 0.75 in in</text>
+<text x="79.5" y="383.0" font-size="11" fill="currentColor" text-anchor="middle">post 2.25 in in</text>
+<text x="30" y="399.0" font-size="11" fill="currentColor">2x8 boards, 7.25 in each, seen from outside; bed end at the left</text>
+</svg>
+      <figcaption>Outside face of a side board at a corner, both courses, bed end at the left. Dots on the post centerline, 2.25 in from the end, are the 3 in post screws; blue dots 0.75 in from the end are the corner ties into the end board's end grain.</figcaption>
+    </figure>
+    <figure>
+      <svg viewBox="0 0 458 470" role="img" aria-label="Outside elevation of a side board at a mid-span post: two courses, the post 3.5 in wide behind the board and 9.5 in below grade, two 2.5 in screws per course staggered 0.75 in either side of the post centerline" xmlns="http://www.w3.org/2000/svg">
+<rect x="0" y="266.0" width="458" height="170.0" fill="currentColor" opacity="0.05"/>
+<rect x="30" y="34.0" width="192.0" height="116.0" fill="var(--lumber)" opacity="0.45" stroke="var(--lumber)" stroke-width="1.5"/>
+<rect x="30" y="150.0" width="192.0" height="116.0" fill="var(--lumber)" opacity="0.45" stroke="var(--lumber)" stroke-width="1.5"/>
+<path d="M98.0 28 V386.0 L126.0 418.0 L154.0 386.0 V28 Z" fill="none" stroke="currentColor" stroke-width="1.2" stroke-dasharray="4 3"/>
+<line x1="126.0" y1="28" x2="126.0" y2="418.0" stroke="currentColor" stroke-width="0.8" stroke-dasharray="2 4" opacity="0.6"/>
+<line x1="10" y1="266.0" x2="242.0" y2="266.0" stroke="currentColor" stroke-width="1.2" stroke-dasharray="8 4"/>
+<text x="250.0" y="270.0" font-size="11" fill="currentColor">grade</text>
+<text x="30" y="22" font-size="11" fill="currentColor">2x4 mid-span post behind the board, 3.5 in face</text>
+<circle cx="114.0" cy="122.0" r="4" fill="currentColor"/>
+<line x1="228.0" y1="122.0" x2="246.0" y2="122.0" stroke="currentColor" stroke-width="1"/>
+<text x="250.0" y="126.0" font-size="11" fill="currentColor">1.75 in up, 3/4 in left of center</text>
+<circle cx="138.0" cy="62.0" r="4" fill="currentColor"/>
+<line x1="228.0" y1="62.0" x2="246.0" y2="62.0" stroke="currentColor" stroke-width="1"/>
+<text x="250.0" y="66.0" font-size="11" fill="currentColor">5.5 in up, 3/4 in right of center</text>
+<circle cx="114.0" cy="238.0" r="4" fill="currentColor"/>
+<line x1="228.0" y1="238.0" x2="246.0" y2="238.0" stroke="currentColor" stroke-width="1"/>
+<text x="250.0" y="242.0" font-size="11" fill="currentColor">1.75 in up, 3/4 in left of center</text>
+<circle cx="138.0" cy="178.0" r="4" fill="currentColor"/>
+<line x1="228.0" y1="178.0" x2="246.0" y2="178.0" stroke="currentColor" stroke-width="1"/>
+<text x="250.0" y="182.0" font-size="11" fill="currentColor">5.5 in up, 3/4 in right of center</text>
+<text x="30" y="434.0" font-size="11" fill="currentColor">24 in post, 9.5 in below grade, bottom chamfered to a point</text>
+<text x="30" y="450.0" font-size="11" fill="currentColor">2x8 boards, 7.25 in each, seen from outside</text>
+</svg>
+      <figcaption>Outside face of a side board at a mid-span post. The post is 3.5 in wide behind the board and continues 9.5 in below grade. Each course gets two 2.5 in screws, the lower one 0.75 in left of the post centerline and the upper one 0.75 in right, so the board cannot pivot on the post.</figcaption>
+    </figure>
+  </div>
+  <div class="card tablewrap"><table>
+    <thead><tr><th>Bed</th><th>Posts per side</th><th>3 in: corner posts</th><th>3 in: corner ties</th><th>3 in: arch stakes</th><th>2.5 in: mid-span posts</th><th>2.5 in: end boards</th><th>1.25 in: arch panel</th><th>Total</th></tr></thead>
+    <tbody><tr><td>Bed A</td><td>4</td><td>16</td><td>16</td><td>4</td><td>16</td><td>16</td><td>10</td><td><b>78</b></td></tr><tr><td>Bed B</td><td>4</td><td>16</td><td>16</td><td>4</td><td>16</td><td>16</td><td>10</td><td><b>78</b></td></tr><tr><td>Bed C</td><td>5</td><td>16</td><td>16</td><td>0</td><td>24</td><td>16</td><td>0</td><td><b>72</b></td></tr><tr><td>Bed D</td><td>5</td><td>16</td><td>16</td><td>0</td><td>24</td><td>16</td><td>0</td><td><b>72</b></td></tr><tr><td><b>Total</b></td><td></td><td><b>64</b></td><td><b>64</b></td><td><b>8</b></td><td><b>80</b></td><td><b>64</b></td><td><b>20</b></td><td><b>300</b></td></tr></tbody>
+  </table></div>
+  <p>Buy 3 in: 136 needed, one 5 lb box (about 350); 1 lb boxes hold only about 70. Buy 2.5 in: 144 needed, 2 x 1 lb boxes (about 180), or one 5 lb box (about 450) for plenty of spares. Use #9 star-drive exterior structural screws, coated for treated lumber or stainless 305 or 316 for cedar and redwood, which stain and corrode plain coated screws. Pre-drill the corner ties and any screw within 2 in of a board end (1/8 in bit for cedar, 3/32 in for SPF).</p>
+  <div class="note">Set the mid-span posts first: chamfer the bottom of each to a point, drive it 9 3/8 in at the marked centerline with its wide face toward the wall, and stop when its top is flush with the top of the wall. Then screw the side boards to it from outside. Corner posts stay 14.5 in and sit on grade, except the 2 inside corner posts at the near end of beds A and B under the arch, which are uncut 8 ft trellis posts set 20 in deep (see the arch).</div>
+</section>
+
+<section id="cuts">
+  <h2>Cut list by bed</h2>
+  <div class="card tablewrap"><table>
+    <thead><tr><th>Buy</th><th>Qty</th><th>Used for</th></tr></thead>
+    <tbody><tr><td>2x8 x 10 ft</td><td><b>4</b></td><td>Side boards, used full length (no cut)</td></tr><tr><td>2x8 x 12 ft</td><td><b>4</b></td><td>Side boards, used full length (no cut)</td></tr><tr><td>2x8 x 14 ft</td><td><b>4</b></td><td>Side boards, used full length (no cut)</td></tr><tr><td>2x8 x 16 ft</td><td><b>4</b></td><td>Side boards, used full length (no cut)</td></tr><tr><td>2x8 x 8 ft</td><td><b>7</b></td><td>End boards: 12 x 48 in (2 per board); 4 x 21 in (4 per board)</td></tr><tr><td>2x4 x 8 ft</td><td><b>13</b></td><td>14 corner posts x 14.5 in (6 per board, 3 boards) + 2 trellis posts, uncut 8 ft (2 boards) + 2 arch sills x 60.5 in (1 per board, 2 boards; the 35 3/8 in offcut of each is one stake) + 20 mid-span posts and 4 arch stakes x 23 7/8 in (2 from the sill offcuts, then 4 per board from 6 more boards)</td></tr></tbody>
+  </table></div>
+  <ul><li>12 x 48 in: 2 per board from 6 boards, 0 in offcut each. Two 48 in pieces from a 96 in board leave no kerf; one piece runs a hair short, which is fine, or buy 10 ft boards.</li><li>4 x 21 in: 4 per board from 1 boards, 12 in offcut each.</li><li>14 corner posts x 14.5 in: 6 per 2x4 from 3 sticks.</li><li>2 trellis posts: uncut 8 ft sticks, 2 of them.</li><li>2 arch sills x 60.5 in: 1 per 2x4 from 2 sticks; the 35 3/8 in left of each is one arch stake.</li><li>20 mid-span posts and 4 arch stakes x 23 7/8 in: 2 from the sill offcuts, then 4 per 2x4 from 6 more sticks; cut 23 7/8 rather than 24 in so 4 clear the saw kerfs, which leaves 9 3/8 in in the ground.</li></ul>
+  
+<article class="card bed-card" id="bed-a">
+  <header><span class="letter">A</span><div><h3>Bed A <small>10 ft x 51 in</small></h3>
+  <p class="muted">Inside 48 x 117 in, <span class="sw" data-v8="14.5 in" data-v10="18.5 in">14.5 in</span> tall. Soil <span class="sw" data-v8="47 cu ft" data-v10="59 cu ft">47 cu ft</span>. Replaces massing body "4th Bed".</p></div></header>
+  <table>
+    <thead><tr><th>Part</th><th>Qty</th><th>Stock</th><th>Cut length</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>Side board</td><td><b>4</b></td><td>2x8 x 10 ft</td><td>120 in, full length</td><td>2 per course, outside</td></tr>
+      <tr><td>End board</td><td><b>4</b></td><td>2x8 x 8 ft</td><td>48 in</td><td>2 per 8 ft board, between the sides</td></tr>
+      <tr><td>2x4 corner post</td><td><b>3</b></td><td>2x4 x 8 ft</td><td><span class="sw" data-v8="14.5 in" data-v10="18.5 in">14.5 in</span></td><td>inside each corner, edge-on to the side boards</td></tr>
+      <tr><td>2x4 mid-span post</td><td><b>4</b></td><td>2x4 x 8 ft</td><td>23 7/8 in</td><td>flat against the side boards, centered 41, 79 in from the near end; 9 3/8 in in the ground</td></tr>
+      <tr><td>2x4 trellis post</td><td><b>1</b></td><td>2x4 x 8 ft</td><td>96 in (uncut)</td><td>east corner at the near end. Same spot and orientation as the corner post it replaces, set 20 in deep, 76 in above grade; holds the arch near its crown</td></tr>
+      <tr><td>2x4 arch sill</td><td><b>1</b></td><td>2x4 x 8 ft</td><td>60.5 in</td><td>flat on grade along the bed centreline, 3 to 63.5 in from the near end; the arch foot sits on it</td></tr>
+      <tr><td>2x4 arch stake</td><td><b>2</b></td><td>2x4 x 8 ft</td><td>23 7/8 in</td><td>one at each end of the sill, 10.5 in in the ground, 13.5 in above grade</td></tr>
+      <tr><td>Screws, 3 in</td><td><b>36</b></td><td>#9 exterior</td><td></td><td>16 side boards into corner posts + 16 corner ties + 4 arch stakes into the sill ends</td></tr>
+      <tr><td>Screws, 2.5 in</td><td><b>32</b></td><td>#9 exterior</td><td></td><td>16 side boards into mid-span posts + 16 end boards into corner posts</td></tr>
+      <tr><td>Screws, 1.25 in</td><td><b>10</b></td><td>#9 exterior + 1 in washer</td><td></td><td>hog-wire panel to the trellis post (2), the stakes (2 each) and the sill (4)</td></tr>
+    </tbody>
+  </table>
+</article>
+<article class="card bed-card" id="bed-b">
+  <header><span class="letter">B</span><div><h3>Bed B <small>12 ft x 51 in</small></h3>
+  <p class="muted">Inside 48 x 141 in, <span class="sw" data-v8="14.5 in" data-v10="18.5 in">14.5 in</span> tall. Soil <span class="sw" data-v8="56 cu ft" data-v10="72 cu ft">56 cu ft</span>. Replaces massing body "3rd Bed".</p></div></header>
+  <table>
+    <thead><tr><th>Part</th><th>Qty</th><th>Stock</th><th>Cut length</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>Side board</td><td><b>4</b></td><td>2x8 x 12 ft</td><td>144 in, full length</td><td>2 per course, outside</td></tr>
+      <tr><td>End board</td><td><b>4</b></td><td>2x8 x 8 ft</td><td>48 in</td><td>2 per 8 ft board, between the sides</td></tr>
+      <tr><td>2x4 corner post</td><td><b>3</b></td><td>2x4 x 8 ft</td><td><span class="sw" data-v8="14.5 in" data-v10="18.5 in">14.5 in</span></td><td>inside each corner, edge-on to the side boards</td></tr>
+      <tr><td>2x4 mid-span post</td><td><b>4</b></td><td>2x4 x 8 ft</td><td>23 7/8 in</td><td>flat against the side boards, centered 49, 95 in from the near end; 9 3/8 in in the ground</td></tr>
+      <tr><td>2x4 trellis post</td><td><b>1</b></td><td>2x4 x 8 ft</td><td>96 in (uncut)</td><td>west corner at the near end. Same spot and orientation as the corner post it replaces, set 20 in deep, 76 in above grade; holds the arch near its crown</td></tr>
+      <tr><td>2x4 arch sill</td><td><b>1</b></td><td>2x4 x 8 ft</td><td>60.5 in</td><td>flat on grade along the bed centreline, 3 to 63.5 in from the near end; the arch foot sits on it</td></tr>
+      <tr><td>2x4 arch stake</td><td><b>2</b></td><td>2x4 x 8 ft</td><td>23 7/8 in</td><td>one at each end of the sill, 10.5 in in the ground, 13.5 in above grade</td></tr>
+      <tr><td>Screws, 3 in</td><td><b>36</b></td><td>#9 exterior</td><td></td><td>16 side boards into corner posts + 16 corner ties + 4 arch stakes into the sill ends</td></tr>
+      <tr><td>Screws, 2.5 in</td><td><b>32</b></td><td>#9 exterior</td><td></td><td>16 side boards into mid-span posts + 16 end boards into corner posts</td></tr>
+      <tr><td>Screws, 1.25 in</td><td><b>10</b></td><td>#9 exterior + 1 in washer</td><td></td><td>hog-wire panel to the trellis post (2), the stakes (2 each) and the sill (4)</td></tr>
+    </tbody>
+  </table>
+</article>
+<article class="card bed-card" id="bed-c">
+  <header><span class="letter">C</span><div><h3>Bed C <small>14 ft x 51 in</small></h3>
+  <p class="muted">Inside 48 x 165 in, <span class="sw" data-v8="14.5 in" data-v10="18.5 in">14.5 in</span> tall. Soil <span class="sw" data-v8="66 cu ft" data-v10="84 cu ft">66 cu ft</span>. Replaces massing body "2nd Bed".</p></div></header>
+  <table>
+    <thead><tr><th>Part</th><th>Qty</th><th>Stock</th><th>Cut length</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>Side board</td><td><b>4</b></td><td>2x8 x 14 ft</td><td>168 in, full length</td><td>2 per course, outside</td></tr>
+      <tr><td>End board</td><td><b>4</b></td><td>2x8 x 8 ft</td><td>48 in</td><td>2 per 8 ft board, between the sides</td></tr>
+      <tr><td>2x4 corner post</td><td><b>4</b></td><td>2x4 x 8 ft</td><td><span class="sw" data-v8="14.5 in" data-v10="18.5 in">14.5 in</span></td><td>inside each corner, edge-on to the side boards</td></tr>
+      <tr><td>2x4 mid-span post</td><td><b>6</b></td><td>2x4 x 8 ft</td><td>23 7/8 in</td><td>flat against the side boards, centered 44, 84, 124 in from the near end; 9 3/8 in in the ground</td></tr>
+      
+      
+      
+      <tr><td>Screws, 3 in</td><td><b>32</b></td><td>#9 exterior</td><td></td><td>16 side boards into corner posts + 16 corner ties</td></tr>
+      <tr><td>Screws, 2.5 in</td><td><b>40</b></td><td>#9 exterior</td><td></td><td>24 side boards into mid-span posts + 16 end boards into corner posts</td></tr>
+      
+    </tbody>
+  </table>
+</article>
+<article class="card bed-card" id="bed-d">
+  <header><span class="letter">D</span><div><h3>Bed D <small>16 ft x 24 in</small></h3>
+  <p class="muted">Inside 21 x 189 in, <span class="sw" data-v8="14.5 in" data-v10="18.5 in">14.5 in</span> tall. Soil <span class="sw" data-v8="33 cu ft" data-v10="42 cu ft">33 cu ft</span>. Replaces massing body "1st Bed".</p></div></header>
+  <table>
+    <thead><tr><th>Part</th><th>Qty</th><th>Stock</th><th>Cut length</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>Side board</td><td><b>4</b></td><td>2x8 x 16 ft</td><td>192 in, full length</td><td>2 per course, outside</td></tr>
+      <tr><td>End board</td><td><b>4</b></td><td>2x8 x 8 ft</td><td>21 in</td><td>4 per 8 ft board, between the sides</td></tr>
+      <tr><td>2x4 corner post</td><td><b>4</b></td><td>2x4 x 8 ft</td><td><span class="sw" data-v8="14.5 in" data-v10="18.5 in">14.5 in</span></td><td>inside each corner, edge-on to the side boards</td></tr>
+      <tr><td>2x4 mid-span post</td><td><b>6</b></td><td>2x4 x 8 ft</td><td>23 7/8 in</td><td>flat against the side boards, centered 50, 96, 142 in from the near end; 9 3/8 in in the ground</td></tr>
+      
+      
+      
+      <tr><td>Screws, 3 in</td><td><b>32</b></td><td>#9 exterior</td><td></td><td>16 side boards into corner posts + 16 corner ties</td></tr>
+      <tr><td>Screws, 2.5 in</td><td><b>40</b></td><td>#9 exterior</td><td></td><td>24 side boards into mid-span posts + 16 end boards into corner posts</td></tr>
+      
+    </tbody>
+  </table>
+</article>
+</section>
+
+<section id="pavers">
+  <h2>Pavers and paths</h2>
+  <div class="card tablewrap"><table>
+    <thead><tr><th>Group</th><th>Pavers</th><th>Where</th></tr></thead>
+    <tbody><tr><td>12x12 Paver</td><td><b>38</b></td><td>Walkway along the top edge (2 rows, 15 in pitch)</td></tr><tr><td>First Bed Path</td><td><b>11</b></td><td>Path between Bed D (16 ft) and Bed C (14 ft), 18 in pitch</td></tr><tr><td>Second Bed Path</td><td><b>10</b></td><td>Path between Bed C (14 ft) and Bed B (12 ft), 18 in pitch</td></tr><tr><td>Third Paver Path</td><td><b>8</b></td><td>Path between Bed B (12 ft) and Bed A (10 ft), 18 in pitch</td></tr><tr><td>Fourth Paver Path</td><td><b>7</b></td><td>Path west of Bed A (10 ft), 18 in pitch</td></tr><tr><td><b>Total</b></td><td><b>74</b></td><td>12 x 12 x 1.5 in, about 18 lb each, 1,328 lb in all</td></tr></tbody>
+  </table></div>
+  <p>The walkway is a 33 in strip with two rows of pavers at 15 in pitch; the 36 in strip beyond it is in the site sketch but not modeled. Bed paths use one paver centered in each 24 in gap at 18 in pitch. Base estimate: 2 in of leveling material under each paver, 12.3 cu ft, about 25 half-cubic-foot bags.</p>
+</section>
+
+<section id="arches">
+  <h2>Hog-wire trellis arches</h2>
+  <div class="card tablewrap"><table>
+    <thead><tr><th>Arch</th><th>Between</th><th>Chord</th><th>Feet</th><th>Straight leg</th><th>Crown above grade</th><th>Upper supports</th><th>Walkway headroom</th><th>Panel width modeled</th></tr></thead>
+    <tbody><tr><td>Arch AB</td><td>the centrelines of Bed A (10 ft) and Bed B (12 ft)</td><td>75 in</td><td>on 2x4 sills, 1.5 in above grade</td><td>37 in</td><td>76 in</td><td>Bed A: east corner at the near end; Bed B: west corner at the near end</td><td>76 in at the center, 74 in at the Bed A wall, 74 in at the Bed B wall</td><td>60 in, 16 wires at 4 in</td></tr></tbody>
+  </table></div>
+  <p>Arch AB is one 16 ft panel bent over the 75 in between the centrelines of Bed A and Bed B, with its feet on 2x4 sills lying on the ground inside the beds, 1.5 in above grade. The 37.5 in radius top uses 118 in of the panel, so the straight legs are 37.1 in (the Fusion parameter Hogwire_height derives from the panel length) and the crown is 76 in above grade, level with the post tops. Standing the arch on the ground instead of the wall tops drops it 13 in, so that much of each leg ends up in the bed soil once the beds are filled. Walkway headroom: 76 in at the center, 74 in at the Bed A wall, 74 in at the Bed B wall.</p><p>Two of the beds&#x27; own corner posts hold the arch up: the inside corner post at the near end of each bed (Bed A&#x27;s east corner, Bed B&#x27;s west corner), which are uncut 8 ft 2x4s set 20 in into the ground, 76 in above grade. The panel&#x27;s near edge wire runs up the 3.5 in face of each post that looks down the bed and crosses it between 72 and 74 in above grade, so the post top stands 4 in above the crossing. 2 screws with fender washers there, one each side of the wire, trap it. The posts keep the arch upright along the beds and take the wind; the sills and stakes hold its feet.</p><p>Each foot: a 60.5 in 2x4 sill lies flat on grade along the bed centreline with a 24 in 2x4 stake at each end, driven 10.5 in and standing 12 in above the sill. The near stake sits against the end board like a corner post; the far one is 63.5 in down the bed. The panel&#x27;s bottom wire lies along the sill top and its edge wires rise against the stake faces: 4 screws with washers along the sill, 2 on each stake, and 2 x #9 3 in through each stake into the sill&#x27;s end grain. Set the posts and stakes before the walls go on (the near stake and the trellis post both stand against the end board), screw the sills to the stakes, bend the panel in and fasten it, then fill the beds.</p>
+  <figure class="wide">
+    <svg viewBox="0 0 770 494" role="img" aria-label="Elevation of the hog-wire arch from the near end: two beds with a walkway between, the panel standing on sills at the bed centrelines, 8 ft posts at the inside corners reaching the crown, headroom figures in the walkway" xmlns="http://www.w3.org/2000/svg">
+<rect x="214.0" y="374.3" width="536.0" height="96.0" fill="currentColor" opacity="0.05"/>
+<line x1="214.0" y1="374.3" x2="750.0" y2="374.3" stroke="currentColor" stroke-width="1"/>
+<rect x="230.0" y="316.3" width="204.0" height="58.0" fill="var(--lumber)" opacity="0.12"/>
+<rect x="230.0" y="316.3" width="6.0" height="58.0" fill="var(--lumber)" opacity="0.7" stroke="var(--lumber)" stroke-width="1"/>
+<rect x="428.0" y="316.3" width="6.0" height="58.0" fill="var(--lumber)" opacity="0.7" stroke="var(--lumber)" stroke-width="1"/>
+<text x="383.0" y="349.3" font-size="12" font-weight="600" text-anchor="middle" fill="currentColor">Bed A</text>
+<rect x="414.0" y="70.3" width="14.0" height="304.0" fill="var(--lumber)" opacity="0.9" stroke="currentColor" stroke-width="1"/>
+<rect x="414.0" y="374.3" width="14.0" height="80.0" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="4 3"/>
+<rect x="325.0" y="368.3" width="14.0" height="6.0" fill="var(--lumber)" opacity="0.9" stroke="currentColor" stroke-width="1"/>
+<rect x="530.0" y="316.3" width="204.0" height="58.0" fill="var(--lumber)" opacity="0.12"/>
+<rect x="530.0" y="316.3" width="6.0" height="58.0" fill="var(--lumber)" opacity="0.7" stroke="var(--lumber)" stroke-width="1"/>
+<rect x="728.0" y="316.3" width="6.0" height="58.0" fill="var(--lumber)" opacity="0.7" stroke="var(--lumber)" stroke-width="1"/>
+<text x="581.0" y="349.3" font-size="12" font-weight="600" text-anchor="middle" fill="currentColor">Bed B</text>
+<rect x="536.0" y="70.3" width="14.0" height="304.0" fill="var(--lumber)" opacity="0.9" stroke="currentColor" stroke-width="1"/>
+<rect x="536.0" y="374.3" width="14.0" height="80.0" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="4 3"/>
+<rect x="625.0" y="368.3" width="14.0" height="6.0" fill="var(--lumber)" opacity="0.9" stroke="currentColor" stroke-width="1"/>
+<rect x="434.0" y="374.3" width="96.0" height="6" fill="currentColor" opacity="0.25"/>
+<text x="482.0" y="394.3" font-size="11" text-anchor="middle" fill="currentColor">walkway 24 in</text>
+<path d="M332.0 368.3 L332.0 220.0 A150.0 150.0 0 0 1 632.0 220.0 L632.0 368.3" fill="none" stroke="var(--arch)" stroke-width="3" stroke-linejoin="round"/>
+<rect x="325.0" y="320.3" width="14.0" height="54.0" fill="var(--lumber)" opacity="0.9" stroke="currentColor" stroke-width="1"/>
+<rect x="325.0" y="374.3" width="14.0" height="42.0" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="4 3"/>
+<rect x="625.0" y="320.3" width="14.0" height="54.0" fill="var(--lumber)" opacity="0.9" stroke="currentColor" stroke-width="1"/>
+<rect x="625.0" y="374.3" width="14.0" height="42.0" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="4 3"/>
+<line x1="434.0" y1="374.3" x2="434.0" y2="77.9" stroke="var(--arch)" stroke-width="1" stroke-dasharray="3 3"/>
+<circle cx="434.0" cy="77.9" r="3.5" fill="var(--arch)"/>
+<text x="440.0" y="289.4" font-size="11" fill="var(--arch)" text-anchor="start" paint-order="stroke" stroke="var(--panel)" stroke-width="3" stroke-linejoin="round">74 in</text>
+<line x1="482.0" y1="374.3" x2="482.0" y2="70.0" stroke="var(--arch)" stroke-width="1" stroke-dasharray="3 3"/>
+<circle cx="482.0" cy="70.0" r="3.5" fill="var(--arch)"/>
+<text x="482.0" y="189.6" font-size="11" fill="var(--arch)" text-anchor="middle" paint-order="stroke" stroke="var(--panel)" stroke-width="3" stroke-linejoin="round">76 in</text>
+<line x1="530.0" y1="374.3" x2="530.0" y2="77.9" stroke="var(--arch)" stroke-width="1" stroke-dasharray="3 3"/>
+<circle cx="530.0" cy="77.9" r="3.5" fill="var(--arch)"/>
+<text x="524.0" y="247.9" font-size="11" fill="var(--arch)" text-anchor="end" paint-order="stroke" stroke="var(--panel)" stroke-width="3" stroke-linejoin="round">74 in</text>
+<text x="482.0" y="62.0" font-size="11" fill="var(--arch)" text-anchor="middle">crown 76 in above grade</text>
+<text x="206.0" y="74.3" font-size="11" fill="currentColor" text-anchor="end">post top 76 in, level with the crown</text>
+<text x="206.0" y="90.3" font-size="11" fill="var(--arch)" text-anchor="end">panel crosses the posts at 72 to 74 in</text>
+<text x="206.0" y="224.0" font-size="11" fill="var(--arch)" text-anchor="end">curve starts 37 in up the leg</text>
+<text x="206.0" y="324.3" font-size="11" fill="currentColor" text-anchor="end">stakes 13.5 in above grade</text>
+<text x="206.0" y="372.3" font-size="11" fill="var(--arch)" text-anchor="end">feet on the sills, 1.5 in above grade</text>
+<text x="206.0" y="418.3" font-size="11" fill="currentColor" text-anchor="end">posts 20 in in the ground, stakes 10.5</text>
+<text x="748.0" y="370.3" font-size="10" fill="currentColor" opacity="0.7" text-anchor="end">grade</text>
+</svg>
+    <figcaption>Arch AB seen from the near end: 16 ft panel, 75 in between the legs, feet on the 2x4 sills at the bed centrelines, 1.5 in above grade. The two inside corner posts are 8 ft 2x4s with 20 in in the ground; the panel&#x27;s edge wire crosses their faces at 72 to 74 in and their tops stand level with the 76 in crown. The near stake of each sill is in front of the panel. Blue dots mark headroom at the walkway edges and centre.</figcaption>
+  </figure>
+  <div class="two">
+    <figure class="detail">
+      <svg viewBox="0 0 608 264" role="img" aria-label="Side view of an arch foot: the end board, a 24 in stake against it, the 60.5 in sill on grade, a second stake at the far end, and the bottom of the panel standing on the sill between the stakes with its screws" xmlns="http://www.w3.org/2000/svg">
+<rect x="16.0" y="152.0" width="360.0" height="72.5" fill="currentColor" opacity="0.05"/>
+<rect x="36.0" y="79.5" width="340.0" height="72.5" fill="var(--lumber)" opacity="0.08"/>
+<line x1="16.0" y1="152.0" x2="376.0" y2="152.0" stroke="currentColor" stroke-width="1"/>
+<rect x="28.5" y="79.5" width="7.5" height="72.5" fill="var(--lumber)" opacity="0.5" stroke="var(--lumber)" stroke-width="1.5"/>
+<rect x="36.0" y="84.5" width="7.5" height="67.5" fill="var(--lumber)" opacity="0.9" stroke="currentColor" stroke-width="1"/>
+<rect x="36.0" y="152.0" width="7.5" height="52.5" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="4 3"/>
+<rect x="346.0" y="84.5" width="7.5" height="67.5" fill="var(--lumber)" opacity="0.9" stroke="currentColor" stroke-width="1"/>
+<rect x="346.0" y="152.0" width="7.5" height="52.5" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="4 3"/>
+<rect x="43.5" y="144.5" width="302.5" height="7.5" fill="var(--lumber)" opacity="0.9" stroke="currentColor" stroke-width="1"/>
+<line x1="44.8" y1="144.5" x2="44.8" y2="29.5" stroke="var(--arch)" stroke-width="2" opacity="0.85"/>
+<line x1="64.8" y1="144.5" x2="64.8" y2="29.5" stroke="var(--arch)" stroke-width="2" opacity="0.85"/>
+<line x1="84.8" y1="144.5" x2="84.8" y2="29.5" stroke="var(--arch)" stroke-width="2" opacity="0.85"/>
+<line x1="104.8" y1="144.5" x2="104.8" y2="29.5" stroke="var(--arch)" stroke-width="2" opacity="0.85"/>
+<line x1="124.8" y1="144.5" x2="124.8" y2="29.5" stroke="var(--arch)" stroke-width="2" opacity="0.85"/>
+<line x1="144.8" y1="144.5" x2="144.8" y2="29.5" stroke="var(--arch)" stroke-width="2" opacity="0.85"/>
+<line x1="164.8" y1="144.5" x2="164.8" y2="29.5" stroke="var(--arch)" stroke-width="2" opacity="0.85"/>
+<line x1="184.8" y1="144.5" x2="184.8" y2="29.5" stroke="var(--arch)" stroke-width="2" opacity="0.85"/>
+<line x1="204.8" y1="144.5" x2="204.8" y2="29.5" stroke="var(--arch)" stroke-width="2" opacity="0.85"/>
+<line x1="224.8" y1="144.5" x2="224.8" y2="29.5" stroke="var(--arch)" stroke-width="2" opacity="0.85"/>
+<line x1="244.8" y1="144.5" x2="244.8" y2="29.5" stroke="var(--arch)" stroke-width="2" opacity="0.85"/>
+<line x1="264.8" y1="144.5" x2="264.8" y2="29.5" stroke="var(--arch)" stroke-width="2" opacity="0.85"/>
+<line x1="284.8" y1="144.5" x2="284.8" y2="29.5" stroke="var(--arch)" stroke-width="2" opacity="0.85"/>
+<line x1="304.8" y1="144.5" x2="304.8" y2="29.5" stroke="var(--arch)" stroke-width="2" opacity="0.85"/>
+<line x1="324.8" y1="144.5" x2="324.8" y2="29.5" stroke="var(--arch)" stroke-width="2" opacity="0.85"/>
+<line x1="344.8" y1="144.5" x2="344.8" y2="29.5" stroke="var(--arch)" stroke-width="2" opacity="0.85"/>
+<line x1="44.8" y1="143.2" x2="344.8" y2="143.2" stroke="var(--arch)" stroke-width="1.5" opacity="0.85"/>
+<line x1="44.8" y1="123.2" x2="344.8" y2="123.2" stroke="var(--arch)" stroke-width="1.5" opacity="0.85"/>
+<line x1="44.8" y1="103.2" x2="344.8" y2="103.2" stroke="var(--arch)" stroke-width="1.5" opacity="0.85"/>
+<line x1="44.8" y1="83.2" x2="344.8" y2="83.2" stroke="var(--arch)" stroke-width="1.5" opacity="0.85"/>
+<line x1="44.8" y1="63.2" x2="344.8" y2="63.2" stroke="var(--arch)" stroke-width="1.5" opacity="0.85"/>
+<line x1="44.8" y1="43.2" x2="344.8" y2="43.2" stroke="var(--arch)" stroke-width="1.5" opacity="0.85"/>
+<line x1="82.2" y1="129.0" x2="82.2" y2="150.0" stroke="currentColor" stroke-width="2" marker-end="url(#scr)"/>
+<line x1="157.2" y1="129.0" x2="157.2" y2="150.0" stroke="currentColor" stroke-width="2" marker-end="url(#scr)"/>
+<line x1="232.2" y1="129.0" x2="232.2" y2="150.0" stroke="currentColor" stroke-width="2" marker-end="url(#scr)"/>
+<line x1="307.2" y1="129.0" x2="307.2" y2="150.0" stroke="currentColor" stroke-width="2" marker-end="url(#scr)"/>
+<line x1="55.5" y1="123.2" x2="37.8" y2="123.2" stroke="currentColor" stroke-width="2" marker-end="url(#scr)"/>
+<line x1="55.5" y1="103.2" x2="37.8" y2="103.2" stroke="currentColor" stroke-width="2" marker-end="url(#scr)"/>
+<line x1="30.0" y1="148.2" x2="50.5" y2="148.2" stroke="var(--arch)" stroke-width="2" stroke-dasharray="5 3" marker-end="url(#scrb)"/>
+<line x1="334.0" y1="123.2" x2="351.8" y2="123.2" stroke="currentColor" stroke-width="2" marker-end="url(#scr)"/>
+<line x1="334.0" y1="103.2" x2="351.8" y2="103.2" stroke="currentColor" stroke-width="2" marker-end="url(#scr)"/>
+<line x1="359.5" y1="148.2" x2="339.0" y2="148.2" stroke="var(--arch)" stroke-width="2" stroke-dasharray="5 3" marker-end="url(#scrb)"/>
+<text x="384.0" y="38.5" font-size="11" fill="var(--arch)">panel: long wires 4 in apart rise</text>
+<text x="384.0" y="51.0" font-size="11" fill="var(--arch)">from the sill, cross wires every 4 in</text>
+<text x="384.0" y="88.5" font-size="11" fill="currentColor">stake top, 12 in above the sill</text>
+<text x="384.0" y="117.2" font-size="11" fill="currentColor">#9 x 1.25 in screw + 1 in washer, 2 per stake</text>
+<text x="384.0" y="139.5" font-size="11" fill="currentColor">4 more along the sill, beside the bottom wire</text>
+<text x="384.0" y="155.0" font-size="11" fill="var(--arch)">2 x #9 3 in through each stake into the sill end</text>
+<text x="384.0" y="182.2" font-size="11" fill="currentColor">stakes 10.5 in in the ground, sill on grade</text>
+<text x="203.5" y="98.5" font-size="11" fill="currentColor" opacity="0.75" text-anchor="middle" paint-order="stroke" stroke="var(--panel)" stroke-width="3" stroke-linejoin="round">soil, once the bed is filled</text>
+<text x="36.0" y="238.5" font-size="10" fill="currentColor" text-anchor="start">end board, near stake</text>
+<text x="194.8" y="252.5" font-size="10" fill="currentColor" text-anchor="middle">sill, 60.5 in</text>
+<text x="346.0" y="238.5" font-size="10" fill="currentColor" text-anchor="end">far stake</text>
+</svg>
+      <figcaption>Arch foot, seen from the walkway along the bed centreline with the near end at the left: the 60.5 in 2x4 sill lies flat on grade between two 24 in stakes with 10.5 in in the ground. The panel&#x27;s bottom wire lies on the sill and its edge wires stand against the stake faces; #9 x 1.25 in screws with 1 in fender washers pin them, and 2 x 3 in screws through each stake into the sill&#x27;s end grain tie the three pieces together before the end board goes on. The soil then buries all of it.</figcaption>
+    </figure>
+    <figure class="detail">
+      <svg viewBox="0 0 469 287" role="img" aria-label="Top of a trellis post: the panel edge wire crosses the post face at 72 to 74 in above grade, the post ends 4 in higher, two screws with washers hold the wire" xmlns="http://www.w3.org/2000/svg">
+<rect x="58.0" y="76.0" width="49.0" height="181.8" fill="var(--lumber)" opacity="0.9" stroke="currentColor" stroke-width="1"/>
+<polyline points="16.0 155.6 23.0 151.3 30.0 147.1 37.0 143.1 44.0 139.2 51.0 135.4 58.0 131.8 65.0 128.3 72.0 124.9 79.0 121.7 86.0 118.6 93.0 115.6 100.0 112.7 107.0 109.9 114.0 107.3 121.0 104.8 128.0 102.3 135.0 100.0 142.0 97.8 149.0 95.7 156.0 93.7 163.0 91.9 170.0 90.1 177.0 88.4 184.0 86.8 191.0 85.3 198.0 84.0 205.0 82.7 212.0 81.5 219.0 80.4 226.0 79.4 233.0 78.5" fill="none" stroke="var(--arch)" stroke-width="7.0" stroke-linecap="round"/>
+<circle cx="70.6" cy="117.9" r="7.0" fill="var(--panel)" fill-opacity="0.85" stroke="currentColor" stroke-width="1.5"/>
+<circle cx="70.6" cy="117.9" r="2.0" fill="currentColor"/>
+<circle cx="94.4" cy="122.7" r="7.0" fill="var(--panel)" fill-opacity="0.85" stroke="currentColor" stroke-width="1.5"/>
+<circle cx="94.4" cy="122.7" r="2.0" fill="currentColor"/>
+<text x="241.0" y="80.0" font-size="11" fill="currentColor">post top, 76 in above grade</text>
+<text x="241.0" y="113.9" font-size="11" fill="var(--arch)">wire leaves the face at 74 in</text>
+<text x="241.0" y="135.8" font-size="11" fill="var(--arch)">and enters it at 72 in</text>
+<text x="241.0" y="180.6" font-size="11" fill="currentColor">#9 x 1.25 in screw + 1 in washer,</text>
+<text x="241.0" y="197.4" font-size="11" fill="currentColor">one each side of the wire</text>
+<text x="241.0" y="245.0" font-size="11" fill="currentColor" opacity="0.75">the crown is off to the right</text>
+<text x="82.5" y="273.8" font-size="10" fill="currentColor" text-anchor="middle">3.5 in post face</text>
+</svg>
+      <figcaption>Top of a trellis post, seen from inside the bed: the panel&#x27;s edge wire climbs across the post&#x27;s 3.5 in face between 72 and 74 in above grade and the post ends 4 in higher, level with the crown. Two #9 x 1.25 in screws with washers, one each side of the wire, hold it; 1.25 in stays inside the post&#x27;s 1.5 in thickness, so nothing pokes out of its back at the near end.</figcaption>
+    </figure>
+  </div>
+  <div class="note">The model wires are 1/2 in for visibility; real panels are 4-gauge and weigh about 35 to 40 lb each, so ignore the model&#x27;s steel mass. A 48 or 50 in wide panel makes the tunnel that much shorter along the walkway; shorten the sills to match. Arch BC (between beds B and C at the far end) is still modeled on the old wall-top scheme and is hidden (parked) in the model: the same bed-centre scheme there needs one more 8 ft post on Bed C&#x27;s west wall opposite Bed B&#x27;s far corner. There is no arch between beds C and D.</div>
+</section>
+
+<section id="hoops">
+  <h2>Low-tunnel hoops</h2>
+  <div class="card tablewrap"><table>
+    <thead><tr><th>Over</th><th>Hoops</th><th>Pitch</th><th>Width</th><th>Top above grade</th><th>Legs</th><th>Tube each</th><th>Tube in all</th></tr></thead>
+    <tbody><tr><td>Bed C (14 ft)</td><td>6</td><td>31 in</td><td>40 in</td><td>57 in</td><td>36 in</td><td>136 in (11.4 ft)</td><td>68 ft</td></tr></tbody>
+  </table></div>
+  <p>6 hoops of 1 in tube cover Bed C: the first stands 5 in inside the near end board, the last 5 in inside the far one, and they are 31 in apart. Each hoop is 40 in wide between its legs, 3.5 in clear of the side walls, with 36 in straight legs that go down through the 14.5 in of soil to grade (set them before the beds are filled, or push them in afterwards) and a 64 in semicircular top of 20 in radius; the crown is 57 in above grade, 43 in above the soil.</p><p>Tube: 136 in (11.4 ft) per hoop, 68 ft in all. A 10 ft stick is short, so either bend 12 ft stock or join two pieces with a coupling low in one leg. If the tunnel gets a cover, it needs about 9 ft of width over the hoops and 17 ft of length to reach the soil at both ends.</p>
+</section>
+
+<section id="drip">
+  <h2>Drip risers</h2>
+  <div class="card tablewrap"><table>
+    <thead><tr><th>Item</th><th>Value</th></tr></thead>
+    <tbody><tr><td>Risers</td><td>4, one per bed, on the outside of each far end wall</td></tr><tr><td>Riser position</td><td>9 in from the bed&#x27;s west outside face, 1 1/4 in off the wall</td></tr><tr><td>Hole</td><td>1 in, centred 10 7/8 in above grade (the middle of the top board)</td></tr><tr><td>Ball valve</td><td>3 7/8 in above grade, lever west along the wall</td></tr><tr><td>Clamps</td><td>1 1/2 and 8 3/4 in above grade, one per board</td></tr><tr><td>Head</td><td>base 14 3/8 in, top 16 3/8 in (1 7/8 in above the wall)</td></tr><tr><td>Main</td><td>8 in beyond the end board, 6 1/8 in deep; reducer tee at each riser</td></tr><tr><td>1/2 in pipe per bed</td><td>28 3/4 in: 6 1/4 + 9 + 6 + 3 1/2 + 4</td></tr><tr><td>1/2 in pipe in all</td><td>115 in = 1 x 10 ft stick</td></tr></tbody>
+  </table></div>
+  <p>Every bed gets the same riser on the outside of its far end wall, 9 in from the bed&#x27;s west outside face (beds A, B, C, D): that keeps the hole clear of the edge-on corner post, which reaches 5 in in from the side board, and in Bed C keeps the pipe inside the bed clear of the hoop legs. From the 3/4 in main, 8 in beyond the end board and 6 1/8 in below grade, a 3/4 x 3/4 x 1/2 reducer tee feeds 6 1/4 in of 1/2 in pipe along the ground, an elbow turning up, 9 in of pipe up the outside of the wall, the ball valve, 6 in more pipe, an elbow turning into the bed, 3 1/2 in of pipe through a 1 in hole, an elbow turning up inside the bed, and 4 in of pipe to the 4-port 1/4 in drip head.</p><p>The hole is centred 10 7/8 in above grade, 3 5/8 in up the top board, so it sits in the middle of that board and the elbows on either side of the wall stop 1/4 in short of it; the riser stands 1 1/4 in off the wall. The valve is 3 7/8 in above grade with its lever pointing west along the wall. Two stand-off clamps at 1 1/2 and 8 3/4 in, each screwed into a single board with two screws, hold the riser and so the valve. Inside the bed the head stands on 4 in of pipe: its base is at 14 3/8 in, just under the 14 1/2 in wall top, and its four 1/4 in barbs are about 1 1/2 in above the soil line, where the 1/4 in drip lines start.</p><p>Per bed: one reducer tee, 3 elbows, one valve, one head with a 1/2 in male adapter to thread it on (not modelled; the head sits straight on the pipe in the model), two clamps with four screws, and 28 3/4 in of 1/2 in pipe cut 6 1/4 + 9 + 6 + 3 1/2 + 4. All 4 risers need 115 in of pipe: 1 x 10 ft stick with 2 5/8 in to spare after the kerfs. Prime and cement the slip joints, tape the head&#x27;s thread, and bore the holes with a 1 in spade bit, in place or before the top boards go on.</p>
+  <div class="two">
+    <figure class="detail">
+      <svg viewBox="0 0 654 353" role="img" aria-label="Side view of a drip riser at the far end wall of a bed: the buried 3/4 in main and reducer tee outside, 1/2 in pipe up the outside of the wall through a ball valve held by two clamps, an elbow through a hole in the top board, and a 4-port drip head standing inside the bed" xmlns="http://www.w3.org/2000/svg">
+<rect x="212.0" y="229.7" width="210.0" height="97.5" rx="0" fill="currentColor" opacity="0.06"/>
+<rect x="356.0" y="67.7" width="66.0" height="162.0" rx="0" fill="var(--lumber)" opacity="0.12"/>
+<line x1="212.0" y1="229.7" x2="422.0" y2="229.7" stroke="currentColor" stroke-width="1" stroke-dasharray="5 3" opacity="0.7"/>
+<rect x="338.0" y="142.7" width="18.0" height="87.0" rx="0" fill="var(--lumber)" opacity="0.55" stroke="var(--lumber)" stroke-width="1.2"/>
+<rect x="338.0" y="55.7" width="18.0" height="87.0" rx="0" fill="var(--lumber)" opacity="0.55" stroke="var(--lumber)" stroke-width="1.2"/>
+<rect x="336.2" y="93.2" width="21.6" height="12.0" rx="0" fill="var(--panel)" stroke="var(--arch)" stroke-width="1.3" stroke-dasharray="3 2"/>
+<rect x="245.0" y="298.2" width="75.0" height="10.1" rx="0" fill="var(--panel)" stroke="currentColor" stroke-width="1.2"/>
+<rect x="318.0" y="192.2" width="10.1" height="108.0" rx="0" fill="var(--panel)" stroke="currentColor" stroke-width="1.2"/>
+<rect x="318.0" y="102.2" width="10.1" height="72.0" rx="0" fill="var(--panel)" stroke="currentColor" stroke-width="1.2"/>
+<rect x="326.0" y="94.2" width="42.0" height="10.1" rx="0" fill="var(--panel)" stroke="currentColor" stroke-width="1.2"/>
+<rect x="366.0" y="48.2" width="10.1" height="48.0" rx="0" fill="var(--panel)" stroke="currentColor" stroke-width="1.2"/>
+<rect x="242.0" y="296.2" width="12.0" height="14.0" rx="2" fill="var(--panel)" stroke="currentColor" stroke-width="1.2"/>
+<circle cx="242.0" cy="303.2" r="8.4" fill="var(--panel)" stroke="currentColor" stroke-width="1.2"/>
+<circle cx="242.0" cy="303.2" r="6.3" fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.6"/>
+<rect x="311.0" y="296.2" width="12.0" height="14.0" rx="2" fill="var(--panel)" stroke="currentColor" stroke-width="1.2"/>
+<rect x="316.0" y="291.2" width="14.0" height="12.0" rx="2" fill="var(--panel)" stroke="currentColor" stroke-width="1.2"/>
+<circle cx="323.0" cy="303.2" r="7.0" fill="var(--panel)" stroke="currentColor" stroke-width="1.2"/>
+<rect x="323.0" y="92.2" width="12.0" height="14.0" rx="2" fill="var(--panel)" stroke="currentColor" stroke-width="1.2"/>
+<rect x="316.0" y="99.2" width="14.0" height="12.0" rx="2" fill="var(--panel)" stroke="currentColor" stroke-width="1.2"/>
+<circle cx="323.0" cy="99.2" r="7.0" fill="var(--panel)" stroke="currentColor" stroke-width="1.2"/>
+<rect x="359.0" y="92.2" width="12.0" height="14.0" rx="2" fill="var(--panel)" stroke="currentColor" stroke-width="1.2"/>
+<rect x="364.0" y="87.2" width="14.0" height="12.0" rx="2" fill="var(--panel)" stroke="currentColor" stroke-width="1.2"/>
+<circle cx="371.0" cy="99.2" r="7.0" fill="var(--panel)" stroke="currentColor" stroke-width="1.2"/>
+<rect x="316.0" y="165.2" width="14.0" height="36.0" rx="2" fill="var(--panel)" stroke="currentColor" stroke-width="1.2"/>
+<rect x="313.4" y="171.2" width="19.2" height="24.0" rx="3" fill="var(--panel)" stroke="currentColor" stroke-width="1.2"/>
+<line x1="313.4" y1="183.2" x2="307.4" y2="183.2" stroke="currentColor" stroke-width="2.5"/>
+<circle cx="304.8" cy="183.2" r="2.8" fill="var(--panel)" stroke="currentColor" stroke-width="1.2"/>
+<rect x="315.6" y="205.7" width="22.4" height="12.0" rx="0" fill="currentColor" opacity="0.5" stroke="currentColor" stroke-width="1"/>
+<rect x="315.6" y="118.7" width="22.4" height="12.0" rx="0" fill="currentColor" opacity="0.5" stroke="currentColor" stroke-width="1"/>
+<rect x="363.5" y="33.2" width="15.0" height="24.0" rx="2" fill="var(--panel)" stroke="currentColor" stroke-width="1.2"/>
+<rect x="356.6" y="37.0" width="7.2" height="3.1" rx="0" fill="var(--panel)" stroke="currentColor" stroke-width="1.2"/>
+<rect x="378.2" y="37.0" width="7.2" height="3.1" rx="0" fill="var(--panel)" stroke="currentColor" stroke-width="1.2"/>
+<line x1="206.0" y1="81.8" x2="316.0" y2="94.4" stroke="currentColor" stroke-width="0.9" opacity="0.8"/><text x="202.0" y="85.8" font-size="12" fill="currentColor" text-anchor="end" paint-order="stroke" stroke="var(--panel)" stroke-width="3" stroke-linejoin="round">1/2 in elbows each side of the wall</text>
+<line x1="206.0" y1="99.8" x2="336.2" y2="99.8" stroke="var(--arch)" stroke-width="0.9" opacity="0.8"/><text x="202.0" y="103.8" font-size="12" fill="var(--arch)" text-anchor="end" paint-order="stroke" stroke="var(--panel)" stroke-width="3" stroke-linejoin="round">1 in hole, 10 7/8 in up</text>
+<line x1="206.0" y1="124.7" x2="315.6" y2="124.7" stroke="currentColor" stroke-width="0.9" opacity="0.8"/><text x="202.0" y="128.7" font-size="12" fill="currentColor" text-anchor="end" paint-order="stroke" stroke="var(--panel)" stroke-width="3" stroke-linejoin="round">clamp 8 3/4 in up, 6 in pipe above</text>
+<line x1="206.0" y1="183.2" x2="302.0" y2="183.2" stroke="currentColor" stroke-width="0.9" opacity="0.8"/><text x="202.0" y="187.2" font-size="12" fill="currentColor" text-anchor="end" paint-order="stroke" stroke="var(--panel)" stroke-width="3" stroke-linejoin="round">ball valve 3 7/8 in up</text>
+<line x1="206.0" y1="211.7" x2="315.6" y2="211.7" stroke="currentColor" stroke-width="0.9" opacity="0.8"/><text x="202.0" y="215.7" font-size="12" fill="currentColor" text-anchor="end" paint-order="stroke" stroke="var(--panel)" stroke-width="3" stroke-linejoin="round">clamp 1 1/2 in up, 9 in pipe</text>
+<text x="202.0" y="233.7" font-size="12" fill="currentColor" text-anchor="end" opacity="0.8">grade</text>
+<line x1="206.0" y1="287.0" x2="282.5" y2="298.2" stroke="currentColor" stroke-width="0.9" opacity="0.8"/><text x="202.0" y="291.0" font-size="12" fill="currentColor" text-anchor="end" paint-order="stroke" stroke="var(--panel)" stroke-width="3" stroke-linejoin="round">6 1/4 in pipe on the main</text>
+<line x1="206.0" y1="304.4" x2="233.6" y2="304.4" stroke="currentColor" stroke-width="0.9" opacity="0.8"/><text x="202.0" y="308.4" font-size="12" fill="currentColor" text-anchor="end" paint-order="stroke" stroke="var(--panel)" stroke-width="3" stroke-linejoin="round">3/4 x 1/2 tee, 8 in out, 6 1/8 in deep</text>
+<line x1="426.0" y1="35.6" x2="385.4" y2="38.6" stroke="currentColor" stroke-width="0.9" opacity="0.8"/><text x="430.0" y="39.6" font-size="12" fill="currentColor" paint-order="stroke" stroke="var(--panel)" stroke-width="3" stroke-linejoin="round">4-port 1/4 in head, top 16 3/8 in</text>
+<line x1="426.0" y1="58.1" x2="356.0" y2="55.7" stroke="currentColor" stroke-width="0.9" opacity="0.8"/><text x="430.0" y="62.1" font-size="12" fill="currentColor" paint-order="stroke" stroke="var(--panel)" stroke-width="3" stroke-linejoin="round">wall top 14 1/2 in, soil about 1 in below</text>
+<line x1="426.0" y1="79.4" x2="376.0" y2="72.8" stroke="currentColor" stroke-width="0.9" opacity="0.8"/><text x="430.0" y="83.4" font-size="12" fill="currentColor" paint-order="stroke" stroke="var(--panel)" stroke-width="3" stroke-linejoin="round">4 in pipe inside the bed</text>
+<line x1="426.0" y1="96.2" x2="378.0" y2="93.2" stroke="currentColor" stroke-width="0.9" opacity="0.8"/><text x="430.0" y="100.2" font-size="12" fill="currentColor" paint-order="stroke" stroke="var(--panel)" stroke-width="3" stroke-linejoin="round">elbow hub 1/4 in clear of the board</text>
+<text x="398.0" y="187.7" font-size="12" fill="currentColor" text-anchor="middle" opacity="0.7">bed soil</text>
+<text x="215.6" y="321.2" font-size="11" fill="currentColor" opacity="0.7">outside the bed at the left, inside at the right</text>
+</svg>
+      <figcaption>Side view at a far end wall, outside at the left: the reducer tee on the buried main, 6 1/4 in of pipe to the elbow, the riser up the outside of the wall through the ball valve between its two clamps, the elbow through the 1 in hole in the top board, and the head on 4 in of pipe inside the bed. The dashed outline is the hole.</figcaption>
+    </figure>
+    <figure class="detail">
+      <svg viewBox="0 0 493 273" role="img" aria-label="Back view of a bed's far end wall from outside: the side board ends, the two end boards with the corner posts dashed behind them, the riser 9 in from the west face with its clamps and ball valve, the hole behind the upper elbow, the head showing above the wall, and the buried main dashed below grade" xmlns="http://www.w3.org/2000/svg">
+<defs><marker id="bdim" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1 L8 5 L2 9" fill="none" stroke="currentColor" stroke-width="1.4"/></marker></defs>
+<rect x="13.0" y="177.1" width="467.5" height="74.2" rx="0" fill="currentColor" opacity="0.06"/>
+<line x1="13.0" y1="177.1" x2="480.5" y2="177.1" stroke="currentColor" stroke-width="1" stroke-dasharray="5 3" opacity="0.7"/>
+<line x1="13.0" y1="229.1" x2="480.5" y2="229.1" stroke="currentColor" stroke-width="2.5" stroke-dasharray="7 4" opacity="0.5"/>
+<rect x="42.8" y="115.5" width="408.0" height="61.6" rx="0" fill="var(--lumber)" opacity="0.5" stroke="var(--lumber)" stroke-width="1.2"/>
+<rect x="30.0" y="115.5" width="12.8" height="61.6" rx="0" fill="var(--lumber)" opacity="0.85" stroke="var(--lumber)" stroke-width="1.2"/>
+<rect x="450.8" y="115.5" width="12.8" height="61.6" rx="0" fill="var(--lumber)" opacity="0.85" stroke="var(--lumber)" stroke-width="1.2"/>
+<rect x="42.8" y="53.8" width="408.0" height="61.6" rx="0" fill="var(--lumber)" opacity="0.5" stroke="var(--lumber)" stroke-width="1.2"/>
+<rect x="30.0" y="53.8" width="12.8" height="61.6" rx="0" fill="var(--lumber)" opacity="0.85" stroke="var(--lumber)" stroke-width="1.2"/>
+<rect x="450.8" y="53.8" width="12.8" height="61.6" rx="0" fill="var(--lumber)" opacity="0.85" stroke="var(--lumber)" stroke-width="1.2"/>
+<rect x="42.8" y="53.8" width="29.8" height="123.2" rx="0" fill="none" stroke="currentColor" stroke-width="1.1" stroke-dasharray="4 3" opacity="0.8"/>
+<rect x="421.0" y="53.8" width="29.8" height="123.2" rx="0" fill="none" stroke="currentColor" stroke-width="1.1" stroke-dasharray="4 3" opacity="0.8"/>
+<rect x="101.2" y="37.9" width="10.6" height="15.9" rx="2" fill="var(--panel)" stroke="currentColor" stroke-width="1.2"/>
+<rect x="96.3" y="40.6" width="5.1" height="2.2" rx="0" fill="var(--panel)" stroke="currentColor" stroke-width="1.2"/>
+<rect x="111.6" y="40.6" width="5.1" height="2.2" rx="0" fill="var(--panel)" stroke="currentColor" stroke-width="1.2"/>
+<rect x="102.9" y="86.8" width="7.1" height="140.2" rx="0" fill="var(--panel)" stroke="currentColor" stroke-width="1.2"/>
+<rect x="101.5" y="220.6" width="9.9" height="13.5" rx="2" fill="var(--panel)" stroke="currentColor" stroke-width="1.2"/>
+<circle cx="106.5" cy="229.1" r="5.0" fill="var(--panel)" stroke="currentColor" stroke-width="1.2"/>
+<rect x="101.5" y="79.7" width="9.9" height="13.5" rx="2" fill="var(--panel)" stroke="currentColor" stroke-width="1.2"/>
+<circle cx="106.5" cy="84.6" r="5.0" fill="var(--panel)" stroke="currentColor" stroke-width="1.2"/>
+<circle cx="106.5" cy="84.6" r="4.2" fill="none" stroke="var(--arch)" stroke-width="1.3" stroke-dasharray="3 2"/>
+<rect x="101.5" y="131.4" width="9.9" height="25.5" rx="2" fill="var(--panel)" stroke="currentColor" stroke-width="1.2"/>
+<rect x="99.7" y="135.6" width="13.6" height="17.0" rx="3" fill="var(--panel)" stroke="currentColor" stroke-width="1.2"/>
+<circle cx="106.5" cy="144.1" r="1.7" fill="var(--panel)" stroke="currentColor" stroke-width="1.2"/>
+<rect x="84.4" y="142.9" width="20.4" height="2.6" rx="0" fill="var(--panel)" stroke="currentColor" stroke-width="1.2"/>
+<rect x="95.9" y="160.1" width="21.2" height="8.5" rx="0" fill="currentColor" opacity="0.5" stroke="currentColor" stroke-width="1"/>
+<circle cx="98.8" cy="164.3" r="2" fill="var(--panel)"/>
+<circle cx="114.2" cy="164.3" r="2" fill="var(--panel)"/>
+<rect x="95.9" y="98.5" width="21.2" height="8.5" rx="0" fill="currentColor" opacity="0.5" stroke="currentColor" stroke-width="1"/>
+<circle cx="98.8" cy="102.7" r="2" fill="var(--panel)"/>
+<circle cx="114.2" cy="102.7" r="2" fill="var(--panel)"/>
+<line x1="30.0" y1="189.0" x2="106.5" y2="189.0" stroke="currentColor" stroke-width="1" marker-start="url(#bdim)" marker-end="url(#bdim)"/>
+<text x="68.2" y="203.0" font-size="12" fill="currentColor" text-anchor="middle" paint-order="stroke" stroke="var(--panel)" stroke-width="3" stroke-linejoin="round">9 in</text>
+<line x1="129.7" y1="40.4" x2="116.7" y2="41.7" stroke="currentColor" stroke-width="0.9" opacity="0.8"/><text x="133.7" y="44.4" font-size="12" fill="currentColor" paint-order="stroke" stroke="var(--panel)" stroke-width="3" stroke-linejoin="round">head above the soil, barbs 1 1/2 in up</text>
+<line x1="129.7" y1="83.8" x2="111.5" y2="83.8" stroke="var(--arch)" stroke-width="0.9" opacity="0.8"/><text x="133.7" y="87.8" font-size="12" fill="var(--arch)" paint-order="stroke" stroke="var(--panel)" stroke-width="3" stroke-linejoin="round">1 in hole behind the elbow (dashed)</text>
+<line x1="129.7" y1="102.7" x2="117.1" y2="102.7" stroke="currentColor" stroke-width="0.9" opacity="0.8"/><text x="133.7" y="106.7" font-size="12" fill="currentColor" paint-order="stroke" stroke="var(--panel)" stroke-width="3" stroke-linejoin="round">stand-off clamp, 2 screws into one board</text>
+<line x1="129.7" y1="144.1" x2="113.3" y2="144.1" stroke="currentColor" stroke-width="0.9" opacity="0.8"/><text x="133.7" y="148.1" font-size="12" fill="currentColor" paint-order="stroke" stroke="var(--panel)" stroke-width="3" stroke-linejoin="round">ball valve, lever west along the wall</text>
+<line x1="129.7" y1="164.3" x2="117.1" y2="164.3" stroke="currentColor" stroke-width="0.9" opacity="0.8"/><text x="133.7" y="168.3" font-size="12" fill="currentColor" paint-order="stroke" stroke="var(--panel)" stroke-width="3" stroke-linejoin="round">second clamp on the bottom board</text>
+<line x1="129.7" y1="242.8" x2="111.5" y2="232.5" stroke="currentColor" stroke-width="0.9" opacity="0.8"/><text x="133.7" y="246.8" font-size="12" fill="currentColor" paint-order="stroke" stroke="var(--panel)" stroke-width="3" stroke-linejoin="round">3/4 in main 6 1/8 in down (dashed); its branch comes toward you</text>
+<text x="435.9" y="115.5" font-size="11" fill="currentColor" text-anchor="middle" transform="rotate(-90 435.9 115.5)" opacity="0.8">corner post behind</text>
+<text x="478.5" y="190.1" font-size="11" fill="currentColor" text-anchor="end" opacity="0.7">grade</text>
+</svg>
+      <figcaption>Back view of a far end wall from outside the bed (west at the left): side board ends, the two end boards with the corner posts dashed behind them, the riser 9 in from the west face with its clamps and valve, the 1 in hole behind the upper elbow, the head above the wall, and the main dashed 6 1/8 in below grade. Bed D&#x27;s wall is 24 in wide; its riser sits at the same 9 in.</figcaption>
+    </figure>
+  </div>
+  <div class="note">The 3/4 in main is drawn only to place the tees: a stair-step 8 in beyond each far end board, 6 1/8 in deep, stepping to the next bed at the gap centres under the paver paths (26 ft and 6 elbows as drawn). The plot&#x27;s angled edge passes only 2 to 4 in beyond the inner step corners, so the real route may have to cut those corners. Change the main&#x27;s offset or depth, the pipe lengths or the riser position in scripts/fusion_build_irrigation.py and run it again; the risers and holes follow.</div>
+</section>
+
+<section id="soil">
+  <h2>Soil</h2>
+  <div class="card tablewrap"><table>
+    <thead><tr><th>Bed</th><th>Inside</th><th>Depth</th><th>Volume</th></tr></thead>
+    <tbody><tr><td>Bed A</td><td>48 x 117 in</td><td><span class="sw" data-v8="14.5 in" data-v10="18.5 in">14.5 in</span></td><td><span class="sw" data-v8="46.5 cu ft" data-v10="59.5 cu ft">46.5 cu ft</span></td></tr><tr><td>Bed B</td><td>48 x 141 in</td><td><span class="sw" data-v8="14.5 in" data-v10="18.5 in">14.5 in</span></td><td><span class="sw" data-v8="56.2 cu ft" data-v10="71.8 cu ft">56.2 cu ft</span></td></tr><tr><td>Bed C</td><td>48 x 165 in</td><td><span class="sw" data-v8="14.5 in" data-v10="18.5 in">14.5 in</span></td><td><span class="sw" data-v8="66.0 cu ft" data-v10="84.4 cu ft">66.0 cu ft</span></td></tr><tr><td>Bed D</td><td>21 x 189 in</td><td><span class="sw" data-v8="14.5 in" data-v10="18.5 in">14.5 in</span></td><td><span class="sw" data-v8="32.9 cu ft" data-v10="42.1 cu ft">32.9 cu ft</span></td></tr><tr><td><b>Total</b></td><td></td><td></td><td><b><span class="sw" data-v8="202 cu ft" data-v10="258 cu ft">202 cu ft</span> = <span class="sw" data-v8="7.5 cu yd" data-v10="9.5 cu yd">7.5 cu yd</span></b></td></tr></tbody>
+  </table></div>
+  <p class="muted">Volumes subtract the posts. The 2x8 / 2x10 switch above changes depth and soil only; the cut list and screw counts are the same either way.</p>
+</section>
+
+<section id="optional">
+  <h2>Optional items modeled but hidden</h2>
+  <ul>
+    <li><b>Single-tube arch</b> (Garden Arch): 1 in tube, 7 ft span, 42 in legs, 7 ft tall, about 18 ft of tube. Same spot as Arch AB; superseded.</li>
+    <li><b>Hardware cloth</b> under the beds (gopher barrier): about 56 linear ft of 48 in roll, trimmed to 21 in for Bed D.</li>
+  </ul>
+</section>
+
+<section id="model">
+  <h2>Model notes</h2>
+  <ul>
+    <li>New component <b>Bed Lumber</b> holds the buildable beds (2x8 walls, 2x4 posts). The original 4 in-wall massing bodies in <b>Raised Beds</b> are hidden and kept as the layout reference the arch sketches use.</li>
+    <li>New user parameters: <code>Board_Width</code> (7.25 in = 2x8; 9.25 in = 2x10), <code>Courses</code> (2) and <code>Mid_Post_Length</code> (24 in), plus <code>Board_Thickness</code> and <code>Post_Size</code> for reference. Bed height = Courses x Board_Width; each bed's <code>Mid post extrude</code> runs Courses x Board_Width up and the rest of Mid_Post_Length down from the Posts sketch.</li>
+    <li>Physical materials fixed: pavers are now <b>Concrete (paver)</b> at 2300 kg/m3 (they were pine with a concrete look); arch wires are <b>Steel, Galvanized</b>; the tube arch is <b>Steel</b>.</li>
+    <li>Part numbers and descriptions filled in on every component; "Forth Paver Path" renamed "Fourth Paver Path".</li>
+    <li>The ten superseded rolled-back features that sat after the timeline marker (Position5, R-Pattern2, the old Sketch1 to Sketch4 / Extrude1 to Extrude3 bed layout, and a broken CopyPaste 2x8x8:3) were deleted on 2026-11-05.</li>
+    <li>2026-11-06, trellis arch: Arch AB now runs from the centre of Bed A to the centre of Bed B with its feet on the ground (parametric Move "Onto the sills": 21 in across the beds, 1.25 in along them, Board_Thickness up). New parameters <code>Trellis_Post_Length</code> (96 in), <code>Trellis_Post_Embed</code> (20 in) and <code>Stake_Above_Sill</code> (12 in). The inside corner post at the near end of beds A and B moved out of <code>Post extrude</code> into a two-sided <code>Trellis post extrude</code> (body "2x4 trellis post"); each of those beds got an "Arch anchors" sketch with a <code>Sill extrude</code> (body "2x4 sill") and a two-sided <code>Stake extrude</code> (bodies "2x4 stake"). <code>Hogwire_height</code> is <code>(Hogwire_length - Hogwire_archlength) / 2</code> = 37.1 in. The earlier wall-top scheme of the same day (72 in posts under the arch legs) is superseded: Arch BC is hidden (parked) and its posts are ordinary again. The T-post anchors are gone.</li>
+    <li>2026-11-06, hoops: the six root-level Garden Hoops occurrences (one seed at the plot edge, a copy over Bed B and the root pattern R-Pattern2) are now an assembly. Component <b>Garden Hoops</b> holds one occurrence of the part, renamed <b>Hoop</b> (body &quot;1 in tube hoop&quot;, visible again), placed over Bed C&#x27;s centreline 6.5 in from the near end, and a rectangular pattern &quot;Hoops along the bed&quot; along the assembly Y axis driven by the new parameters <code>Hoop_Count</code> (6) and <code>Hoop_Pitch</code> (31 in). Change either parameter to respace the tunnel.</li>
+    <li>2026-11-06, drip risers: new root component <b>Drip Irrigation</b> holds one <b>Drip riser</b> component placed at each bed&#x27;s far end wall and the reference <b>3/4 in main (existing)</b>. Their bodies are temporary-BRep solids in one base feature per component (not parametric: scripts/fusion_build_irrigation.py holds the numbers and rebuilds everything on re-run). Each bed&#x27;s lumber component got a &quot;Drip hole&quot; sketch on the outer face of its top far end board and a through-all <code>Drip hole cut</code> (1 in). Materials PVC-Piping, clamps Steel, Galvanized; all of it in the timeline group &quot;Drip irrigation&quot;. fusion_build_bed_lumber.py does not know about the holes, so run the irrigation script again after rebuilding the lumber.</li>
+    <li>The Fusion document was saved on 2026-11-06 with the bed-centre arch, sills, stakes, the hoop assembly over Bed C and the drip risers in place.</li>
+  </ul>
+  <p class="muted">Model mass by material (visible bodies): Concrete (paver) 1,328 lb, Steel, Galvanized 180 lb, Pine 825 lb, Iron, Wrought 182 lb, PVC-Piping 22 lb. The model hoops are solid 1 in rod of wrought iron, about 30 lb each; real 1 in EMT weighs about 8 lb per hoop.</p>
+</section>
+</div>
+<script>
+(function () {
+  var root = document.documentElement;
+  function setTheme(t) {
+    if (t) root.setAttribute('data-theme', t); else root.removeAttribute('data-theme');
+    var b = document.getElementById('themeBtn');
+    if (b) b.textContent = (t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme: dark)').matches)) ? 'Light theme' : 'Dark theme';
+  }
+  var saved = null;
+  try { saved = localStorage.getItem('fg-theme'); } catch (e) {}
+  setTheme(saved);
+  document.getElementById('themeBtn').addEventListener('click', function () {
+    var cur = root.getAttribute('data-theme');
+    var isDark = cur === 'dark' || (!cur && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    var next = isDark ? 'light' : 'dark';
+    setTheme(next);
+    try { localStorage.setItem('fg-theme', next); } catch (e) {}
+  });
+
+  function setLumber(v) {
+    document.querySelectorAll('.sw').forEach(function (el) { el.textContent = el.getAttribute(v === '10' ? 'data-v10' : 'data-v8'); });
+    document.querySelectorAll('.seg button').forEach(function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-l') === v ? 'true' : 'false'); });
+    document.querySelectorAll('.nom').forEach(function (el) { el.textContent = v === '10' ? '2x10' : '2x8'; });
+  }
+  var lv = '8';
+  try { lv = localStorage.getItem('fg-lumber') || '8'; } catch (e) {}
+  setLumber(lv);
+  document.querySelectorAll('.seg button').forEach(function (b) {
+    b.addEventListener('click', function () { setLumber(b.getAttribute('data-l')); try { localStorage.setItem('fg-lumber', b.getAttribute('data-l')); } catch (e) {} });
+  });
+
+  var tip = document.getElementById('tip');
+  function show(e, el) {
+    tip.textContent = el.getAttribute('data-tip');
+    tip.style.display = 'block';
+    var x = e.clientX + 14, y = e.clientY + 14;
+    if (x + 330 > window.innerWidth) x = e.clientX - 330;
+    if (y + 60 > window.innerHeight) y = e.clientY - 60;
+    tip.style.left = x + 'px'; tip.style.top = y + 'px';
+  }
+  document.querySelectorAll('[data-tip]').forEach(function (el) {
+    el.addEventListener('mousemove', function (e) { show(e, el); });
+    el.addEventListener('mouseleave', function () { tip.style.display = 'none'; });
+    el.addEventListener('click', function (e) { show(e, el); });
+  });
+
+  var copyBtn = document.getElementById('copyBtn');
+  var ta = document.getElementById('copyText');
+  copyBtn.addEventListener('click', function () {
+    var text = ta.value;
+    function fallback() { ta.style.display = 'block'; ta.focus(); ta.select(); copyBtn.textContent = 'Select and copy the text below'; }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () { copyBtn.textContent = 'Copied'; setTimeout(function () { copyBtn.textContent = 'Copy shopping list'; }, 1800); }, fallback);
+    } else { fallback(); }
+  });
+})();
+</script>
+</body>
+</html>

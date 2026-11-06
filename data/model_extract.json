@@ -1,0 +1,6917 @@
+{
+ "document": "Raised Bed Design",
+ "units": "in",
+ "params": {
+  "Bed_Length": {
+   "expression": "10'-0\"",
+   "value_in": 120.0,
+   "unit": "ft",
+   "comment": ""
+  },
+  "Bed_Width": {
+   "expression": "PaverBed_Ratio * Paver_Size + ( PaverBed_Ratio - 1 ) * Paver_Spacing",
+   "value_in": 57.0,
+   "unit": "ft",
+   "comment": ""
+  },
+  "Bed_Spacing": {
+   "expression": "PaverSpacing_Ratio * ( Paver_Size + Paver_Spacing ) + Paver_Spacing",
+   "value_in": 33.0,
+   "unit": "in",
+   "comment": ""
+  },
+  "Paver_Size": {
+   "expression": "12\"",
+   "value_in": 12.0,
+   "unit": "in",
+   "comment": ""
+  },
+  "Paver_Spacing": {
+   "expression": "3 in",
+   "value_in": 3.0,
+   "unit": "in",
+   "comment": ""
+  },
+  "PaverBed_Ratio": {
+   "expression": "4",
+   "value_in": 4.0,
+   "unit": "",
+   "comment": ""
+  },
+  "First_Bed_Width": {
+   "expression": "( PaverBed_Ratio - 1 ) * Paver_Size + ( PaverBed_Ratio - 2 ) * Paver_Spacing",
+   "value_in": 42.0,
+   "unit": "in",
+   "comment": ""
+  },
+  "Last_Bed_Width": {
+   "expression": "( PaverBed_Ratio - 1 ) * Paver_Size + ( PaverBed_Ratio - 2 ) * Paver_Spacing",
+   "value_in": 42.0,
+   "unit": "in",
+   "comment": ""
+  },
+  "PaverSpacing_Ratio": {
+   "expression": "2",
+   "value_in": 2.0,
+   "unit": "",
+   "comment": ""
+  },
+  "Hogwire_length": {
+   "expression": "16'-0\"",
+   "value_in": 192.0,
+   "unit": "in",
+   "comment": ""
+  },
+  "Hogwire_height": {
+   "expression": "( Hogwire_length - Hogwire_archlength ) / 2",
+   "value_in": 37.0817,
+   "unit": "in",
+   "comment": "Straight leg of each arch: what is left of one panel after the semicircular top"
+  },
+  "Hogwire_archlength": {
+   "expression": "6'-3 1/32\" * 3.141 / 2",
+   "value_in": 117.8366,
+   "unit": "in",
+   "comment": ""
+  },
+  "Board_Thickness": {
+   "expression": "1.5 in",
+   "value_in": 1.5,
+   "unit": "in",
+   "comment": "Actual thickness of 2x lumber (reference; sketches drawn at 1.5 in)"
+  },
+  "Board_Width": {
+   "expression": "7.25 in",
+   "value_in": 7.25,
+   "unit": "in",
+   "comment": "Actual face width of one course: 7.25 = 2x8, 9.25 = 2x10, 5.5 = 2x6"
+  },
+  "Courses": {
+   "expression": "2",
+   "value_in": 2.0,
+   "unit": "",
+   "comment": "Number of stacked board courses per bed (bed height = Courses * Board_Width)"
+  },
+  "Post_Size": {
+   "expression": "3.5 in",
+   "value_in": 3.5,
+   "unit": "in",
+   "comment": "2x4 posts are 1.5 x 3.5 in; value is reference only"
+  },
+  "Mid_Post_Length": {
+   "expression": "24 in",
+   "value_in": 24.0,
+   "unit": "in",
+   "comment": "Total length of each mid-span 2x4 post: Courses * Board_Width above grade, the rest driven into the ground"
+  },
+  "Trellis_Post_Length": {
+   "expression": "96 in",
+   "value_in": 96.0,
+   "unit": "in",
+   "comment": "Total length of each 2x4 trellis post (the inside corner post under each arch, uncut 8 ft stick): Trellis_Post_Embed in the ground, the rest above grade"
+  },
+  "Trellis_Post_Embed": {
+   "expression": "20 in",
+   "value_in": 20.0,
+   "unit": "in",
+   "comment": "How deep each 8 ft trellis post is set; 20 in puts its top 4 in above where the panel crosses it"
+  },
+  "Stake_Above_Sill": {
+   "expression": "12 in",
+   "value_in": 12.0,
+   "unit": "in",
+   "comment": "Height of each arch-foot stake above the sill it is screwed to; the rest of the Mid_Post_Length stake is in the ground"
+  },
+  "Hoop_Count": {
+   "expression": "6",
+   "value_in": 6.0,
+   "unit": "",
+   "comment": "Number of low-tunnel hoops over Bed C (14 ft)"
+  },
+  "Hoop_Pitch": {
+   "expression": "31 in",
+   "value_in": 31.0,
+   "unit": "in",
+   "comment": "Spacing of the hoops along Bed C: 5 x 31 in = 155 in, so the first and last hoops sit 5 in inside the end boards of the 168 in bed"
+  }
+ },
+ "components": [
+  {
+   "path": "Raised Beds:1",
+   "name": "Raised Beds",
+   "partNumber": "REF-BED-MASSING",
+   "description": "Massing reference for bed footprints (4 in walls, 18 in tall). Hidden; buildable lumber is in Bed Lumber.",
+   "visible": true,
+   "bodyCount": 4
+  },
+  {
+   "path": "Small Pavers:1+12x12 Paver:1",
+   "name": "12x12 Paver",
+   "partNumber": "PAVER-12x12x1.5",
+   "description": "12 x 12 x 1.5 in concrete paver, 2-row walkway along north edge (38 pavers, 15 in pitch)",
+   "visible": true,
+   "bodyCount": 38
+  },
+  {
+   "path": "Small Pavers:1+First Bed Path:1",
+   "name": "First Bed Path",
+   "partNumber": "PATH-1",
+   "description": "Paver path between Bed D (16 ft) and Bed C (14 ft): 11 pavers, 18 in pitch",
+   "visible": true,
+   "bodyCount": 11
+  },
+  {
+   "path": "Small Pavers:1+Second Bed Path:1",
+   "name": "Second Bed Path",
+   "partNumber": "PATH-2",
+   "description": "Paver path between Bed C (14 ft) and Bed B (12 ft): 10 pavers, 18 in pitch",
+   "visible": true,
+   "bodyCount": 10
+  },
+  {
+   "path": "Small Pavers:1+Third Paver Path:1",
+   "name": "Third Paver Path",
+   "partNumber": "PATH-3",
+   "description": "Paver path between Bed B (12 ft) and Bed A (10 ft): 8 pavers, 18 in pitch",
+   "visible": true,
+   "bodyCount": 8
+  },
+  {
+   "path": "Small Pavers:1+Fourth Paver Path:1",
+   "name": "Fourth Paver Path",
+   "partNumber": "PATH-4",
+   "description": "Paver path west of Bed A (10 ft): 7 pavers, 18 in pitch",
+   "visible": true,
+   "bodyCount": 7
+  },
+  {
+   "path": "Small Pavers:1",
+   "name": "Small Pavers",
+   "partNumber": "ASM-PAVERS",
+   "description": "All 12x12 paver walkways and bed paths",
+   "visible": true,
+   "bodyCount": 0
+  },
+  {
+   "path": "Garden Arches:1+Garden Arch:1",
+   "name": "Garden Arch",
+   "partNumber": "OPT-ARCH-TUBE-1",
+   "description": "OPTIONAL / hidden: 1 in tube arch, 7 ft span, 42 in legs, 84 in tall, 18 ft of tube",
+   "visible": false,
+   "bodyCount": 1
+  },
+  {
+   "path": "Garden Arches:1",
+   "name": "Garden Arches",
+   "partNumber": "OPT-ARCH-TUBE",
+   "description": "OPTIONAL / hidden: alternative single-tube arch (superseded by Arch AB)",
+   "visible": false,
+   "bodyCount": 0
+  },
+  {
+   "path": "Hogwire Arches:1+Arch AB:1",
+   "name": "Arch AB",
+   "partNumber": "ARCH-AB",
+   "description": "16 ft x 60 in galvanized 4x4 hog-wire panel arched from the centre of Bed A (10 ft) to the centre of Bed B (12 ft): 75 in between the feet, feet on flat 2x4 sills lying on grade at the bed centrelines (Move \"Onto the sills\": 21 in, 1.25 in, Board_Thickness), 37.1 in straight legs (Hogwire_height), crown about 76 in above grade. The near edge wire is screwed with washers to the two inside corner posts (8 ft trellis posts) just below the crown.",
+   "visible": true,
+   "bodyCount": 16
+  },
+  {
+   "path": "Hogwire Arches:1+Arch BC:1",
+   "name": "Arch BC",
+   "partNumber": "ARCH-BC",
+   "description": "PARKED / hidden 2026-11-06: second arch between Bed B (far end) and Bed C, still on the old wall-top geometry. To build it, apply the Arch AB scheme (feet at the bed centrelines on sills, inside posts as upper supports); Bed C needs one added edge-on post on its west wall at the far end of Bed B.",
+   "visible": false,
+   "bodyCount": 16
+  },
+  {
+   "path": "Hogwire Arches:1",
+   "name": "Hogwire Arches",
+   "partNumber": "ASM-ARCHES",
+   "description": "Hog-wire trellis arches between beds. Arch AB: feet on sills at the bed centrelines, held by stakes; the near edge wire screwed with washers to the two inside corner posts, which are uncut 8 ft 2x4s (Trellis_Post_Length) set Trellis_Post_Embed deep. Arch BC is parked (hidden). No T-posts.",
+   "visible": true,
+   "bodyCount": 0
+  },
+  {
+   "path": "Bed Lumber:1+Bed A - 10 ft:1",
+   "name": "Bed A - 10 ft",
+   "partNumber": "BED-A",
+   "description": "Bed A: 51 x 120 in outside (10 ft), inside 48 x 117 in. Side boards full length outside, end boards 48 in between them, 4 corner 2x4 posts + 4 mid-span 2x4 posts (3.5 in face flat against the side boards, Mid_Post_Length long, driven into the ground). Replaces massing body \"4th Bed\". The NE corner post (walkway side, near end) is the 8 ft trellis post under Arch AB; a sill + 2 stakes at the bed centreline anchor the arch foot.",
+   "visible": true,
+   "bodyCount": 19
+  },
+  {
+   "path": "Bed Lumber:1+Bed B - 12 ft:1",
+   "name": "Bed B - 12 ft",
+   "partNumber": "BED-B",
+   "description": "Bed B: 51 x 144 in outside (12 ft), inside 48 x 141 in. Side boards full length outside, end boards 48 in between them, 4 corner 2x4 posts + 4 mid-span 2x4 posts (3.5 in face flat against the side boards, Mid_Post_Length long, driven into the ground). Replaces massing body \"3rd Bed\". The NW corner post (walkway side, near end) is the 8 ft trellis post under Arch AB; a sill + 2 stakes at the bed centreline anchor the arch foot.",
+   "visible": true,
+   "bodyCount": 19
+  },
+  {
+   "path": "Bed Lumber:1+Bed C - 14 ft:1",
+   "name": "Bed C - 14 ft",
+   "partNumber": "BED-C",
+   "description": "Bed C: 51 x 168 in outside (14 ft), inside 48 x 165 in. Side boards full length outside, end boards 48 in between them, 4 corner 2x4 posts + 6 mid-span 2x4 posts (3.5 in face flat against the side boards, Mid_Post_Length long, driven into the ground). Replaces massing body \"2nd Bed\". No trellis posts (Arch BC parked).",
+   "visible": true,
+   "bodyCount": 18
+  },
+  {
+   "path": "Bed Lumber:1+Bed D - 16 ft x 2 ft:1",
+   "name": "Bed D - 16 ft x 2 ft",
+   "partNumber": "BED-D",
+   "description": "Bed D: 24 x 192 in outside (16 ft), inside 21 x 189 in. Side boards full length outside, end boards 21 in between them, 4 corner 2x4 posts + 6 mid-span 2x4 posts (3.5 in face flat against the side boards, Mid_Post_Length long, driven into the ground). Replaces massing body \"1st Bed\".",
+   "visible": true,
+   "bodyCount": 18
+  },
+  {
+   "path": "Bed Lumber:1",
+   "name": "Bed Lumber",
+   "partNumber": "ASM-BED-LUMBER",
+   "description": "Buildable lumber for all four beds: 2x boards (Courses x Board_Width tall) with 2x4 posts inside: corner posts edge-on to the side boards, mid-span posts flat against them and Mid_Post_Length long so they drive into the ground. Under Arch AB: the inside corner post of Bed A and of Bed B is an 8 ft trellis post (Trellis_Post_Length, Trellis_Post_Embed deep), and each bed has a 2x4 sill on grade at its centreline with two Mid_Post_Length stakes (bodies \"2x4 sill\", \"2x4 stake\").",
+   "visible": true,
+   "bodyCount": 0
+  },
+  {
+   "path": "Garden Hoops:1+Hoop:1",
+   "name": "Hoop",
+   "partNumber": "HOOP-40",
+   "description": "Low-tunnel hoop: 1 in tube bent 40 in wide with 36 in legs, 57 in tall, legs pushed into the bed soil down to grade. Sketch1 + Sweep1; placed and patterned by the Garden Hoops assembly.",
+   "visible": true,
+   "bodyCount": 1
+  },
+  {
+   "path": "Garden Hoops:1+Hoop:7",
+   "name": "Hoop",
+   "partNumber": "HOOP-40",
+   "description": "Low-tunnel hoop: 1 in tube bent 40 in wide with 36 in legs, 57 in tall, legs pushed into the bed soil down to grade. Sketch1 + Sweep1; placed and patterned by the Garden Hoops assembly.",
+   "visible": true,
+   "bodyCount": 1
+  },
+  {
+   "path": "Garden Hoops:1+Hoop:8",
+   "name": "Hoop",
+   "partNumber": "HOOP-40",
+   "description": "Low-tunnel hoop: 1 in tube bent 40 in wide with 36 in legs, 57 in tall, legs pushed into the bed soil down to grade. Sketch1 + Sweep1; placed and patterned by the Garden Hoops assembly.",
+   "visible": true,
+   "bodyCount": 1
+  },
+  {
+   "path": "Garden Hoops:1+Hoop:9",
+   "name": "Hoop",
+   "partNumber": "HOOP-40",
+   "description": "Low-tunnel hoop: 1 in tube bent 40 in wide with 36 in legs, 57 in tall, legs pushed into the bed soil down to grade. Sketch1 + Sweep1; placed and patterned by the Garden Hoops assembly.",
+   "visible": true,
+   "bodyCount": 1
+  },
+  {
+   "path": "Garden Hoops:1+Hoop:10",
+   "name": "Hoop",
+   "partNumber": "HOOP-40",
+   "description": "Low-tunnel hoop: 1 in tube bent 40 in wide with 36 in legs, 57 in tall, legs pushed into the bed soil down to grade. Sketch1 + Sweep1; placed and patterned by the Garden Hoops assembly.",
+   "visible": true,
+   "bodyCount": 1
+  },
+  {
+   "path": "Garden Hoops:1+Hoop:11",
+   "name": "Hoop",
+   "partNumber": "HOOP-40",
+   "description": "Low-tunnel hoop: 1 in tube bent 40 in wide with 36 in legs, 57 in tall, legs pushed into the bed soil down to grade. Sketch1 + Sweep1; placed and patterned by the Garden Hoops assembly.",
+   "visible": true,
+   "bodyCount": 1
+  },
+  {
+   "path": "Garden Hoops:1",
+   "name": "Garden Hoops",
+   "partNumber": "HOOPS-BED-C",
+   "description": "Six low-tunnel hoops over Bed C (14 ft, \"Bed C - 14 ft\"): one Hoop occurrence placed over the bed centreline 6.5 in from the near end, patterned Hoop_Count times at Hoop_Pitch along the bed by \"Hoops along the bed\". Moved here from Bed B on 2026-11-06 (they conflicted with Arch AB there).",
+   "visible": true,
+   "bodyCount": 0
+  },
+  {
+   "path": "Drip Irrigation:1+Drip riser:1",
+   "name": "Drip riser",
+   "partNumber": "IRR-RISER",
+   "description": "One bed's drip riser: 3/4 x 1/2 reducer tee on the main (8 in beyond the end board, 6.125 in deep), 6.25 in ground pipe, elbow, 9 in riser, ball valve 3.875 in above grade, 6 in riser, elbow, 3.5 in through the top board (1 in hole centred 10.875 in up), elbow, 4 in to a 4-port 1/4 in head. Two stand-off clamps at 1.5 and 8.75 in. Local frame: wall outside face at y = 0, bed toward +y, riser at x = 0.",
+   "visible": true,
+   "bodyCount": 13
+  },
+  {
+   "path": "Drip Irrigation:1+Drip riser:2",
+   "name": "Drip riser",
+   "partNumber": "IRR-RISER",
+   "description": "One bed's drip riser: 3/4 x 1/2 reducer tee on the main (8 in beyond the end board, 6.125 in deep), 6.25 in ground pipe, elbow, 9 in riser, ball valve 3.875 in above grade, 6 in riser, elbow, 3.5 in through the top board (1 in hole centred 10.875 in up), elbow, 4 in to a 4-port 1/4 in head. Two stand-off clamps at 1.5 and 8.75 in. Local frame: wall outside face at y = 0, bed toward +y, riser at x = 0.",
+   "visible": true,
+   "bodyCount": 13
+  },
+  {
+   "path": "Drip Irrigation:1+Drip riser:3",
+   "name": "Drip riser",
+   "partNumber": "IRR-RISER",
+   "description": "One bed's drip riser: 3/4 x 1/2 reducer tee on the main (8 in beyond the end board, 6.125 in deep), 6.25 in ground pipe, elbow, 9 in riser, ball valve 3.875 in above grade, 6 in riser, elbow, 3.5 in through the top board (1 in hole centred 10.875 in up), elbow, 4 in to a 4-port 1/4 in head. Two stand-off clamps at 1.5 and 8.75 in. Local frame: wall outside face at y = 0, bed toward +y, riser at x = 0.",
+   "visible": true,
+   "bodyCount": 13
+  },
+  {
+   "path": "Drip Irrigation:1+Drip riser:4",
+   "name": "Drip riser",
+   "partNumber": "IRR-RISER",
+   "description": "One bed's drip riser: 3/4 x 1/2 reducer tee on the main (8 in beyond the end board, 6.125 in deep), 6.25 in ground pipe, elbow, 9 in riser, ball valve 3.875 in above grade, 6 in riser, elbow, 3.5 in through the top board (1 in hole centred 10.875 in up), elbow, 4 in to a 4-port 1/4 in head. Two stand-off clamps at 1.5 and 8.75 in. Local frame: wall outside face at y = 0, bed toward +y, riser at x = 0.",
+   "visible": true,
+   "bodyCount": 13
+  },
+  {
+   "path": "Drip Irrigation:1+3/4 in main (existing):1",
+   "name": "3/4 in main (existing)",
+   "partNumber": "IRR-MAIN",
+   "description": "Reference only: the existing 3/4 in sprinkler main drawn as a stair-step 8 in beyond each bed's far end board, axis 6.125 in below grade, stepping at the gap centres. Its real route is the owner's; the risers tee off it.",
+   "visible": true,
+   "bodyCount": 13
+  },
+  {
+   "path": "Drip Irrigation:1",
+   "name": "Drip Irrigation",
+   "partNumber": "IRR-DRIP",
+   "description": "Drip risers on the far end wall of each bed, tapped off the 3/4 in main that runs along the stair-step far ends. One \"Drip riser\" component placed per bed; the main is a reference. Built by scripts/fusion_build_irrigation.py on 2026-11-06.",
+   "visible": true,
+   "bodyCount": 0
+  }
+ ],
+ "bodies": [
+  {
+   "component": "Raised Beds",
+   "path": "Raised Beds:1",
+   "body": "3rd Bed",
+   "visible": false,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    18.0,
+    51.0,
+    144.0
+   ],
+   "min": [
+    -174.0,
+    -144.0,
+    0.0
+   ],
+   "max": [
+    -123.0,
+    0.0,
+    18.0
+   ],
+   "volume_in3": 26928.0,
+   "mass_kg": 251.6379
+  },
+  {
+   "component": "Raised Beds",
+   "path": "Raised Beds:1",
+   "body": "2nd Bed",
+   "visible": false,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    18.0,
+    51.0,
+    168.0
+   ],
+   "min": [
+    -99.0,
+    -168.0,
+    0.0
+   ],
+   "max": [
+    -48.0,
+    0.0,
+    18.0
+   ],
+   "volume_in3": 30384.0,
+   "mass_kg": 283.9337
+  },
+  {
+   "component": "Raised Beds",
+   "path": "Raised Beds:1",
+   "body": "4th Bed",
+   "visible": false,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    18.0,
+    51.0,
+    120.0
+   ],
+   "min": [
+    -249.0,
+    -120.0,
+    0.0
+   ],
+   "max": [
+    -198.0,
+    0.0,
+    18.0
+   ],
+   "volume_in3": 23472.0,
+   "mass_kg": 219.3421
+  },
+  {
+   "component": "Raised Beds",
+   "path": "Raised Beds:1",
+   "body": "1st Bed",
+   "visible": false,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    18.0,
+    24.0,
+    192.0
+   ],
+   "min": [
+    -24.0,
+    -192.0,
+    0.0
+   ],
+   "max": [
+    0.0,
+    0.0,
+    18.0
+   ],
+   "volume_in3": 29952.0,
+   "mass_kg": 279.8967
+  },
+  {
+   "component": "12x12 Paver",
+   "path": "Small Pavers:1+12x12 Paver:1",
+   "body": "Body1",
+   "visible": true,
+   "material": "Concrete (paver)",
+   "appearance": "Concrete",
+   "dims_in": [
+    1.5,
+    12.0,
+    12.0
+   ],
+   "min": [
+    -12.0,
+    3.0,
+    0.0
+   ],
+   "max": [
+    0.0,
+    15.0,
+    1.5
+   ],
+   "volume_in3": 216.0,
+   "mass_kg": 8.1411
+  },
+  {
+   "component": "12x12 Paver",
+   "path": "Small Pavers:1+12x12 Paver:1",
+   "body": "Body80",
+   "visible": true,
+   "material": "Concrete (paver)",
+   "appearance": "Concrete",
+   "dims_in": [
+    1.5,
+    12.0,
+    12.0
+   ],
+   "min": [
+    -27.0,
+    3.0,
+    0.0
+   ],
+   "max": [
+    -15.0,
+    15.0,
+    1.5
+   ],
+   "volume_in3": 216.0,
+   "mass_kg": 8.1411
+  },
+  {
+   "component": "12x12 Paver",
+   "path": "Small Pavers:1+12x12 Paver:1",
+   "body": "Body81",
+   "visible": true,
+   "material": "Concrete (paver)",
+   "appearance": "Concrete",
+   "dims_in": [
+    1.5,
+    12.0,
+    12.0
+   ],
+   "min": [
+    -42.0,
+    3.0,
+    0.0
+   ],
+   "max": [
+    -30.0,
+    15.0,
+    1.5
+   ],
+   "volume_in3": 216.0,
+   "mass_kg": 8.1411
+  },
+  {
+   "component": "12x12 Paver",
+   "path": "Small Pavers:1+12x12 Paver:1",
+   "body": "Body82",
+   "visible": true,
+   "material": "Concrete (paver)",
+   "appearance": "Concrete",
+   "dims_in": [
+    1.5,
+    12.0,
+    12.0
+   ],
+   "min": [
+    -57.0,
+    3.0,
+    0.0
+   ],
+   "max": [
+    -45.0,
+    15.0,
+    1.5
+   ],
+   "volume_in3": 216.0,
+   "mass_kg": 8.1411
+  },
+  {
+   "component": "12x12 Paver",
+   "path": "Small Pavers:1+12x12 Paver:1",
+   "body": "Body83",
+   "visible": true,
+   "material": "Concrete (paver)",
+   "appearance": "Concrete",
+   "dims_in": [
+    1.5,
+    12.0,
+    12.0
+   ],
+   "min": [
+    -72.0,
+    3.0,
+    0.0
+   ],
+   "max": [
+    -60.0,
+    15.0,
+    1.5
+   ],
+   "volume_in3": 216.0,
+   "mass_kg": 8.1411
+  },
+  {
+   "component": "12x12 Paver",
+   "path": "Small Pavers:1+12x12 Paver:1",
+   "body": "Body84",
+   "visible": true,
+   "material": "Concrete (paver)",
+   "appearance": "Concrete",
+   "dims_in": [
+    1.5,
+    12.0,
+    12.0
+   ],
+   "min": [
+    -87.0,
+    3.0,
+    0.0
+   ],
+   "max": [
+    -75.0,
+    15.0,
+    1.5
+   ],
+   "volume_in3": 216.0,
+   "mass_kg": 8.1411
+  },
+  {
+   "component": "12x12 Paver",
+   "path": "Small Pavers:1+12x12 Paver:1",
+   "body": "Body85",
+   "visible": true,
+   "material": "Concrete (paver)",
+   "appearance": "Concrete",
+   "dims_in": [
+    1.5,
+    12.0,
+    12.0
+   ],
+   "min": [
+    -102.0,
+    3.0,
+    0.0
+   ],
+   "max": [
+    -90.0,
+    15.0,
+    1.5
+   ],
+   "volume_in3": 216.0,
+   "mass_kg": 8.1411
+  },
+  {
+   "component": "12x12 Paver",
+   "path": "Small Pavers:1+12x12 Paver:1",
+   "body": "Body86",
+   "visible": true,
+   "material": "Concrete (paver)",
+   "appearance": "Concrete",
+   "dims_in": [
+    1.5,
+    12.0,
+    12.0
+   ],
+   "min": [
+    -117.0,
+    3.0,
+    0.0
+   ],
+   "max": [
+    -105.0,
+    15.0,
+    1.5
+   ],
+   "volume_in3": 216.0,
+   "mass_kg": 8.1411
+  },
+  {
+   "component": "12x12 Paver",
+   "path": "Small Pavers:1+12x12 Paver:1",
+   "body": "Body87",
+   "visible": true,
+   "material": "Concrete (paver)",
+   "appearance": "Concrete",
+   "dims_in": [
+    1.5,
+    12.0,
+    12.0
+   ],
+   "min": [
+    -132.0,
+    3.0,
+    0.0
+   ],
+   "max": [
+    -120.0,
+    15.0,
+    1.5
+   ],
+   "volume_in3": 216.0,
+   "mass_kg": 8.1411
+  },
+  {
+   "component": "12x12 Paver",
+   "path": "Small Pavers:1+12x12 Paver:1",
+   "body": "Body88",
+   "visible": true,
+   "material": "Concrete (paver)",
+   "appearance": "Concrete",
+   "dims_in": [
+    1.5,
+    12.0,
+    12.0
+   ],
+   "min": [
+    -147.0,
+    3.0,
+    0.0
+   ],
+   "max": [
+    -135.0,
+    15.0,
+    1.5
+   ],
+   "volume_in3": 216.0,
+   "mass_kg": 8.1411
+  },
+  {
+   "component": "12x12 Paver",
+   "path": "Small Pavers:1+12x12 Paver:1",
+   "body": "Body89",
+   "visible": true,
+   "material": "Concrete (paver)",
+   "appearance": "Concrete",
+   "dims_in": [
+    1.5,
+    12.0,
+    12.0
+   ],
+   "min": [
+    -162.0,
+    3.0,
+    0.0
+   ],
+   "max": [
+    -150.0,
+    15.0,
+    1.5
+   ],
+   "volume_in3": 216.0,
+   "mass_kg": 8.1411
+  },
+  {
+   "component": "12x12 Paver",
+   "path": "Small Pavers:1+12x12 Paver:1",
+   "body": "Body90",
+   "visible": true,
+   "material": "Concrete (paver)",
+   "appearance": "Concrete",
+   "dims_in": [
+    1.5,
+    12.0,
+    12.0
+   ],
+   "min": [
+    -177.0,
+    3.0,
+    0.0
+   ],
+   "max": [
+    -165.0,
+    15.0,
+    1.5
+   ],
+   "volume_in3": 216.0,
+   "mass_kg": 8.1411
+  },
+  {
+   "component": "12x12 Paver",
+   "path": "Small Pavers:1+12x12 Paver:1",
+   "body": "Body91",
+   "visible": true,
+   "material": "Concrete (paver)",
+   "appearance": "Concrete",
+   "dims_in": [
+    1.5,
+    12.0,
+    12.0
+   ],
+   "min": [
+    -192.0,
+    3.0,
+    0.0
+   ],
+   "max": [
+    -180.0,
+    15.0,
+    1.5
+   ],
+   "volume_in3": 216.0,
+   "mass_kg": 8.1411
+  },
+  {
+   "component": "12x12 Paver",
+   "path": "Small Pavers:1+12x12 Paver:1",
+   "body": "Body92",
+   "visible": true,
+   "material": "Concrete (paver)",
+   "appearance": "Concrete",
+   "dims_in": [
+    1.5,
+    12.0,
+    12.0
+   ],
+   "min": [
+    -207.0,
+    3.0,
+    0.0
+   ],
+   "max": [
+    -195.0,
+    15.0,
+    1.5
+   ],
+   "volume_in3": 216.0,
+   "mass_kg": 8.1411
+  },
+  {
+   "component": "12x12 Paver",
+   "path": "Small Pavers:1+12x12 Paver:1",
+   "body": "Body93",
+   "visible": true,
+   "material": "Concrete (paver)",
+   "appearance": "Concrete",
+   "dims_in": [
+    1.5,
+    12.0,
+    12.0
+   ],
+   "min": [
+    -222.0,
+    3.0,
+    0.0
+   ],
+   "max": [
+    -210.0,
+    15.0,
+    1.5
+   ],
+   "volume_in3": 216.0,
+   "mass_kg": 8.1411
+  },
+  {
+   "component": "12x12 Paver",
+   "path": "Small Pavers:1+12x12 Paver:1",
+   "body": "Body94",
+   "visible": true,
+   "material": "Concrete (paver)",
+   "appearance": "Concrete",
+   "dims_in": [
+    1.5,
+    12.0,
+    12.0
+   ],
+   "min": [
+    -237.0,
+    3.0,
+    0.0
+   ],
+   "max": [
+    -225.0,
+    15.0,
+    1.5
+   ],
+   "volume_in3": 216.0,
+   "mass_kg": 8.1411
+  },
+  {
+   "component": "12x12 Paver",
+   "path": "Small Pavers:1+12x12 Paver:1",
+   "body": "Body95",
+   "visible": true,
+   "material": "Concrete (paver)",
+   "appearance": "Concrete",
+   "dims_in": [
+    1.5,
+    12.0,
+    12.0
+   ],
+   "min": [
+    -252.0,
+    3.0,
+    0.0
+   ],
+   "max": [
+    -240.0,
+    15.0,
+    1.5
+   ],
+   "volume_in3": 216.0,
+   "mass_kg": 8.1411
+  },
+  {
+   "component": "12x12 Paver",
+   "path": "Small Pavers:1+12x12 Paver:1",
+   "body": "Body96",
+   "visible": true,
+   "material": "Concrete (paver)",
+   "appearance": "Concrete",
+   "dims_in": [
+    1.5,
+    12.0,
+    12.0
+   ],
+   "min": [
+    -267.0,
+    3.0,
+    0.0
+   ],
+   "max": [
+    -255.0,
+    15.0,
+    1.5
+   ],
+   "volume_in3": 216.0,
+   "mass_kg": 8.1411
+  },
+  {
+   "component": "12x12 Paver",
+   "path": "Small Pavers:1+12x12 Paver:1",
+   "body": "Body97",
+   "visible": true,
+   "material": "Concrete (paver)",
+   "appearance": "Concrete",
+   "dims_in": [
+    1.5,
+    12.0,
+    12.0
+   ],
+   "min": [
+    -282.0,
+    3.0,
+    0.0
+   ],
+   "max": [
+    -270.0,
+    15.0,
+    1.5
+   ],
+   "volume_in3": 216.0,
+   "mass_kg": 8.1411
+  },
+  {
+   "component": "12x12 Paver",
+   "path": "Small Pavers:1+12x12 Paver:1",
+   "body": "Body98",
+   "visible": true,
+   "material": "Concrete (paver)",
+   "appearance": "Concrete",
+   "dims_in": [
+    1.5,
+    12.0,
+    12.0
+   ],
+   "min": [
+    -12.0,
+    18.0,
+    0.0
+   ],
+   "max": [
+    0.0,
+    30.0,
+    1.5
+   ],
+   "volume_in3": 216.0,
+   "mass_kg": 8.1411
+  },
+  {
+   "component": "12x12 Paver",
+   "path": "Small Pavers:1+12x12 Paver:1",
+   "body": "Body99",
+   "visible": true,
+   "material": "Concrete (paver)",
+   "appearance": "Concrete",
+   "dims_in": [
+    1.5,
+    12.0,
+    12.0
+   ],
+   "min": [
+    -27.0,
+    18.0,
+    0.0
+   ],
+   "max": [
+    -15.0,
+    30.0,
+    1.5
+   ],
+   "volume_in3": 216.0,
+   "mass_kg": 8.1411
+  },
+  {
+   "component": "12x12 Paver",
+   "path": "Small Pavers:1+12x12 Paver:1",
+   "body": "Body100",
+   "visible": true,
+   "material": "Concrete (paver)",
+   "appearance": "Concrete",
+   "dims_in": [
+    1.5,
+    12.0,
+    12.0
+   ],
+   "min": [
+    -42.0,
+    18.0,
+    0.0
+   ],
+   "max": [
+    -30.0,
+    30.0,
+    1.5
+   ],
+   "volume_in3": 216.0,
+   "mass_kg": 8.1411
+  },
+  {
+   "component": "12x12 Paver",
+   "path": "Small Pavers:1+12x12 Paver:1",
+   "body": "Body101",
+   "visible": true,
+   "material": "Concrete (paver)",
+   "appearance": "Concrete",
+   "dims_in": [
+    1.5,
+    12.0,
+    12.0
+   ],
+   "min": [
+    -57.0,
+    18.0,
+    0.0
+   ],
+   "max": [
+    -45.0,
+    30.0,
+    1.5
+   ],
+   "volume_in3": 216.0,
+   "mass_kg": 8.1411
+  },
+  {
+   "component": "12x12 Paver",
+   "path": "Small Pavers:1+12x12 Paver:1",
+   "body": "Body102",
+   "visible": true,
+   "material": "Concrete (paver)",
+   "appearance": "Concrete",
+   "dims_in": [
+    1.5,
+    12.0,
+    12.0
+   ],
+   "min": [
+    -72.0,
+    18.0,
+    0.0
+   ],
+   "max": [
+    -60.0,
+    30.0,
+    1.5
+   ],
+   "volume_in3": 216.0,
+   "mass_kg": 8.1411
+  },
+  {
+   "component": "12x12 Paver",
+   "path": "Small Pavers:1+12x12 Paver:1",
+   "body": "Body103",
+   "visible": true,
+   "material": "Concrete (paver)",
+   "appearance": "Concrete",
+   "dims_in": [
+    1.5,
+    12.0,
+    12.0
+   ],
+   "min": [
+    -87.0,
+    18.0,
+    0.0
+   ],
+   "max": [
+    -75.0,
+    30.0,
+    1.5
+   ],
+   "volume_in3": 216.0,
+   "mass_kg": 8.1411
+  },
+  {
+   "component": "12x12 Paver",
+   "path": "Small Pavers:1+12x12 Paver:1",
+   "body": "Body104",
+   "visible": true,
+   "material": "Concrete (paver)",
+   "appearance": "Concrete",
+   "dims_in": [
+    1.5,
+    12.0,
+    12.0
+   ],
+   "min": [
+    -102.0,
+    18.0,
+    0.0
+   ],
+   "max": [
+    -90.0,
+    30.0,
+    1.5
+   ],
+   "volume_in3": 216.0,
+   "mass_kg": 8.1411
+  },
+  {
+   "component": "12x12 Paver",
+   "path": "Small Pavers:1+12x12 Paver:1",
+   "body": "Body105",
+   "visible": true,
+   "material": "Concrete (paver)",
+   "appearance": "Concrete",
+   "dims_in": [
+    1.5,
+    12.0,
+    12.0
+   ],
+   "min": [
+    -117.0,
+    18.0,
+    0.0
+   ],
+   "max": [
+    -105.0,
+    30.0,
+    1.5
+   ],
+   "volume_in3": 216.0,
+   "mass_kg": 8.1411
+  },
+  {
+   "component": "12x12 Paver",
+   "path": "Small Pavers:1+12x12 Paver:1",
+   "body": "Body106",
+   "visible": true,
+   "material": "Concrete (paver)",
+   "appearance": "Concrete",
+   "dims_in": [
+    1.5,
+    12.0,
+    12.0
+   ],
+   "min": [
+    -132.0,
+    18.0,
+    0.0
+   ],
+   "max": [
+    -120.0,
+    30.0,
+    1.5
+   ],
+   "volume_in3": 216.0,
+   "mass_kg": 8.1411
+  },
+  {
+   "component": "12x12 Paver",
+   "path": "Small Pavers:1+12x12 Paver:1",
+   "body": "Body107",
+   "visible": true,
+   "material": "Concrete (paver)",
+   "appearance": "Concrete",
+   "dims_in": [
+    1.5,
+    12.0,
+    12.0
+   ],
+   "min": [
+    -147.0,
+    18.0,
+    0.0
+   ],
+   "max": [
+    -135.0,
+    30.0,
+    1.5
+   ],
+   "volume_in3": 216.0,
+   "mass_kg": 8.1411
+  },
+  {
+   "component": "12x12 Paver",
+   "path": "Small Pavers:1+12x12 Paver:1",
+   "body": "Body108",
+   "visible": true,
+   "material": "Concrete (paver)",
+   "appearance": "Concrete",
+   "dims_in": [
+    1.5,
+    12.0,
+    12.0
+   ],
+   "min": [
+    -162.0,
+    18.0,
+    0.0
+   ],
+   "max": [
+    -150.0,
+    30.0,
+    1.5
+   ],
+   "volume_in3": 216.0,
+   "mass_kg": 8.1411
+  },
+  {
+   "component": "12x12 Paver",
+   "path": "Small Pavers:1+12x12 Paver:1",
+   "body": "Body109",
+   "visible": true,
+   "material": "Concrete (paver)",
+   "appearance": "Concrete",
+   "dims_in": [
+    1.5,
+    12.0,
+    12.0
+   ],
+   "min": [
+    -177.0,
+    18.0,
+    0.0
+   ],
+   "max": [
+    -165.0,
+    30.0,
+    1.5
+   ],
+   "volume_in3": 216.0,
+   "mass_kg": 8.1411
+  },
+  {
+   "component": "12x12 Paver",
+   "path": "Small Pavers:1+12x12 Paver:1",
+   "body": "Body110",
+   "visible": true,
+   "material": "Concrete (paver)",
+   "appearance": "Concrete",
+   "dims_in": [
+    1.5,
+    12.0,
+    12.0
+   ],
+   "min": [
+    -192.0,
+    18.0,
+    0.0
+   ],
+   "max": [
+    -180.0,
+    30.0,
+    1.5
+   ],
+   "volume_in3": 216.0,
+   "mass_kg": 8.1411
+  },
+  {
+   "component": "12x12 Paver",
+   "path": "Small Pavers:1+12x12 Paver:1",
+   "body": "Body111",
+   "visible": true,
+   "material": "Concrete (paver)",
+   "appearance": "Concrete",
+   "dims_in": [
+    1.5,
+    12.0,
+    12.0
+   ],
+   "min": [
+    -207.0,
+    18.0,
+    0.0
+   ],
+   "max": [
+    -195.0,
+    30.0,
+    1.5
+   ],
+   "volume_in3": 216.0,
+   "mass_kg": 8.1411
+  },
+  {
+   "component": "12x12 Paver",
+   "path": "Small Pavers:1+12x12 Paver:1",
+   "body": "Body112",
+   "visible": true,
+   "material": "Concrete (paver)",
+   "appearance": "Concrete",
+   "dims_in": [
+    1.5,
+    12.0,
+    12.0
+   ],
+   "min": [
+    -222.0,
+    18.0,
+    0.0
+   ],
+   "max": [
+    -210.0,
+    30.0,
+    1.5
+   ],
+   "volume_in3": 216.0,
+   "mass_kg": 8.1411
+  },
+  {
+   "component": "12x12 Paver",
+   "path": "Small Pavers:1+12x12 Paver:1",
+   "body": "Body113",
+   "visible": true,
+   "material": "Concrete (paver)",
+   "appearance": "Concrete",
+   "dims_in": [
+    1.5,
+    12.0,
+    12.0
+   ],
+   "min": [
+    -237.0,
+    18.0,
+    0.0
+   ],
+   "max": [
+    -225.0,
+    30.0,
+    1.5
+   ],
+   "volume_in3": 216.0,
+   "mass_kg": 8.1411
+  },
+  {
+   "component": "12x12 Paver",
+   "path": "Small Pavers:1+12x12 Paver:1",
+   "body": "Body114",
+   "visible": true,
+   "material": "Concrete (paver)",
+   "appearance": "Concrete",
+   "dims_in": [
+    1.5,
+    12.0,
+    12.0
+   ],
+   "min": [
+    -252.0,
+    18.0,
+    0.0
+   ],
+   "max": [
+    -240.0,
+    30.0,
+    1.5
+   ],
+   "volume_in3": 216.0,
+   "mass_kg": 8.1411
+  },
+  {
+   "component": "12x12 Paver",
+   "path": "Small Pavers:1+12x12 Paver:1",
+   "body": "Body115",
+   "visible": true,
+   "material": "Concrete (paver)",
+   "appearance": "Concrete",
+   "dims_in": [
+    1.5,
+    12.0,
+    12.0
+   ],
+   "min": [
+    -267.0,
+    18.0,
+    0.0
+   ],
+   "max": [
+    -255.0,
+    30.0,
+    1.5
+   ],
+   "volume_in3": 216.0,
+   "mass_kg": 8.1411
+  },
+  {
+   "component": "12x12 Paver",
+   "path": "Small Pavers:1+12x12 Paver:1",
+   "body": "Body116",
+   "visible": true,
+   "material": "Concrete (paver)",
+   "appearance": "Concrete",
+   "dims_in": [
+    1.5,
+    12.0,
+    12.0
+   ],
+   "min": [
+    -282.0,
+    18.0,
+    0.0
+   ],
+   "max": [
+    -270.0,
+    30.0,
+    1.5
+   ],
+   "volume_in3": 216.0,
+   "mass_kg": 8.1411
+  },
+  {
+   "component": "First Bed Path",
+   "path": "Small Pavers:1+First Bed Path:1",
+   "body": "Body1",
+   "visible": true,
+   "material": "Concrete (paver)",
+   "appearance": "Concrete",
+   "dims_in": [
+    1.5,
+    12.0,
+    12.0
+   ],
+   "min": [
+    -42.0,
+    -15.0,
+    0.0
+   ],
+   "max": [
+    -30.0,
+    -3.0,
+    1.5
+   ],
+   "volume_in3": 216.0,
+   "mass_kg": 8.1411
+  },
+  {
+   "component": "First Bed Path",
+   "path": "Small Pavers:1+First Bed Path:1",
+   "body": "Body2",
+   "visible": true,
+   "material": "Concrete (paver)",
+   "appearance": "Concrete",
+   "dims_in": [
+    1.5,
+    12.0,
+    12.0
+   ],
+   "min": [
+    -42.0,
+    -33.0,
+    0.0
+   ],
+   "max": [
+    -30.0,
+    -21.0,
+    1.5
+   ],
+   "volume_in3": 216.0,
+   "mass_kg": 8.1411
+  },
+  {
+   "component": "First Bed Path",
+   "path": "Small Pavers:1+First Bed Path:1",
+   "body": "Body3",
+   "visible": true,
+   "material": "Concrete (paver)",
+   "appearance": "Concrete",
+   "dims_in": [
+    1.5,
+    12.0,
+    12.0
+   ],
+   "min": [
+    -42.0,
+    -51.0,
+    0.0
+   ],
+   "max": [
+    -30.0,
+    -39.0,
+    1.5
+   ],
+   "volume_in3": 216.0,
+   "mass_kg": 8.1411
+  },
+  {
+   "component": "First Bed Path",
+   "path": "Small Pavers:1+First Bed Path:1",
+   "body": "Body4",
+   "visible": true,
+   "material": "Concrete (paver)",
+   "appearance": "Concrete",
+   "dims_in": [
+    1.5,
+    12.0,
+    12.0
+   ],
+   "min": [
+    -42.0,
+    -69.0,
+    0.0
+   ],
+   "max": [
+    -30.0,
+    -57.0,
+    1.5
+   ],
+   "volume_in3": 216.0,
+   "mass_kg": 8.1411
+  },
+  {
+   "component": "First Bed Path",
+   "path": "Small Pavers:1+First Bed Path:1",
+   "body": "Body5",
+   "visible": true,
+   "material": "Concrete (paver)",
+   "appearance": "Concrete",
+   "dims_in": [
+    1.5,
+    12.0,
+    12.0
+   ],
+   "min": [
+    -42.0,
+    -87.0,
+    0.0
+   ],
+   "max": [
+    -30.0,
+    -75.0,
+    1.5
+   ],
+   "volume_in3": 216.0,
+   "mass_kg": 8.1411
+  },
+  {
+   "component": "First Bed Path",
+   "path": "Small Pavers:1+First Bed Path:1",
+   "body": "Body6",
+   "visible": true,
+   "material": "Concrete (paver)",
+   "appearance": "Concrete",
+   "dims_in": [
+    1.5,
+    12.0,
+    12.0
+   ],
+   "min": [
+    -42.0,
+    -105.0,
+    0.0
+   ],
+   "max": [
+    -30.0,
+    -93.0,
+    1.5
+   ],
+   "volume_in3": 216.0,
+   "mass_kg": 8.1411
+  },
+  {
+   "component": "First Bed Path",
+   "path": "Small Pavers:1+First Bed Path:1",
+   "body": "Body7",
+   "visible": true,
+   "material": "Concrete (paver)",
+   "appearance": "Concrete",
+   "dims_in": [
+    1.5,
+    12.0,
+    12.0
+   ],
+   "min": [
+    -42.0,
+    -123.0,
+    0.0
+   ],
+   "max": [
+    -30.0,
+    -111.0,
+    1.5
+   ],
+   "volume_in3": 216.0,
+   "mass_kg": 8.1411
+  },
+  {
+   "component": "First Bed Path",
+   "path": "Small Pavers:1+First Bed Path:1",
+   "body": "Body8",
+   "visible": true,
+   "material": "Concrete (paver)",
+   "appearance": "Concrete",
+   "dims_in": [
+    1.5,
+    12.0,
+    12.0
+   ],
+   "min": [
+    -42.0,
+    -141.0,
+    0.0
+   ],
+   "max": [
+    -30.0,
+    -129.0,
+    1.5
+   ],
+   "volume_in3": 216.0,
+   "mass_kg": 8.1411
+  },
+  {
+   "component": "First Bed Path",
+   "path": "Small Pavers:1+First Bed Path:1",
+   "body": "Body9",
+   "visible": true,
+   "material": "Concrete (paver)",
+   "appearance": "Concrete",
+   "dims_in": [
+    1.5,
+    12.0,
+    12.0
+   ],
+   "min": [
+    -42.0,
+    -159.0,
+    0.0
+   ],
+   "max": [
+    -30.0,
+    -147.0,
+    1.5
+   ],
+   "volume_in3": 216.0,
+   "mass_kg": 8.1411
+  },
+  {
+   "component": "First Bed Path",
+   "path": "Small Pavers:1+First Bed Path:1",
+   "body": "Body10",
+   "visible": true,
+   "material": "Concrete (paver)",
+   "appearance": "Concrete",
+   "dims_in": [
+    1.5,
+    12.0,
+    12.0
+   ],
+   "min": [
+    -42.0,
+    -177.0,
+    0.0
+   ],
+   "max": [
+    -30.0,
+    -165.0,
+    1.5
+   ],
+   "volume_in3": 216.0,
+   "mass_kg": 8.1411
+  },
+  {
+   "component": "First Bed Path",
+   "path": "Small Pavers:1+First Bed Path:1",
+   "body": "Body11",
+   "visible": true,
+   "material": "Concrete (paver)",
+   "appearance": "Concrete",
+   "dims_in": [
+    1.5,
+    12.0,
+    12.0
+   ],
+   "min": [
+    -42.0,
+    -195.0,
+    0.0
+   ],
+   "max": [
+    -30.0,
+    -183.0,
+    1.5
+   ],
+   "volume_in3": 216.0,
+   "mass_kg": 8.1411
+  },
+  {
+   "component": "Second Bed Path",
+   "path": "Small Pavers:1+Second Bed Path:1",
+   "body": "Body1",
+   "visible": true,
+   "material": "Concrete (paver)",
+   "appearance": "Concrete",
+   "dims_in": [
+    1.5,
+    12.0,
+    12.0
+   ],
+   "min": [
+    -117.0,
+    -15.0,
+    0.0
+   ],
+   "max": [
+    -105.0,
+    -3.0,
+    1.5
+   ],
+   "volume_in3": 216.0,
+   "mass_kg": 8.1411
+  },
+  {
+   "component": "Second Bed Path",
+   "path": "Small Pavers:1+Second Bed Path:1",
+   "body": "Body2",
+   "visible": true,
+   "material": "Concrete (paver)",
+   "appearance": "Concrete",
+   "dims_in": [
+    1.5,
+    12.0,
+    12.0
+   ],
+   "min": [
+    -117.0,
+    -33.0,
+    0.0
+   ],
+   "max": [
+    -105.0,
+    -21.0,
+    1.5
+   ],
+   "volume_in3": 216.0,
+   "mass_kg": 8.1411
+  },
+  {
+   "component": "Second Bed Path",
+   "path": "Small Pavers:1+Second Bed Path:1",
+   "body": "Body3",
+   "visible": true,
+   "material": "Concrete (paver)",
+   "appearance": "Concrete",
+   "dims_in": [
+    1.5,
+    12.0,
+    12.0
+   ],
+   "min": [
+    -117.0,
+    -51.0,
+    0.0
+   ],
+   "max": [
+    -105.0,
+    -39.0,
+    1.5
+   ],
+   "volume_in3": 216.0,
+   "mass_kg": 8.1411
+  },
+  {
+   "component": "Second Bed Path",
+   "path": "Small Pavers:1+Second Bed Path:1",
+   "body": "Body4",
+   "visible": true,
+   "material": "Concrete (paver)",
+   "appearance": "Concrete",
+   "dims_in": [
+    1.5,
+    12.0,
+    12.0
+   ],
+   "min": [
+    -117.0,
+    -69.0,
+    0.0
+   ],
+   "max": [
+    -105.0,
+    -57.0,
+    1.5
+   ],
+   "volume_in3": 216.0,
+   "mass_kg": 8.1411
+  },
+  {
+   "component": "Second Bed Path",
+   "path": "Small Pavers:1+Second Bed Path:1",
+   "body": "Body5",
+   "visible": true,
+   "material": "Concrete (paver)",
+   "appearance": "Concrete",
+   "dims_in": [
+    1.5,
+    12.0,
+    12.0
+   ],
+   "min": [
+    -117.0,
+    -87.0,
+    0.0
+   ],
+   "max": [
+    -105.0,
+    -75.0,
+    1.5
+   ],
+   "volume_in3": 216.0,
+   "mass_kg": 8.1411
+  },
+  {
+   "component": "Second Bed Path",
+   "path": "Small Pavers:1+Second Bed Path:1",
+   "body": "Body6",
+   "visible": true,
+   "material": "Concrete (paver)",
+   "appearance": "Concrete",
+   "dims_in": [
+    1.5,
+    12.0,
+    12.0
+   ],
+   "min": [
+    -117.0,
+    -105.0,
+    0.0
+   ],
+   "max": [
+    -105.0,
+    -93.0,
+    1.5
+   ],
+   "volume_in3": 216.0,
+   "mass_kg": 8.1411
+  },
+  {
+   "component": "Second Bed Path",
+   "path": "Small Pavers:1+Second Bed Path:1",
+   "body": "Body7",
+   "visible": true,
+   "material": "Concrete (paver)",
+   "appearance": "Concrete",
+   "dims_in": [
+    1.5,
+    12.0,
+    12.0
+   ],
+   "min": [
+    -117.0,
+    -123.0,
+    0.0
+   ],
+   "max": [
+    -105.0,
+    -111.0,
+    1.5
+   ],
+   "volume_in3": 216.0,
+   "mass_kg": 8.1411
+  },
+  {
+   "component": "Second Bed Path",
+   "path": "Small Pavers:1+Second Bed Path:1",
+   "body": "Body8",
+   "visible": true,
+   "material": "Concrete (paver)",
+   "appearance": "Concrete",
+   "dims_in": [
+    1.5,
+    12.0,
+    12.0
+   ],
+   "min": [
+    -117.0,
+    -141.0,
+    0.0
+   ],
+   "max": [
+    -105.0,
+    -129.0,
+    1.5
+   ],
+   "volume_in3": 216.0,
+   "mass_kg": 8.1411
+  },
+  {
+   "component": "Second Bed Path",
+   "path": "Small Pavers:1+Second Bed Path:1",
+   "body": "Body9",
+   "visible": true,
+   "material": "Concrete (paver)",
+   "appearance": "Concrete",
+   "dims_in": [
+    1.5,
+    12.0,
+    12.0
+   ],
+   "min": [
+    -117.0,
+    -159.0,
+    0.0
+   ],
+   "max": [
+    -105.0,
+    -147.0,
+    1.5
+   ],
+   "volume_in3": 216.0,
+   "mass_kg": 8.1411
+  },
+  {
+   "component": "Second Bed Path",
+   "path": "Small Pavers:1+Second Bed Path:1",
+   "body": "Body10",
+   "visible": true,
+   "material": "Concrete (paver)",
+   "appearance": "Concrete",
+   "dims_in": [
+    1.5,
+    12.0,
+    12.0
+   ],
+   "min": [
+    -117.0,
+    -177.0,
+    0.0
+   ],
+   "max": [
+    -105.0,
+    -165.0,
+    1.5
+   ],
+   "volume_in3": 216.0,
+   "mass_kg": 8.1411
+  },
+  {
+   "component": "Third Paver Path",
+   "path": "Small Pavers:1+Third Paver Path:1",
+   "body": "Body1",
+   "visible": true,
+   "material": "Concrete (paver)",
+   "appearance": "Concrete",
+   "dims_in": [
+    1.5,
+    12.0,
+    12.0
+   ],
+   "min": [
+    -192.0,
+    -15.0,
+    0.0
+   ],
+   "max": [
+    -180.0,
+    -3.0,
+    1.5
+   ],
+   "volume_in3": 216.0,
+   "mass_kg": 8.1411
+  },
+  {
+   "component": "Third Paver Path",
+   "path": "Small Pavers:1+Third Paver Path:1",
+   "body": "Body2",
+   "visible": true,
+   "material": "Concrete (paver)",
+   "appearance": "Concrete",
+   "dims_in": [
+    1.5,
+    12.0,
+    12.0
+   ],
+   "min": [
+    -192.0,
+    -33.0,
+    0.0
+   ],
+   "max": [
+    -180.0,
+    -21.0,
+    1.5
+   ],
+   "volume_in3": 216.0,
+   "mass_kg": 8.1411
+  },
+  {
+   "component": "Third Paver Path",
+   "path": "Small Pavers:1+Third Paver Path:1",
+   "body": "Body3",
+   "visible": true,
+   "material": "Concrete (paver)",
+   "appearance": "Concrete",
+   "dims_in": [
+    1.5,
+    12.0,
+    12.0
+   ],
+   "min": [
+    -192.0,
+    -51.0,
+    0.0
+   ],
+   "max": [
+    -180.0,
+    -39.0,
+    1.5
+   ],
+   "volume_in3": 216.0,
+   "mass_kg": 8.1411
+  },
+  {
+   "component": "Third Paver Path",
+   "path": "Small Pavers:1+Third Paver Path:1",
+   "body": "Body4",
+   "visible": true,
+   "material": "Concrete (paver)",
+   "appearance": "Concrete",
+   "dims_in": [
+    1.5,
+    12.0,
+    12.0
+   ],
+   "min": [
+    -192.0,
+    -69.0,
+    0.0
+   ],
+   "max": [
+    -180.0,
+    -57.0,
+    1.5
+   ],
+   "volume_in3": 216.0,
+   "mass_kg": 8.1411
+  },
+  {
+   "component": "Third Paver Path",
+   "path": "Small Pavers:1+Third Paver Path:1",
+   "body": "Body5",
+   "visible": true,
+   "material": "Concrete (paver)",
+   "appearance": "Concrete",
+   "dims_in": [
+    1.5,
+    12.0,
+    12.0
+   ],
+   "min": [
+    -192.0,
+    -87.0,
+    0.0
+   ],
+   "max": [
+    -180.0,
+    -75.0,
+    1.5
+   ],
+   "volume_in3": 216.0,
+   "mass_kg": 8.1411
+  },
+  {
+   "component": "Third Paver Path",
+   "path": "Small Pavers:1+Third Paver Path:1",
+   "body": "Body6",
+   "visible": true,
+   "material": "Concrete (paver)",
+   "appearance": "Concrete",
+   "dims_in": [
+    1.5,
+    12.0,
+    12.0
+   ],
+   "min": [
+    -192.0,
+    -105.0,
+    0.0
+   ],
+   "max": [
+    -180.0,
+    -93.0,
+    1.5
+   ],
+   "volume_in3": 216.0,
+   "mass_kg": 8.1411
+  },
+  {
+   "component": "Third Paver Path",
+   "path": "Small Pavers:1+Third Paver Path:1",
+   "body": "Body7",
+   "visible": true,
+   "material": "Concrete (paver)",
+   "appearance": "Concrete",
+   "dims_in": [
+    1.5,
+    12.0,
+    12.0
+   ],
+   "min": [
+    -192.0,
+    -123.0,
+    0.0
+   ],
+   "max": [
+    -180.0,
+    -111.0,
+    1.5
+   ],
+   "volume_in3": 216.0,
+   "mass_kg": 8.1411
+  },
+  {
+   "component": "Third Paver Path",
+   "path": "Small Pavers:1+Third Paver Path:1",
+   "body": "Body8",
+   "visible": true,
+   "material": "Concrete (paver)",
+   "appearance": "Concrete",
+   "dims_in": [
+    1.5,
+    12.0,
+    12.0
+   ],
+   "min": [
+    -192.0,
+    -141.0,
+    0.0
+   ],
+   "max": [
+    -180.0,
+    -129.0,
+    1.5
+   ],
+   "volume_in3": 216.0,
+   "mass_kg": 8.1411
+  },
+  {
+   "component": "Fourth Paver Path",
+   "path": "Small Pavers:1+Fourth Paver Path:1",
+   "body": "Body1",
+   "visible": true,
+   "material": "Concrete (paver)",
+   "appearance": "Concrete",
+   "dims_in": [
+    1.5,
+    12.0,
+    12.0
+   ],
+   "min": [
+    -267.0,
+    -15.0,
+    0.0
+   ],
+   "max": [
+    -255.0,
+    -3.0,
+    1.5
+   ],
+   "volume_in3": 216.0,
+   "mass_kg": 8.1411
+  },
+  {
+   "component": "Fourth Paver Path",
+   "path": "Small Pavers:1+Fourth Paver Path:1",
+   "body": "Body2",
+   "visible": true,
+   "material": "Concrete (paver)",
+   "appearance": "Concrete",
+   "dims_in": [
+    1.5,
+    12.0,
+    12.0
+   ],
+   "min": [
+    -267.0,
+    -33.0,
+    0.0
+   ],
+   "max": [
+    -255.0,
+    -21.0,
+    1.5
+   ],
+   "volume_in3": 216.0,
+   "mass_kg": 8.1411
+  },
+  {
+   "component": "Fourth Paver Path",
+   "path": "Small Pavers:1+Fourth Paver Path:1",
+   "body": "Body3",
+   "visible": true,
+   "material": "Concrete (paver)",
+   "appearance": "Concrete",
+   "dims_in": [
+    1.5,
+    12.0,
+    12.0
+   ],
+   "min": [
+    -267.0,
+    -51.0,
+    0.0
+   ],
+   "max": [
+    -255.0,
+    -39.0,
+    1.5
+   ],
+   "volume_in3": 216.0,
+   "mass_kg": 8.1411
+  },
+  {
+   "component": "Fourth Paver Path",
+   "path": "Small Pavers:1+Fourth Paver Path:1",
+   "body": "Body4",
+   "visible": true,
+   "material": "Concrete (paver)",
+   "appearance": "Concrete",
+   "dims_in": [
+    1.5,
+    12.0,
+    12.0
+   ],
+   "min": [
+    -267.0,
+    -69.0,
+    0.0
+   ],
+   "max": [
+    -255.0,
+    -57.0,
+    1.5
+   ],
+   "volume_in3": 216.0,
+   "mass_kg": 8.1411
+  },
+  {
+   "component": "Fourth Paver Path",
+   "path": "Small Pavers:1+Fourth Paver Path:1",
+   "body": "Body5",
+   "visible": true,
+   "material": "Concrete (paver)",
+   "appearance": "Concrete",
+   "dims_in": [
+    1.5,
+    12.0,
+    12.0
+   ],
+   "min": [
+    -267.0,
+    -87.0,
+    0.0
+   ],
+   "max": [
+    -255.0,
+    -75.0,
+    1.5
+   ],
+   "volume_in3": 216.0,
+   "mass_kg": 8.1411
+  },
+  {
+   "component": "Fourth Paver Path",
+   "path": "Small Pavers:1+Fourth Paver Path:1",
+   "body": "Body6",
+   "visible": true,
+   "material": "Concrete (paver)",
+   "appearance": "Concrete",
+   "dims_in": [
+    1.5,
+    12.0,
+    12.0
+   ],
+   "min": [
+    -267.0,
+    -105.0,
+    0.0
+   ],
+   "max": [
+    -255.0,
+    -93.0,
+    1.5
+   ],
+   "volume_in3": 216.0,
+   "mass_kg": 8.1411
+  },
+  {
+   "component": "Fourth Paver Path",
+   "path": "Small Pavers:1+Fourth Paver Path:1",
+   "body": "Body7",
+   "visible": true,
+   "material": "Concrete (paver)",
+   "appearance": "Concrete",
+   "dims_in": [
+    1.5,
+    12.0,
+    12.0
+   ],
+   "min": [
+    -267.0,
+    -123.0,
+    0.0
+   ],
+   "max": [
+    -255.0,
+    -111.0,
+    1.5
+   ],
+   "volume_in3": 216.0,
+   "mass_kg": 8.1411
+  },
+  {
+   "component": "Garden Arch",
+   "path": "Garden Arches:1+Garden Arch:1",
+   "body": "Body1",
+   "visible": false,
+   "material": "Steel",
+   "appearance": "Paint - Metallic (Green)",
+   "dims_in": [
+    1.0,
+    84.5,
+    85.0
+   ],
+   "min": [
+    -229.5,
+    -4.5,
+    0.0
+   ],
+   "max": [
+    -144.5,
+    -3.5,
+    84.5
+   ],
+   "volume_in3": 169.6,
+   "mass_kg": 21.8176
+  },
+  {
+   "component": "Arch AB",
+   "path": "Hogwire Arches:1+Arch AB:1",
+   "body": "Body1",
+   "visible": true,
+   "material": "Steel, Galvanized",
+   "appearance": "Steel - Galvanized (Small)",
+   "dims_in": [
+    0.5,
+    74.832,
+    75.5
+   ],
+   "min": [
+    -223.75,
+    -3.5,
+    1.5
+   ],
+   "max": [
+    -148.25,
+    -3.0,
+    76.332
+   ],
+   "volume_in3": 37.69,
+   "mass_kg": 4.8489
+  },
+  {
+   "component": "Arch AB",
+   "path": "Hogwire Arches:1+Arch AB:1",
+   "body": "Body2",
+   "visible": true,
+   "material": "Steel, Galvanized",
+   "appearance": "Steel - Galvanized (Small)",
+   "dims_in": [
+    0.5,
+    74.832,
+    75.5
+   ],
+   "min": [
+    -223.75,
+    -7.5,
+    1.5
+   ],
+   "max": [
+    -148.25,
+    -7.0,
+    76.332
+   ],
+   "volume_in3": 37.69,
+   "mass_kg": 4.8489
+  },
+  {
+   "component": "Arch AB",
+   "path": "Hogwire Arches:1+Arch AB:1",
+   "body": "Body3",
+   "visible": true,
+   "material": "Steel, Galvanized",
+   "appearance": "Steel - Galvanized (Small)",
+   "dims_in": [
+    0.5,
+    74.832,
+    75.5
+   ],
+   "min": [
+    -223.75,
+    -11.5,
+    1.5
+   ],
+   "max": [
+    -148.25,
+    -11.0,
+    76.332
+   ],
+   "volume_in3": 37.69,
+   "mass_kg": 4.8489
+  },
+  {
+   "component": "Arch AB",
+   "path": "Hogwire Arches:1+Arch AB:1",
+   "body": "Body4",
+   "visible": true,
+   "material": "Steel, Galvanized",
+   "appearance": "Steel - Galvanized (Small)",
+   "dims_in": [
+    0.5,
+    74.832,
+    75.5
+   ],
+   "min": [
+    -223.75,
+    -15.5,
+    1.5
+   ],
+   "max": [
+    -148.25,
+    -15.0,
+    76.332
+   ],
+   "volume_in3": 37.69,
+   "mass_kg": 4.8489
+  },
+  {
+   "component": "Arch AB",
+   "path": "Hogwire Arches:1+Arch AB:1",
+   "body": "Body5",
+   "visible": true,
+   "material": "Steel, Galvanized",
+   "appearance": "Steel - Galvanized (Small)",
+   "dims_in": [
+    0.5,
+    74.832,
+    75.5
+   ],
+   "min": [
+    -223.75,
+    -19.5,
+    1.5
+   ],
+   "max": [
+    -148.25,
+    -19.0,
+    76.332
+   ],
+   "volume_in3": 37.69,
+   "mass_kg": 4.8489
+  },
+  {
+   "component": "Arch AB",
+   "path": "Hogwire Arches:1+Arch AB:1",
+   "body": "Body6",
+   "visible": true,
+   "material": "Steel, Galvanized",
+   "appearance": "Steel - Galvanized (Small)",
+   "dims_in": [
+    0.5,
+    74.832,
+    75.5
+   ],
+   "min": [
+    -223.75,
+    -23.5,
+    1.5
+   ],
+   "max": [
+    -148.25,
+    -23.0,
+    76.332
+   ],
+   "volume_in3": 37.69,
+   "mass_kg": 4.8489
+  },
+  {
+   "component": "Arch AB",
+   "path": "Hogwire Arches:1+Arch AB:1",
+   "body": "Body7",
+   "visible": true,
+   "material": "Steel, Galvanized",
+   "appearance": "Steel - Galvanized (Small)",
+   "dims_in": [
+    0.5,
+    74.832,
+    75.5
+   ],
+   "min": [
+    -223.75,
+    -27.5,
+    1.5
+   ],
+   "max": [
+    -148.25,
+    -27.0,
+    76.332
+   ],
+   "volume_in3": 37.69,
+   "mass_kg": 4.8489
+  },
+  {
+   "component": "Arch AB",
+   "path": "Hogwire Arches:1+Arch AB:1",
+   "body": "Body8",
+   "visible": true,
+   "material": "Steel, Galvanized",
+   "appearance": "Steel - Galvanized (Small)",
+   "dims_in": [
+    0.5,
+    74.832,
+    75.5
+   ],
+   "min": [
+    -223.75,
+    -31.5,
+    1.5
+   ],
+   "max": [
+    -148.25,
+    -31.0,
+    76.332
+   ],
+   "volume_in3": 37.69,
+   "mass_kg": 4.8489
+  },
+  {
+   "component": "Arch AB",
+   "path": "Hogwire Arches:1+Arch AB:1",
+   "body": "Body9",
+   "visible": true,
+   "material": "Steel, Galvanized",
+   "appearance": "Steel - Galvanized (Small)",
+   "dims_in": [
+    0.5,
+    74.832,
+    75.5
+   ],
+   "min": [
+    -223.75,
+    -35.5,
+    1.5
+   ],
+   "max": [
+    -148.25,
+    -35.0,
+    76.332
+   ],
+   "volume_in3": 37.69,
+   "mass_kg": 4.8489
+  },
+  {
+   "component": "Arch AB",
+   "path": "Hogwire Arches:1+Arch AB:1",
+   "body": "Body10",
+   "visible": true,
+   "material": "Steel, Galvanized",
+   "appearance": "Steel - Galvanized (Small)",
+   "dims_in": [
+    0.5,
+    74.832,
+    75.5
+   ],
+   "min": [
+    -223.75,
+    -39.5,
+    1.5
+   ],
+   "max": [
+    -148.25,
+    -39.0,
+    76.332
+   ],
+   "volume_in3": 37.69,
+   "mass_kg": 4.8489
+  },
+  {
+   "component": "Arch AB",
+   "path": "Hogwire Arches:1+Arch AB:1",
+   "body": "Body11",
+   "visible": true,
+   "material": "Steel, Galvanized",
+   "appearance": "Steel - Galvanized (Small)",
+   "dims_in": [
+    0.5,
+    74.832,
+    75.5
+   ],
+   "min": [
+    -223.75,
+    -43.5,
+    1.5
+   ],
+   "max": [
+    -148.25,
+    -43.0,
+    76.332
+   ],
+   "volume_in3": 37.69,
+   "mass_kg": 4.8489
+  },
+  {
+   "component": "Arch AB",
+   "path": "Hogwire Arches:1+Arch AB:1",
+   "body": "Body12",
+   "visible": true,
+   "material": "Steel, Galvanized",
+   "appearance": "Steel - Galvanized (Small)",
+   "dims_in": [
+    0.5,
+    74.832,
+    75.5
+   ],
+   "min": [
+    -223.75,
+    -47.5,
+    1.5
+   ],
+   "max": [
+    -148.25,
+    -47.0,
+    76.332
+   ],
+   "volume_in3": 37.69,
+   "mass_kg": 4.8489
+  },
+  {
+   "component": "Arch AB",
+   "path": "Hogwire Arches:1+Arch AB:1",
+   "body": "Body13",
+   "visible": true,
+   "material": "Steel, Galvanized",
+   "appearance": "Steel - Galvanized (Small)",
+   "dims_in": [
+    0.5,
+    74.832,
+    75.5
+   ],
+   "min": [
+    -223.75,
+    -51.5,
+    1.5
+   ],
+   "max": [
+    -148.25,
+    -51.0,
+    76.332
+   ],
+   "volume_in3": 37.69,
+   "mass_kg": 4.8489
+  },
+  {
+   "component": "Arch AB",
+   "path": "Hogwire Arches:1+Arch AB:1",
+   "body": "Body14",
+   "visible": true,
+   "material": "Steel, Galvanized",
+   "appearance": "Steel - Galvanized (Small)",
+   "dims_in": [
+    0.5,
+    74.832,
+    75.5
+   ],
+   "min": [
+    -223.75,
+    -55.5,
+    1.5
+   ],
+   "max": [
+    -148.25,
+    -55.0,
+    76.332
+   ],
+   "volume_in3": 37.69,
+   "mass_kg": 4.8489
+  },
+  {
+   "component": "Arch AB",
+   "path": "Hogwire Arches:1+Arch AB:1",
+   "body": "Body15",
+   "visible": true,
+   "material": "Steel, Galvanized",
+   "appearance": "Steel - Galvanized (Small)",
+   "dims_in": [
+    0.5,
+    74.832,
+    75.5
+   ],
+   "min": [
+    -223.75,
+    -59.5,
+    1.5
+   ],
+   "max": [
+    -148.25,
+    -59.0,
+    76.332
+   ],
+   "volume_in3": 37.69,
+   "mass_kg": 4.8489
+  },
+  {
+   "component": "Arch AB",
+   "path": "Hogwire Arches:1+Arch AB:1",
+   "body": "Body16",
+   "visible": true,
+   "material": "Steel, Galvanized",
+   "appearance": "Steel - Galvanized (Small)",
+   "dims_in": [
+    0.5,
+    74.832,
+    75.5
+   ],
+   "min": [
+    -223.75,
+    -63.5,
+    1.5
+   ],
+   "max": [
+    -148.25,
+    -63.0,
+    76.332
+   ],
+   "volume_in3": 37.69,
+   "mass_kg": 4.8489
+  },
+  {
+   "component": "Arch BC",
+   "path": "Hogwire Arches:1+Arch BC:1",
+   "body": "Body1",
+   "visible": false,
+   "material": "Steel, Galvanized",
+   "appearance": "Steel - Galvanized (Small)",
+   "dims_in": [
+    0.5,
+    74.847,
+    75.531
+   ],
+   "min": [
+    -126.5,
+    -141.004,
+    14.5
+   ],
+   "max": [
+    -50.969,
+    -140.504,
+    89.347
+   ],
+   "volume_in3": 37.7,
+   "mass_kg": 4.8501
+  },
+  {
+   "component": "Arch BC",
+   "path": "Hogwire Arches:1+Arch BC:1",
+   "body": "Body2",
+   "visible": false,
+   "material": "Steel, Galvanized",
+   "appearance": "Steel - Galvanized (Small)",
+   "dims_in": [
+    0.5,
+    74.847,
+    75.531
+   ],
+   "min": [
+    -126.5,
+    -137.004,
+    14.5
+   ],
+   "max": [
+    -50.969,
+    -136.504,
+    89.347
+   ],
+   "volume_in3": 37.7,
+   "mass_kg": 4.8501
+  },
+  {
+   "component": "Arch BC",
+   "path": "Hogwire Arches:1+Arch BC:1",
+   "body": "Body3",
+   "visible": false,
+   "material": "Steel, Galvanized",
+   "appearance": "Steel - Galvanized (Small)",
+   "dims_in": [
+    0.5,
+    74.847,
+    75.531
+   ],
+   "min": [
+    -126.5,
+    -133.004,
+    14.5
+   ],
+   "max": [
+    -50.969,
+    -132.504,
+    89.347
+   ],
+   "volume_in3": 37.7,
+   "mass_kg": 4.8501
+  },
+  {
+   "component": "Arch BC",
+   "path": "Hogwire Arches:1+Arch BC:1",
+   "body": "Body4",
+   "visible": false,
+   "material": "Steel, Galvanized",
+   "appearance": "Steel - Galvanized (Small)",
+   "dims_in": [
+    0.5,
+    74.847,
+    75.531
+   ],
+   "min": [
+    -126.5,
+    -129.004,
+    14.5
+   ],
+   "max": [
+    -50.969,
+    -128.504,
+    89.347
+   ],
+   "volume_in3": 37.7,
+   "mass_kg": 4.8501
+  },
+  {
+   "component": "Arch BC",
+   "path": "Hogwire Arches:1+Arch BC:1",
+   "body": "Body5",
+   "visible": false,
+   "material": "Steel, Galvanized",
+   "appearance": "Steel - Galvanized (Small)",
+   "dims_in": [
+    0.5,
+    74.847,
+    75.531
+   ],
+   "min": [
+    -126.5,
+    -125.004,
+    14.5
+   ],
+   "max": [
+    -50.969,
+    -124.504,
+    89.347
+   ],
+   "volume_in3": 37.7,
+   "mass_kg": 4.8501
+  },
+  {
+   "component": "Arch BC",
+   "path": "Hogwire Arches:1+Arch BC:1",
+   "body": "Body6",
+   "visible": false,
+   "material": "Steel, Galvanized",
+   "appearance": "Steel - Galvanized (Small)",
+   "dims_in": [
+    0.5,
+    74.847,
+    75.531
+   ],
+   "min": [
+    -126.5,
+    -121.004,
+    14.5
+   ],
+   "max": [
+    -50.969,
+    -120.504,
+    89.347
+   ],
+   "volume_in3": 37.7,
+   "mass_kg": 4.8501
+  },
+  {
+   "component": "Arch BC",
+   "path": "Hogwire Arches:1+Arch BC:1",
+   "body": "Body7",
+   "visible": false,
+   "material": "Steel, Galvanized",
+   "appearance": "Steel - Galvanized (Small)",
+   "dims_in": [
+    0.5,
+    74.847,
+    75.531
+   ],
+   "min": [
+    -126.5,
+    -117.004,
+    14.5
+   ],
+   "max": [
+    -50.969,
+    -116.504,
+    89.347
+   ],
+   "volume_in3": 37.7,
+   "mass_kg": 4.8501
+  },
+  {
+   "component": "Arch BC",
+   "path": "Hogwire Arches:1+Arch BC:1",
+   "body": "Body8",
+   "visible": false,
+   "material": "Steel, Galvanized",
+   "appearance": "Steel - Galvanized (Small)",
+   "dims_in": [
+    0.5,
+    74.847,
+    75.531
+   ],
+   "min": [
+    -126.5,
+    -113.004,
+    14.5
+   ],
+   "max": [
+    -50.969,
+    -112.504,
+    89.347
+   ],
+   "volume_in3": 37.7,
+   "mass_kg": 4.8501
+  },
+  {
+   "component": "Arch BC",
+   "path": "Hogwire Arches:1+Arch BC:1",
+   "body": "Body9",
+   "visible": false,
+   "material": "Steel, Galvanized",
+   "appearance": "Steel - Galvanized (Small)",
+   "dims_in": [
+    0.5,
+    74.847,
+    75.531
+   ],
+   "min": [
+    -126.5,
+    -109.004,
+    14.5
+   ],
+   "max": [
+    -50.969,
+    -108.504,
+    89.347
+   ],
+   "volume_in3": 37.7,
+   "mass_kg": 4.8501
+  },
+  {
+   "component": "Arch BC",
+   "path": "Hogwire Arches:1+Arch BC:1",
+   "body": "Body10",
+   "visible": false,
+   "material": "Steel, Galvanized",
+   "appearance": "Steel - Galvanized (Small)",
+   "dims_in": [
+    0.5,
+    74.847,
+    75.531
+   ],
+   "min": [
+    -126.5,
+    -105.004,
+    14.5
+   ],
+   "max": [
+    -50.969,
+    -104.504,
+    89.347
+   ],
+   "volume_in3": 37.7,
+   "mass_kg": 4.8501
+  },
+  {
+   "component": "Arch BC",
+   "path": "Hogwire Arches:1+Arch BC:1",
+   "body": "Body11",
+   "visible": false,
+   "material": "Steel, Galvanized",
+   "appearance": "Steel - Galvanized (Small)",
+   "dims_in": [
+    0.5,
+    74.847,
+    75.531
+   ],
+   "min": [
+    -126.5,
+    -101.004,
+    14.5
+   ],
+   "max": [
+    -50.969,
+    -100.504,
+    89.347
+   ],
+   "volume_in3": 37.7,
+   "mass_kg": 4.8501
+  },
+  {
+   "component": "Arch BC",
+   "path": "Hogwire Arches:1+Arch BC:1",
+   "body": "Body12",
+   "visible": false,
+   "material": "Steel, Galvanized",
+   "appearance": "Steel - Galvanized (Small)",
+   "dims_in": [
+    0.5,
+    74.847,
+    75.531
+   ],
+   "min": [
+    -126.5,
+    -97.004,
+    14.5
+   ],
+   "max": [
+    -50.969,
+    -96.504,
+    89.347
+   ],
+   "volume_in3": 37.7,
+   "mass_kg": 4.8501
+  },
+  {
+   "component": "Arch BC",
+   "path": "Hogwire Arches:1+Arch BC:1",
+   "body": "Body13",
+   "visible": false,
+   "material": "Steel, Galvanized",
+   "appearance": "Steel - Galvanized (Small)",
+   "dims_in": [
+    0.5,
+    74.847,
+    75.531
+   ],
+   "min": [
+    -126.5,
+    -93.004,
+    14.5
+   ],
+   "max": [
+    -50.969,
+    -92.504,
+    89.347
+   ],
+   "volume_in3": 37.7,
+   "mass_kg": 4.8501
+  },
+  {
+   "component": "Arch BC",
+   "path": "Hogwire Arches:1+Arch BC:1",
+   "body": "Body14",
+   "visible": false,
+   "material": "Steel, Galvanized",
+   "appearance": "Steel - Galvanized (Small)",
+   "dims_in": [
+    0.5,
+    74.847,
+    75.531
+   ],
+   "min": [
+    -126.5,
+    -89.004,
+    14.5
+   ],
+   "max": [
+    -50.969,
+    -88.504,
+    89.347
+   ],
+   "volume_in3": 37.7,
+   "mass_kg": 4.8501
+  },
+  {
+   "component": "Arch BC",
+   "path": "Hogwire Arches:1+Arch BC:1",
+   "body": "Body15",
+   "visible": false,
+   "material": "Steel, Galvanized",
+   "appearance": "Steel - Galvanized (Small)",
+   "dims_in": [
+    0.5,
+    74.847,
+    75.531
+   ],
+   "min": [
+    -126.5,
+    -85.004,
+    14.5
+   ],
+   "max": [
+    -50.969,
+    -84.504,
+    89.347
+   ],
+   "volume_in3": 37.7,
+   "mass_kg": 4.8501
+  },
+  {
+   "component": "Arch BC",
+   "path": "Hogwire Arches:1+Arch BC:1",
+   "body": "Body16",
+   "visible": false,
+   "material": "Steel, Galvanized",
+   "appearance": "Steel - Galvanized (Small)",
+   "dims_in": [
+    0.5,
+    74.847,
+    75.531
+   ],
+   "min": [
+    -126.5,
+    -81.004,
+    14.5
+   ],
+   "max": [
+    -50.969,
+    -80.504,
+    89.347
+   ],
+   "volume_in3": 37.7,
+   "mass_kg": 4.8501
+  },
+  {
+   "component": "Bed A - 10 ft",
+   "path": "Bed Lumber:1+Bed A - 10 ft:1",
+   "body": "Side board 120 in",
+   "visible": true,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    1.5,
+    7.25,
+    120.0
+   ],
+   "min": [
+    -199.5,
+    -120.0,
+    0.0
+   ],
+   "max": [
+    -198.0,
+    0.0,
+    7.25
+   ],
+   "volume_in3": 1305.0,
+   "mass_kg": 12.195
+  },
+  {
+   "component": "Bed A - 10 ft",
+   "path": "Bed Lumber:1+Bed A - 10 ft:1",
+   "body": "Side board 120 in (1)",
+   "visible": true,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    1.5,
+    7.25,
+    120.0
+   ],
+   "min": [
+    -249.0,
+    -120.0,
+    0.0
+   ],
+   "max": [
+    -247.5,
+    0.0,
+    7.25
+   ],
+   "volume_in3": 1305.0,
+   "mass_kg": 12.195
+  },
+  {
+   "component": "Bed A - 10 ft",
+   "path": "Bed Lumber:1+Bed A - 10 ft:1",
+   "body": "End board 48 in",
+   "visible": true,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    1.5,
+    7.25,
+    48.0
+   ],
+   "min": [
+    -247.5,
+    -1.5,
+    0.0
+   ],
+   "max": [
+    -199.5,
+    0.0,
+    7.25
+   ],
+   "volume_in3": 522.0,
+   "mass_kg": 4.878
+  },
+  {
+   "component": "Bed A - 10 ft",
+   "path": "Bed Lumber:1+Bed A - 10 ft:1",
+   "body": "End board 48 in (1)",
+   "visible": true,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    1.5,
+    7.25,
+    48.0
+   ],
+   "min": [
+    -247.5,
+    -120.0,
+    0.0
+   ],
+   "max": [
+    -199.5,
+    -118.5,
+    7.25
+   ],
+   "volume_in3": 522.0,
+   "mass_kg": 4.878
+  },
+  {
+   "component": "Bed A - 10 ft",
+   "path": "Bed Lumber:1+Bed A - 10 ft:1",
+   "body": "Side board 120 in (2)",
+   "visible": true,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    1.5,
+    7.25,
+    120.0
+   ],
+   "min": [
+    -199.5,
+    -120.0,
+    7.25
+   ],
+   "max": [
+    -198.0,
+    0.0,
+    14.5
+   ],
+   "volume_in3": 1305.0,
+   "mass_kg": 12.195
+  },
+  {
+   "component": "Bed A - 10 ft",
+   "path": "Bed Lumber:1+Bed A - 10 ft:1",
+   "body": "Side board 120 in (1) (1)",
+   "visible": true,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    1.5,
+    7.25,
+    120.0
+   ],
+   "min": [
+    -249.0,
+    -120.0,
+    7.25
+   ],
+   "max": [
+    -247.5,
+    0.0,
+    14.5
+   ],
+   "volume_in3": 1305.0,
+   "mass_kg": 12.195
+  },
+  {
+   "component": "Bed A - 10 ft",
+   "path": "Bed Lumber:1+Bed A - 10 ft:1",
+   "body": "End board 48 in (2)",
+   "visible": true,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    1.5,
+    7.25,
+    48.0
+   ],
+   "min": [
+    -247.5,
+    -1.5,
+    7.25
+   ],
+   "max": [
+    -199.5,
+    0.0,
+    14.5
+   ],
+   "volume_in3": 522.0,
+   "mass_kg": 4.878
+  },
+  {
+   "component": "Bed A - 10 ft",
+   "path": "Bed Lumber:1+Bed A - 10 ft:1",
+   "body": "End board 48 in (1) (1)",
+   "visible": true,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    1.5,
+    7.25,
+    48.0
+   ],
+   "min": [
+    -247.5,
+    -120.0,
+    7.25
+   ],
+   "max": [
+    -199.5,
+    -118.5,
+    14.5
+   ],
+   "volume_in3": 520.82,
+   "mass_kg": 4.867
+  },
+  {
+   "component": "Bed A - 10 ft",
+   "path": "Bed Lumber:1+Bed A - 10 ft:1",
+   "body": "2x4 corner post",
+   "visible": true,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    1.5,
+    3.5,
+    14.5
+   ],
+   "min": [
+    -203.0,
+    -118.5,
+    0.0
+   ],
+   "max": [
+    -199.5,
+    -117.0,
+    14.5
+   ],
+   "volume_in3": 76.12,
+   "mass_kg": 0.7114
+  },
+  {
+   "component": "Bed A - 10 ft",
+   "path": "Bed Lumber:1+Bed A - 10 ft:1",
+   "body": "2x4 corner post (1)",
+   "visible": true,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    1.5,
+    3.5,
+    14.5
+   ],
+   "min": [
+    -247.5,
+    -118.5,
+    0.0
+   ],
+   "max": [
+    -244.0,
+    -117.0,
+    14.5
+   ],
+   "volume_in3": 76.12,
+   "mass_kg": 0.7114
+  },
+  {
+   "component": "Bed A - 10 ft",
+   "path": "Bed Lumber:1+Bed A - 10 ft:1",
+   "body": "2x4 corner post (2)",
+   "visible": true,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    1.5,
+    3.5,
+    14.5
+   ],
+   "min": [
+    -247.5,
+    -3.0,
+    0.0
+   ],
+   "max": [
+    -244.0,
+    -1.5,
+    14.5
+   ],
+   "volume_in3": 76.12,
+   "mass_kg": 0.7114
+  },
+  {
+   "component": "Bed A - 10 ft",
+   "path": "Bed Lumber:1+Bed A - 10 ft:1",
+   "body": "2x4 mid post",
+   "visible": true,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    1.5,
+    3.5,
+    24.0
+   ],
+   "min": [
+    -247.5,
+    -42.833,
+    -9.5
+   ],
+   "max": [
+    -246.0,
+    -39.333,
+    14.5
+   ],
+   "volume_in3": 126.0,
+   "mass_kg": 1.1775
+  },
+  {
+   "component": "Bed A - 10 ft",
+   "path": "Bed Lumber:1+Bed A - 10 ft:1",
+   "body": "2x4 mid post (1)",
+   "visible": true,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    1.5,
+    3.5,
+    24.0
+   ],
+   "min": [
+    -201.0,
+    -80.667,
+    -9.5
+   ],
+   "max": [
+    -199.5,
+    -77.167,
+    14.5
+   ],
+   "volume_in3": 126.0,
+   "mass_kg": 1.1775
+  },
+  {
+   "component": "Bed A - 10 ft",
+   "path": "Bed Lumber:1+Bed A - 10 ft:1",
+   "body": "2x4 mid post (2)",
+   "visible": true,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    1.5,
+    3.5,
+    24.0
+   ],
+   "min": [
+    -201.0,
+    -42.833,
+    -9.5
+   ],
+   "max": [
+    -199.5,
+    -39.333,
+    14.5
+   ],
+   "volume_in3": 126.0,
+   "mass_kg": 1.1775
+  },
+  {
+   "component": "Bed A - 10 ft",
+   "path": "Bed Lumber:1+Bed A - 10 ft:1",
+   "body": "2x4 mid post (3)",
+   "visible": true,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    1.5,
+    3.5,
+    24.0
+   ],
+   "min": [
+    -247.5,
+    -80.667,
+    -9.5
+   ],
+   "max": [
+    -246.0,
+    -77.167,
+    14.5
+   ],
+   "volume_in3": 126.0,
+   "mass_kg": 1.1775
+  },
+  {
+   "component": "Bed A - 10 ft",
+   "path": "Bed Lumber:1+Bed A - 10 ft:1",
+   "body": "2x4 trellis post",
+   "visible": true,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    1.5,
+    3.5,
+    96.0
+   ],
+   "min": [
+    -203.0,
+    -3.0,
+    -20.0
+   ],
+   "max": [
+    -199.5,
+    -1.5,
+    76.0
+   ],
+   "volume_in3": 504.0,
+   "mass_kg": 4.7098
+  },
+  {
+   "component": "Bed A - 10 ft",
+   "path": "Bed Lumber:1+Bed A - 10 ft:1",
+   "body": "2x4 sill",
+   "visible": true,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    1.5,
+    3.5,
+    60.5
+   ],
+   "min": [
+    -225.25,
+    -63.5,
+    0.0
+   ],
+   "max": [
+    -221.75,
+    -3.0,
+    1.5
+   ],
+   "volume_in3": 317.62,
+   "mass_kg": 2.9682
+  },
+  {
+   "component": "Bed A - 10 ft",
+   "path": "Bed Lumber:1+Bed A - 10 ft:1",
+   "body": "2x4 stake",
+   "visible": true,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    1.5,
+    3.5,
+    24.0
+   ],
+   "min": [
+    -225.25,
+    -65.0,
+    -10.5
+   ],
+   "max": [
+    -221.75,
+    -63.5,
+    13.5
+   ],
+   "volume_in3": 126.0,
+   "mass_kg": 1.1775
+  },
+  {
+   "component": "Bed A - 10 ft",
+   "path": "Bed Lumber:1+Bed A - 10 ft:1",
+   "body": "2x4 stake (1)",
+   "visible": true,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    1.5,
+    3.5,
+    24.0
+   ],
+   "min": [
+    -225.25,
+    -3.0,
+    -10.5
+   ],
+   "max": [
+    -221.75,
+    -1.5,
+    13.5
+   ],
+   "volume_in3": 126.0,
+   "mass_kg": 1.1775
+  },
+  {
+   "component": "Bed B - 12 ft",
+   "path": "Bed Lumber:1+Bed B - 12 ft:1",
+   "body": "Side board 144 in",
+   "visible": true,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    1.5,
+    7.25,
+    144.0
+   ],
+   "min": [
+    -124.5,
+    -144.0,
+    0.0
+   ],
+   "max": [
+    -123.0,
+    0.0,
+    7.25
+   ],
+   "volume_in3": 1566.0,
+   "mass_kg": 14.634
+  },
+  {
+   "component": "Bed B - 12 ft",
+   "path": "Bed Lumber:1+Bed B - 12 ft:1",
+   "body": "Side board 144 in (1)",
+   "visible": true,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    1.5,
+    7.25,
+    144.0
+   ],
+   "min": [
+    -174.0,
+    -144.0,
+    0.0
+   ],
+   "max": [
+    -172.5,
+    0.0,
+    7.25
+   ],
+   "volume_in3": 1566.0,
+   "mass_kg": 14.634
+  },
+  {
+   "component": "Bed B - 12 ft",
+   "path": "Bed Lumber:1+Bed B - 12 ft:1",
+   "body": "End board 48 in",
+   "visible": true,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    1.5,
+    7.25,
+    48.0
+   ],
+   "min": [
+    -172.5,
+    -1.5,
+    0.0
+   ],
+   "max": [
+    -124.5,
+    0.0,
+    7.25
+   ],
+   "volume_in3": 522.0,
+   "mass_kg": 4.878
+  },
+  {
+   "component": "Bed B - 12 ft",
+   "path": "Bed Lumber:1+Bed B - 12 ft:1",
+   "body": "End board 48 in (1)",
+   "visible": true,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    1.5,
+    7.25,
+    48.0
+   ],
+   "min": [
+    -172.5,
+    -144.0,
+    0.0
+   ],
+   "max": [
+    -124.5,
+    -142.5,
+    7.25
+   ],
+   "volume_in3": 522.0,
+   "mass_kg": 4.878
+  },
+  {
+   "component": "Bed B - 12 ft",
+   "path": "Bed Lumber:1+Bed B - 12 ft:1",
+   "body": "Side board 144 in (2)",
+   "visible": true,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    1.5,
+    7.25,
+    144.0
+   ],
+   "min": [
+    -124.5,
+    -144.0,
+    7.25
+   ],
+   "max": [
+    -123.0,
+    0.0,
+    14.5
+   ],
+   "volume_in3": 1566.0,
+   "mass_kg": 14.634
+  },
+  {
+   "component": "Bed B - 12 ft",
+   "path": "Bed Lumber:1+Bed B - 12 ft:1",
+   "body": "Side board 144 in (1) (1)",
+   "visible": true,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    1.5,
+    7.25,
+    144.0
+   ],
+   "min": [
+    -174.0,
+    -144.0,
+    7.25
+   ],
+   "max": [
+    -172.5,
+    0.0,
+    14.5
+   ],
+   "volume_in3": 1566.0,
+   "mass_kg": 14.634
+  },
+  {
+   "component": "Bed B - 12 ft",
+   "path": "Bed Lumber:1+Bed B - 12 ft:1",
+   "body": "End board 48 in (2)",
+   "visible": true,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    1.5,
+    7.25,
+    48.0
+   ],
+   "min": [
+    -172.5,
+    -1.5,
+    7.25
+   ],
+   "max": [
+    -124.5,
+    0.0,
+    14.5
+   ],
+   "volume_in3": 522.0,
+   "mass_kg": 4.878
+  },
+  {
+   "component": "Bed B - 12 ft",
+   "path": "Bed Lumber:1+Bed B - 12 ft:1",
+   "body": "End board 48 in (1) (1)",
+   "visible": true,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    1.5,
+    7.25,
+    48.0
+   ],
+   "min": [
+    -172.5,
+    -144.0,
+    7.25
+   ],
+   "max": [
+    -124.5,
+    -142.5,
+    14.5
+   ],
+   "volume_in3": 520.82,
+   "mass_kg": 4.867
+  },
+  {
+   "component": "Bed B - 12 ft",
+   "path": "Bed Lumber:1+Bed B - 12 ft:1",
+   "body": "2x4 corner post",
+   "visible": true,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    1.5,
+    3.5,
+    14.5
+   ],
+   "min": [
+    -128.0,
+    -3.0,
+    0.0
+   ],
+   "max": [
+    -124.5,
+    -1.5,
+    14.5
+   ],
+   "volume_in3": 76.12,
+   "mass_kg": 0.7114
+  },
+  {
+   "component": "Bed B - 12 ft",
+   "path": "Bed Lumber:1+Bed B - 12 ft:1",
+   "body": "2x4 corner post (2)",
+   "visible": true,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    1.5,
+    3.5,
+    14.5
+   ],
+   "min": [
+    -128.0,
+    -142.5,
+    0.0
+   ],
+   "max": [
+    -124.5,
+    -141.0,
+    14.5
+   ],
+   "volume_in3": 76.12,
+   "mass_kg": 0.7114
+  },
+  {
+   "component": "Bed B - 12 ft",
+   "path": "Bed Lumber:1+Bed B - 12 ft:1",
+   "body": "2x4 corner post (1)",
+   "visible": true,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    1.5,
+    3.5,
+    14.5
+   ],
+   "min": [
+    -172.5,
+    -142.5,
+    0.0
+   ],
+   "max": [
+    -169.0,
+    -141.0,
+    14.5
+   ],
+   "volume_in3": 76.13,
+   "mass_kg": 0.7114
+  },
+  {
+   "component": "Bed B - 12 ft",
+   "path": "Bed Lumber:1+Bed B - 12 ft:1",
+   "body": "2x4 mid post",
+   "visible": true,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    1.5,
+    3.5,
+    24.0
+   ],
+   "min": [
+    -172.5,
+    -50.833,
+    -9.5
+   ],
+   "max": [
+    -171.0,
+    -47.333,
+    14.5
+   ],
+   "volume_in3": 126.0,
+   "mass_kg": 1.1775
+  },
+  {
+   "component": "Bed B - 12 ft",
+   "path": "Bed Lumber:1+Bed B - 12 ft:1",
+   "body": "2x4 mid post (1)",
+   "visible": true,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    1.5,
+    3.5,
+    24.0
+   ],
+   "min": [
+    -126.0,
+    -96.667,
+    -9.5
+   ],
+   "max": [
+    -124.5,
+    -93.167,
+    14.5
+   ],
+   "volume_in3": 126.0,
+   "mass_kg": 1.1775
+  },
+  {
+   "component": "Bed B - 12 ft",
+   "path": "Bed Lumber:1+Bed B - 12 ft:1",
+   "body": "2x4 mid post (2)",
+   "visible": true,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    1.5,
+    3.5,
+    24.0
+   ],
+   "min": [
+    -126.0,
+    -50.833,
+    -9.5
+   ],
+   "max": [
+    -124.5,
+    -47.333,
+    14.5
+   ],
+   "volume_in3": 126.0,
+   "mass_kg": 1.1775
+  },
+  {
+   "component": "Bed B - 12 ft",
+   "path": "Bed Lumber:1+Bed B - 12 ft:1",
+   "body": "2x4 mid post (3)",
+   "visible": true,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    1.5,
+    3.5,
+    24.0
+   ],
+   "min": [
+    -172.5,
+    -96.667,
+    -9.5
+   ],
+   "max": [
+    -171.0,
+    -93.167,
+    14.5
+   ],
+   "volume_in3": 126.0,
+   "mass_kg": 1.1775
+  },
+  {
+   "component": "Bed B - 12 ft",
+   "path": "Bed Lumber:1+Bed B - 12 ft:1",
+   "body": "2x4 trellis post",
+   "visible": true,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    1.5,
+    3.5,
+    96.0
+   ],
+   "min": [
+    -172.5,
+    -3.0,
+    -20.0
+   ],
+   "max": [
+    -169.0,
+    -1.5,
+    76.0
+   ],
+   "volume_in3": 504.0,
+   "mass_kg": 4.7098
+  },
+  {
+   "component": "Bed B - 12 ft",
+   "path": "Bed Lumber:1+Bed B - 12 ft:1",
+   "body": "2x4 sill",
+   "visible": true,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    1.5,
+    3.5,
+    60.5
+   ],
+   "min": [
+    -150.25,
+    -63.5,
+    0.0
+   ],
+   "max": [
+    -146.75,
+    -3.0,
+    1.5
+   ],
+   "volume_in3": 317.62,
+   "mass_kg": 2.9682
+  },
+  {
+   "component": "Bed B - 12 ft",
+   "path": "Bed Lumber:1+Bed B - 12 ft:1",
+   "body": "2x4 stake",
+   "visible": true,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    1.5,
+    3.5,
+    24.0
+   ],
+   "min": [
+    -150.25,
+    -65.0,
+    -10.5
+   ],
+   "max": [
+    -146.75,
+    -63.5,
+    13.5
+   ],
+   "volume_in3": 126.0,
+   "mass_kg": 1.1775
+  },
+  {
+   "component": "Bed B - 12 ft",
+   "path": "Bed Lumber:1+Bed B - 12 ft:1",
+   "body": "2x4 stake (1)",
+   "visible": true,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    1.5,
+    3.5,
+    24.0
+   ],
+   "min": [
+    -150.25,
+    -3.0,
+    -10.5
+   ],
+   "max": [
+    -146.75,
+    -1.5,
+    13.5
+   ],
+   "volume_in3": 126.0,
+   "mass_kg": 1.1775
+  },
+  {
+   "component": "Bed C - 14 ft",
+   "path": "Bed Lumber:1+Bed C - 14 ft:1",
+   "body": "Side board 168 in",
+   "visible": true,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    1.5,
+    7.25,
+    168.0
+   ],
+   "min": [
+    -49.5,
+    -168.0,
+    0.0
+   ],
+   "max": [
+    -48.0,
+    0.0,
+    7.25
+   ],
+   "volume_in3": 1827.0,
+   "mass_kg": 17.073
+  },
+  {
+   "component": "Bed C - 14 ft",
+   "path": "Bed Lumber:1+Bed C - 14 ft:1",
+   "body": "Side board 168 in (1)",
+   "visible": true,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    1.5,
+    7.25,
+    168.0
+   ],
+   "min": [
+    -99.0,
+    -168.0,
+    0.0
+   ],
+   "max": [
+    -97.5,
+    0.0,
+    7.25
+   ],
+   "volume_in3": 1827.0,
+   "mass_kg": 17.073
+  },
+  {
+   "component": "Bed C - 14 ft",
+   "path": "Bed Lumber:1+Bed C - 14 ft:1",
+   "body": "End board 48 in",
+   "visible": true,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    1.5,
+    7.25,
+    48.0
+   ],
+   "min": [
+    -97.5,
+    -1.5,
+    0.0
+   ],
+   "max": [
+    -49.5,
+    0.0,
+    7.25
+   ],
+   "volume_in3": 522.0,
+   "mass_kg": 4.878
+  },
+  {
+   "component": "Bed C - 14 ft",
+   "path": "Bed Lumber:1+Bed C - 14 ft:1",
+   "body": "End board 48 in (1)",
+   "visible": true,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    1.5,
+    7.25,
+    48.0
+   ],
+   "min": [
+    -97.5,
+    -168.0,
+    0.0
+   ],
+   "max": [
+    -49.5,
+    -166.5,
+    7.25
+   ],
+   "volume_in3": 522.0,
+   "mass_kg": 4.878
+  },
+  {
+   "component": "Bed C - 14 ft",
+   "path": "Bed Lumber:1+Bed C - 14 ft:1",
+   "body": "Side board 168 in (2)",
+   "visible": true,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    1.5,
+    7.25,
+    168.0
+   ],
+   "min": [
+    -49.5,
+    -168.0,
+    7.25
+   ],
+   "max": [
+    -48.0,
+    0.0,
+    14.5
+   ],
+   "volume_in3": 1827.0,
+   "mass_kg": 17.073
+  },
+  {
+   "component": "Bed C - 14 ft",
+   "path": "Bed Lumber:1+Bed C - 14 ft:1",
+   "body": "Side board 168 in (1) (1)",
+   "visible": true,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    1.5,
+    7.25,
+    168.0
+   ],
+   "min": [
+    -99.0,
+    -168.0,
+    7.25
+   ],
+   "max": [
+    -97.5,
+    0.0,
+    14.5
+   ],
+   "volume_in3": 1827.0,
+   "mass_kg": 17.073
+  },
+  {
+   "component": "Bed C - 14 ft",
+   "path": "Bed Lumber:1+Bed C - 14 ft:1",
+   "body": "End board 48 in (2)",
+   "visible": true,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    1.5,
+    7.25,
+    48.0
+   ],
+   "min": [
+    -97.5,
+    -1.5,
+    7.25
+   ],
+   "max": [
+    -49.5,
+    0.0,
+    14.5
+   ],
+   "volume_in3": 522.0,
+   "mass_kg": 4.878
+  },
+  {
+   "component": "Bed C - 14 ft",
+   "path": "Bed Lumber:1+Bed C - 14 ft:1",
+   "body": "End board 48 in (1) (1)",
+   "visible": true,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    1.5,
+    7.25,
+    48.0
+   ],
+   "min": [
+    -97.5,
+    -168.0,
+    7.25
+   ],
+   "max": [
+    -49.5,
+    -166.5,
+    14.5
+   ],
+   "volume_in3": 520.82,
+   "mass_kg": 4.867
+  },
+  {
+   "component": "Bed C - 14 ft",
+   "path": "Bed Lumber:1+Bed C - 14 ft:1",
+   "body": "2x4 corner post",
+   "visible": true,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    1.5,
+    3.5,
+    14.5
+   ],
+   "min": [
+    -53.0,
+    -166.5,
+    0.0
+   ],
+   "max": [
+    -49.5,
+    -165.0,
+    14.5
+   ],
+   "volume_in3": 76.13,
+   "mass_kg": 0.7114
+  },
+  {
+   "component": "Bed C - 14 ft",
+   "path": "Bed Lumber:1+Bed C - 14 ft:1",
+   "body": "2x4 corner post (1)",
+   "visible": true,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    1.5,
+    3.5,
+    14.5
+   ],
+   "min": [
+    -97.5,
+    -166.5,
+    0.0
+   ],
+   "max": [
+    -94.0,
+    -165.0,
+    14.5
+   ],
+   "volume_in3": 76.13,
+   "mass_kg": 0.7114
+  },
+  {
+   "component": "Bed C - 14 ft",
+   "path": "Bed Lumber:1+Bed C - 14 ft:1",
+   "body": "2x4 corner post (2)",
+   "visible": true,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    1.5,
+    3.5,
+    14.5
+   ],
+   "min": [
+    -53.0,
+    -3.0,
+    0.0
+   ],
+   "max": [
+    -49.5,
+    -1.5,
+    14.5
+   ],
+   "volume_in3": 76.12,
+   "mass_kg": 0.7114
+  },
+  {
+   "component": "Bed C - 14 ft",
+   "path": "Bed Lumber:1+Bed C - 14 ft:1",
+   "body": "2x4 corner post (3)",
+   "visible": true,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    1.5,
+    3.5,
+    14.5
+   ],
+   "min": [
+    -97.5,
+    -3.0,
+    0.0
+   ],
+   "max": [
+    -94.0,
+    -1.5,
+    14.5
+   ],
+   "volume_in3": 76.13,
+   "mass_kg": 0.7114
+  },
+  {
+   "component": "Bed C - 14 ft",
+   "path": "Bed Lumber:1+Bed C - 14 ft:1",
+   "body": "2x4 mid post",
+   "visible": true,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    1.5,
+    3.5,
+    24.0
+   ],
+   "min": [
+    -97.5,
+    -85.75,
+    -9.5
+   ],
+   "max": [
+    -96.0,
+    -82.25,
+    14.5
+   ],
+   "volume_in3": 126.0,
+   "mass_kg": 1.1775
+  },
+  {
+   "component": "Bed C - 14 ft",
+   "path": "Bed Lumber:1+Bed C - 14 ft:1",
+   "body": "2x4 mid post (1)",
+   "visible": true,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    1.5,
+    3.5,
+    24.0
+   ],
+   "min": [
+    -97.5,
+    -45.375,
+    -9.5
+   ],
+   "max": [
+    -96.0,
+    -41.875,
+    14.5
+   ],
+   "volume_in3": 126.0,
+   "mass_kg": 1.1775
+  },
+  {
+   "component": "Bed C - 14 ft",
+   "path": "Bed Lumber:1+Bed C - 14 ft:1",
+   "body": "2x4 mid post (2)",
+   "visible": true,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    1.5,
+    3.5,
+    24.0
+   ],
+   "min": [
+    -51.0,
+    -126.125,
+    -9.5
+   ],
+   "max": [
+    -49.5,
+    -122.625,
+    14.5
+   ],
+   "volume_in3": 126.0,
+   "mass_kg": 1.1775
+  },
+  {
+   "component": "Bed C - 14 ft",
+   "path": "Bed Lumber:1+Bed C - 14 ft:1",
+   "body": "2x4 mid post (3)",
+   "visible": true,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    1.5,
+    3.5,
+    24.0
+   ],
+   "min": [
+    -51.0,
+    -85.75,
+    -9.5
+   ],
+   "max": [
+    -49.5,
+    -82.25,
+    14.5
+   ],
+   "volume_in3": 126.0,
+   "mass_kg": 1.1775
+  },
+  {
+   "component": "Bed C - 14 ft",
+   "path": "Bed Lumber:1+Bed C - 14 ft:1",
+   "body": "2x4 mid post (4)",
+   "visible": true,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    1.5,
+    3.5,
+    24.0
+   ],
+   "min": [
+    -51.0,
+    -45.375,
+    -9.5
+   ],
+   "max": [
+    -49.5,
+    -41.875,
+    14.5
+   ],
+   "volume_in3": 126.0,
+   "mass_kg": 1.1775
+  },
+  {
+   "component": "Bed C - 14 ft",
+   "path": "Bed Lumber:1+Bed C - 14 ft:1",
+   "body": "2x4 mid post (5)",
+   "visible": true,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    1.5,
+    3.5,
+    24.0
+   ],
+   "min": [
+    -97.5,
+    -126.125,
+    -9.5
+   ],
+   "max": [
+    -96.0,
+    -122.625,
+    14.5
+   ],
+   "volume_in3": 126.0,
+   "mass_kg": 1.1775
+  },
+  {
+   "component": "Bed D - 16 ft x 2 ft",
+   "path": "Bed Lumber:1+Bed D - 16 ft x 2 ft:1",
+   "body": "Side board 192 in",
+   "visible": true,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    1.5,
+    7.25,
+    192.0
+   ],
+   "min": [
+    -1.5,
+    -192.0,
+    0.0
+   ],
+   "max": [
+    0.0,
+    0.0,
+    7.25
+   ],
+   "volume_in3": 2088.0,
+   "mass_kg": 19.512
+  },
+  {
+   "component": "Bed D - 16 ft x 2 ft",
+   "path": "Bed Lumber:1+Bed D - 16 ft x 2 ft:1",
+   "body": "Side board 192 in (1)",
+   "visible": true,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    1.5,
+    7.25,
+    192.0
+   ],
+   "min": [
+    -24.0,
+    -192.0,
+    0.0
+   ],
+   "max": [
+    -22.5,
+    0.0,
+    7.25
+   ],
+   "volume_in3": 2088.0,
+   "mass_kg": 19.512
+  },
+  {
+   "component": "Bed D - 16 ft x 2 ft",
+   "path": "Bed Lumber:1+Bed D - 16 ft x 2 ft:1",
+   "body": "End board 21 in",
+   "visible": true,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    1.5,
+    7.25,
+    21.0
+   ],
+   "min": [
+    -22.5,
+    -1.5,
+    0.0
+   ],
+   "max": [
+    -1.5,
+    0.0,
+    7.25
+   ],
+   "volume_in3": 228.37,
+   "mass_kg": 2.1341
+  },
+  {
+   "component": "Bed D - 16 ft x 2 ft",
+   "path": "Bed Lumber:1+Bed D - 16 ft x 2 ft:1",
+   "body": "End board 21 in (1)",
+   "visible": true,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    1.5,
+    7.25,
+    21.0
+   ],
+   "min": [
+    -22.5,
+    -192.0,
+    0.0
+   ],
+   "max": [
+    -1.5,
+    -190.5,
+    7.25
+   ],
+   "volume_in3": 228.38,
+   "mass_kg": 2.1341
+  },
+  {
+   "component": "Bed D - 16 ft x 2 ft",
+   "path": "Bed Lumber:1+Bed D - 16 ft x 2 ft:1",
+   "body": "Side board 192 in (2)",
+   "visible": true,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    1.5,
+    7.25,
+    192.0
+   ],
+   "min": [
+    -1.5,
+    -192.0,
+    7.25
+   ],
+   "max": [
+    0.0,
+    0.0,
+    14.5
+   ],
+   "volume_in3": 2088.0,
+   "mass_kg": 19.512
+  },
+  {
+   "component": "Bed D - 16 ft x 2 ft",
+   "path": "Bed Lumber:1+Bed D - 16 ft x 2 ft:1",
+   "body": "Side board 192 in (1) (1)",
+   "visible": true,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    1.5,
+    7.25,
+    192.0
+   ],
+   "min": [
+    -24.0,
+    -192.0,
+    7.25
+   ],
+   "max": [
+    -22.5,
+    0.0,
+    14.5
+   ],
+   "volume_in3": 2088.0,
+   "mass_kg": 19.512
+  },
+  {
+   "component": "Bed D - 16 ft x 2 ft",
+   "path": "Bed Lumber:1+Bed D - 16 ft x 2 ft:1",
+   "body": "End board 21 in (2)",
+   "visible": true,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    1.5,
+    7.25,
+    21.0
+   ],
+   "min": [
+    -22.5,
+    -1.5,
+    7.25
+   ],
+   "max": [
+    -1.5,
+    0.0,
+    14.5
+   ],
+   "volume_in3": 228.37,
+   "mass_kg": 2.1341
+  },
+  {
+   "component": "Bed D - 16 ft x 2 ft",
+   "path": "Bed Lumber:1+Bed D - 16 ft x 2 ft:1",
+   "body": "End board 21 in (1) (1)",
+   "visible": true,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    1.5,
+    7.25,
+    21.0
+   ],
+   "min": [
+    -22.5,
+    -192.0,
+    7.25
+   ],
+   "max": [
+    -1.5,
+    -190.5,
+    14.5
+   ],
+   "volume_in3": 227.2,
+   "mass_kg": 2.1231
+  },
+  {
+   "component": "Bed D - 16 ft x 2 ft",
+   "path": "Bed Lumber:1+Bed D - 16 ft x 2 ft:1",
+   "body": "2x4 corner post",
+   "visible": true,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    1.5,
+    3.5,
+    14.5
+   ],
+   "min": [
+    -5.0,
+    -190.5,
+    0.0
+   ],
+   "max": [
+    -1.5,
+    -189.0,
+    14.5
+   ],
+   "volume_in3": 76.13,
+   "mass_kg": 0.7114
+  },
+  {
+   "component": "Bed D - 16 ft x 2 ft",
+   "path": "Bed Lumber:1+Bed D - 16 ft x 2 ft:1",
+   "body": "2x4 corner post (1)",
+   "visible": true,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    1.5,
+    3.5,
+    14.5
+   ],
+   "min": [
+    -22.5,
+    -190.5,
+    0.0
+   ],
+   "max": [
+    -19.0,
+    -189.0,
+    14.5
+   ],
+   "volume_in3": 76.13,
+   "mass_kg": 0.7114
+  },
+  {
+   "component": "Bed D - 16 ft x 2 ft",
+   "path": "Bed Lumber:1+Bed D - 16 ft x 2 ft:1",
+   "body": "2x4 corner post (2)",
+   "visible": true,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    1.5,
+    3.5,
+    14.5
+   ],
+   "min": [
+    -5.0,
+    -3.0,
+    0.0
+   ],
+   "max": [
+    -1.5,
+    -1.5,
+    14.5
+   ],
+   "volume_in3": 76.12,
+   "mass_kg": 0.7114
+  },
+  {
+   "component": "Bed D - 16 ft x 2 ft",
+   "path": "Bed Lumber:1+Bed D - 16 ft x 2 ft:1",
+   "body": "2x4 corner post (3)",
+   "visible": true,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    1.5,
+    3.5,
+    14.5
+   ],
+   "min": [
+    -22.5,
+    -3.0,
+    0.0
+   ],
+   "max": [
+    -19.0,
+    -1.5,
+    14.5
+   ],
+   "volume_in3": 76.12,
+   "mass_kg": 0.7114
+  },
+  {
+   "component": "Bed D - 16 ft x 2 ft",
+   "path": "Bed Lumber:1+Bed D - 16 ft x 2 ft:1",
+   "body": "2x4 mid post",
+   "visible": true,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    1.5,
+    3.5,
+    24.0
+   ],
+   "min": [
+    -22.5,
+    -97.75,
+    -9.5
+   ],
+   "max": [
+    -21.0,
+    -94.25,
+    14.5
+   ],
+   "volume_in3": 126.0,
+   "mass_kg": 1.1775
+  },
+  {
+   "component": "Bed D - 16 ft x 2 ft",
+   "path": "Bed Lumber:1+Bed D - 16 ft x 2 ft:1",
+   "body": "2x4 mid post (1)",
+   "visible": true,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    1.5,
+    3.5,
+    24.0
+   ],
+   "min": [
+    -22.5,
+    -51.375,
+    -9.5
+   ],
+   "max": [
+    -21.0,
+    -47.875,
+    14.5
+   ],
+   "volume_in3": 126.0,
+   "mass_kg": 1.1775
+  },
+  {
+   "component": "Bed D - 16 ft x 2 ft",
+   "path": "Bed Lumber:1+Bed D - 16 ft x 2 ft:1",
+   "body": "2x4 mid post (2)",
+   "visible": true,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    1.5,
+    3.5,
+    24.0
+   ],
+   "min": [
+    -3.0,
+    -144.125,
+    -9.5
+   ],
+   "max": [
+    -1.5,
+    -140.625,
+    14.5
+   ],
+   "volume_in3": 126.0,
+   "mass_kg": 1.1775
+  },
+  {
+   "component": "Bed D - 16 ft x 2 ft",
+   "path": "Bed Lumber:1+Bed D - 16 ft x 2 ft:1",
+   "body": "2x4 mid post (3)",
+   "visible": true,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    1.5,
+    3.5,
+    24.0
+   ],
+   "min": [
+    -3.0,
+    -97.75,
+    -9.5
+   ],
+   "max": [
+    -1.5,
+    -94.25,
+    14.5
+   ],
+   "volume_in3": 126.0,
+   "mass_kg": 1.1775
+  },
+  {
+   "component": "Bed D - 16 ft x 2 ft",
+   "path": "Bed Lumber:1+Bed D - 16 ft x 2 ft:1",
+   "body": "2x4 mid post (4)",
+   "visible": true,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    1.5,
+    3.5,
+    24.0
+   ],
+   "min": [
+    -3.0,
+    -51.375,
+    -9.5
+   ],
+   "max": [
+    -1.5,
+    -47.875,
+    14.5
+   ],
+   "volume_in3": 126.0,
+   "mass_kg": 1.1775
+  },
+  {
+   "component": "Bed D - 16 ft x 2 ft",
+   "path": "Bed Lumber:1+Bed D - 16 ft x 2 ft:1",
+   "body": "2x4 mid post (5)",
+   "visible": true,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    1.5,
+    3.5,
+    24.0
+   ],
+   "min": [
+    -22.5,
+    -144.125,
+    -9.5
+   ],
+   "max": [
+    -21.0,
+    -140.625,
+    14.5
+   ],
+   "volume_in3": 126.0,
+   "mass_kg": 1.1775
+  },
+  {
+   "component": "Hoop",
+   "path": "Garden Hoops:1+Hoop:1",
+   "body": "1 in tube hoop",
+   "visible": true,
+   "material": "Iron, Wrought",
+   "appearance": "Iron - Cast",
+   "dims_in": [
+    1.0,
+    41.026,
+    57.241
+   ],
+   "min": [
+    -94.013,
+    -7.0,
+    0.0
+   ],
+   "max": [
+    -52.987,
+    -6.0,
+    57.241
+   ],
+   "volume_in3": 107.07,
+   "mass_kg": 13.772
+  },
+  {
+   "component": "Hoop",
+   "path": "Garden Hoops:1+Hoop:7",
+   "body": "1 in tube hoop",
+   "visible": true,
+   "material": "Iron, Wrought",
+   "appearance": "Iron - Cast",
+   "dims_in": [
+    1.0,
+    41.026,
+    57.241
+   ],
+   "min": [
+    -94.013,
+    -38.0,
+    0.0
+   ],
+   "max": [
+    -52.987,
+    -37.0,
+    57.241
+   ],
+   "volume_in3": 107.07,
+   "mass_kg": 13.772
+  },
+  {
+   "component": "Hoop",
+   "path": "Garden Hoops:1+Hoop:8",
+   "body": "1 in tube hoop",
+   "visible": true,
+   "material": "Iron, Wrought",
+   "appearance": "Iron - Cast",
+   "dims_in": [
+    1.0,
+    41.026,
+    57.241
+   ],
+   "min": [
+    -94.013,
+    -69.0,
+    0.0
+   ],
+   "max": [
+    -52.987,
+    -68.0,
+    57.241
+   ],
+   "volume_in3": 107.07,
+   "mass_kg": 13.772
+  },
+  {
+   "component": "Hoop",
+   "path": "Garden Hoops:1+Hoop:9",
+   "body": "1 in tube hoop",
+   "visible": true,
+   "material": "Iron, Wrought",
+   "appearance": "Iron - Cast",
+   "dims_in": [
+    1.0,
+    41.026,
+    57.241
+   ],
+   "min": [
+    -94.013,
+    -100.0,
+    0.0
+   ],
+   "max": [
+    -52.987,
+    -99.0,
+    57.241
+   ],
+   "volume_in3": 107.07,
+   "mass_kg": 13.772
+  },
+  {
+   "component": "Hoop",
+   "path": "Garden Hoops:1+Hoop:10",
+   "body": "1 in tube hoop",
+   "visible": true,
+   "material": "Iron, Wrought",
+   "appearance": "Iron - Cast",
+   "dims_in": [
+    1.0,
+    41.026,
+    57.241
+   ],
+   "min": [
+    -94.013,
+    -131.0,
+    0.0
+   ],
+   "max": [
+    -52.987,
+    -130.0,
+    57.241
+   ],
+   "volume_in3": 107.07,
+   "mass_kg": 13.772
+  },
+  {
+   "component": "Hoop",
+   "path": "Garden Hoops:1+Hoop:11",
+   "body": "1 in tube hoop",
+   "visible": true,
+   "material": "Iron, Wrought",
+   "appearance": "Iron - Cast",
+   "dims_in": [
+    1.0,
+    41.026,
+    57.241
+   ],
+   "min": [
+    -94.013,
+    -162.0,
+    0.0
+   ],
+   "max": [
+    -52.987,
+    -161.0,
+    57.241
+   ],
+   "volume_in3": 107.07,
+   "mass_kg": 13.772
+  },
+  {
+   "component": "Drip riser",
+   "path": "Drip Irrigation:1+Drip riser:1",
+   "body": "3/4 x 1/2 in reducer tee",
+   "visible": true,
+   "material": "PVC-Piping",
+   "appearance": "Plastic - Glossy (White)",
+   "dims_in": [
+    1.4,
+    1.7,
+    2.5
+   ],
+   "min": [
+    -241.25,
+    -128.7,
+    -6.825
+   ],
+   "max": [
+    -238.75,
+    -127.0,
+    -5.425
+   ],
+   "volume_in3": 4.24,
+   "mass_kg": 0.0974
+  },
+  {
+   "component": "Drip riser",
+   "path": "Drip Irrigation:1+Drip riser:1",
+   "body": "1/2 in pipe, ground",
+   "visible": true,
+   "material": "PVC-Piping",
+   "appearance": "Plastic - Glossy (White)",
+   "dims_in": [
+    0.84,
+    0.84,
+    6.25
+   ],
+   "min": [
+    -240.42,
+    -127.75,
+    -6.545
+   ],
+   "max": [
+    -239.58,
+    -121.5,
+    -5.705
+   ],
+   "volume_in3": 3.46,
+   "mass_kg": 0.0795
+  },
+  {
+   "component": "Drip riser",
+   "path": "Drip Irrigation:1+Drip riser:1",
+   "body": "1/2 in elbow, bottom",
+   "visible": true,
+   "material": "PVC-Piping",
+   "appearance": "Plastic - Glossy (White)",
+   "dims_in": [
+    1.17,
+    1.585,
+    1.585
+   ],
+   "min": [
+    -240.585,
+    -122.25,
+    -6.71
+   ],
+   "max": [
+    -239.415,
+    -120.665,
+    -5.125
+   ],
+   "volume_in3": 2.09,
+   "mass_kg": 0.048
+  },
+  {
+   "component": "Drip riser",
+   "path": "Drip Irrigation:1+Drip riser:1",
+   "body": "1/2 in pipe, lower riser",
+   "visible": true,
+   "material": "PVC-Piping",
+   "appearance": "Plastic - Glossy (White)",
+   "dims_in": [
+    0.84,
+    0.84,
+    9.0
+   ],
+   "min": [
+    -240.42,
+    -121.67,
+    -5.875
+   ],
+   "max": [
+    -239.58,
+    -120.83,
+    3.125
+   ],
+   "volume_in3": 4.99,
+   "mass_kg": 0.1144
+  },
+  {
+   "component": "Drip riser",
+   "path": "Drip Irrigation:1+Drip riser:1",
+   "body": "1/2 in ball valve",
+   "visible": true,
+   "material": "PVC-Piping",
+   "appearance": "Plastic - Glossy (White)",
+   "dims_in": [
+    2.55,
+    3.0,
+    3.0
+   ],
+   "min": [
+    -242.2,
+    -123.0,
+    2.375
+   ],
+   "max": [
+    -239.2,
+    -120.45,
+    5.375
+   ],
+   "volume_in3": 5.48,
+   "mass_kg": 0.1258
+  },
+  {
+   "component": "Drip riser",
+   "path": "Drip Irrigation:1+Drip riser:1",
+   "body": "1/2 in pipe, upper riser",
+   "visible": true,
+   "material": "PVC-Piping",
+   "appearance": "Plastic - Glossy (White)",
+   "dims_in": [
+    0.84,
+    0.84,
+    6.0
+   ],
+   "min": [
+    -240.42,
+    -121.67,
+    4.625
+   ],
+   "max": [
+    -239.58,
+    -120.83,
+    10.625
+   ],
+   "volume_in3": 3.33,
+   "mass_kg": 0.0763
+  },
+  {
+   "component": "Drip riser",
+   "path": "Drip Irrigation:1+Drip riser:1",
+   "body": "1/2 in elbow, outside",
+   "visible": true,
+   "material": "PVC-Piping",
+   "appearance": "Plastic - Glossy (White)",
+   "dims_in": [
+    1.17,
+    1.585,
+    1.585
+   ],
+   "min": [
+    -240.585,
+    -121.835,
+    9.875
+   ],
+   "max": [
+    -239.415,
+    -120.25,
+    11.46
+   ],
+   "volume_in3": 2.09,
+   "mass_kg": 0.048
+  },
+  {
+   "component": "Drip riser",
+   "path": "Drip Irrigation:1+Drip riser:1",
+   "body": "1/2 in pipe, through wall",
+   "visible": true,
+   "material": "PVC-Piping",
+   "appearance": "Plastic - Glossy (White)",
+   "dims_in": [
+    0.84,
+    0.84,
+    3.5
+   ],
+   "min": [
+    -240.42,
+    -121.0,
+    10.455
+   ],
+   "max": [
+    -239.58,
+    -117.5,
+    11.295
+   ],
+   "volume_in3": 1.94,
+   "mass_kg": 0.0445
+  },
+  {
+   "component": "Drip riser",
+   "path": "Drip Irrigation:1+Drip riser:1",
+   "body": "1/2 in elbow, inside",
+   "visible": true,
+   "material": "PVC-Piping",
+   "appearance": "Plastic - Glossy (White)",
+   "dims_in": [
+    1.17,
+    1.585,
+    1.585
+   ],
+   "min": [
+    -240.585,
+    -118.25,
+    10.29
+   ],
+   "max": [
+    -239.415,
+    -116.665,
+    11.875
+   ],
+   "volume_in3": 2.09,
+   "mass_kg": 0.048
+  },
+  {
+   "component": "Drip riser",
+   "path": "Drip Irrigation:1+Drip riser:1",
+   "body": "1/2 in pipe, head",
+   "visible": true,
+   "material": "PVC-Piping",
+   "appearance": "Plastic - Glossy (White)",
+   "dims_in": [
+    0.84,
+    0.84,
+    4.0
+   ],
+   "min": [
+    -240.42,
+    -117.67,
+    11.125
+   ],
+   "max": [
+    -239.58,
+    -116.83,
+    15.125
+   ],
+   "volume_in3": 2.22,
+   "mass_kg": 0.0509
+  },
+  {
+   "component": "Drip riser",
+   "path": "Drip Irrigation:1+Drip riser:1",
+   "body": "1/2 in NPT x 4-port 1/4 in drip head",
+   "visible": true,
+   "material": "PVC-Piping",
+   "appearance": "Plastic - Glossy (White)",
+   "dims_in": [
+    2.0,
+    2.45,
+    2.45
+   ],
+   "min": [
+    -241.225,
+    -118.475,
+    14.375
+   ],
+   "max": [
+    -238.775,
+    -116.025,
+    16.375
+   ],
+   "volume_in3": 2.57,
+   "mass_kg": 0.059
+  },
+  {
+   "component": "Drip riser",
+   "path": "Drip Irrigation:1+Drip riser:1",
+   "body": "1/2 in stand-off clamp, lower",
+   "visible": true,
+   "material": "Steel, Galvanized",
+   "appearance": "Steel - Galvanized (Small)",
+   "dims_in": [
+    1.0,
+    1.87,
+    2.5
+   ],
+   "min": [
+    -241.25,
+    -121.87,
+    1.0
+   ],
+   "max": [
+    -238.75,
+    -120.0,
+    2.0
+   ],
+   "volume_in3": 4.04,
+   "mass_kg": 0.5195
+  },
+  {
+   "component": "Drip riser",
+   "path": "Drip Irrigation:1+Drip riser:1",
+   "body": "1/2 in stand-off clamp, upper",
+   "visible": true,
+   "material": "Steel, Galvanized",
+   "appearance": "Steel - Galvanized (Small)",
+   "dims_in": [
+    1.0,
+    1.87,
+    2.5
+   ],
+   "min": [
+    -241.25,
+    -121.87,
+    8.25
+   ],
+   "max": [
+    -238.75,
+    -120.0,
+    9.25
+   ],
+   "volume_in3": 4.04,
+   "mass_kg": 0.5195
+  },
+  {
+   "component": "Drip riser",
+   "path": "Drip Irrigation:1+Drip riser:2",
+   "body": "3/4 x 1/2 in reducer tee",
+   "visible": true,
+   "material": "PVC-Piping",
+   "appearance": "Plastic - Glossy (White)",
+   "dims_in": [
+    1.4,
+    1.7,
+    2.5
+   ],
+   "min": [
+    -166.25,
+    -152.7,
+    -6.825
+   ],
+   "max": [
+    -163.75,
+    -151.0,
+    -5.425
+   ],
+   "volume_in3": 4.24,
+   "mass_kg": 0.0974
+  },
+  {
+   "component": "Drip riser",
+   "path": "Drip Irrigation:1+Drip riser:2",
+   "body": "1/2 in pipe, ground",
+   "visible": true,
+   "material": "PVC-Piping",
+   "appearance": "Plastic - Glossy (White)",
+   "dims_in": [
+    0.84,
+    0.84,
+    6.25
+   ],
+   "min": [
+    -165.42,
+    -151.75,
+    -6.545
+   ],
+   "max": [
+    -164.58,
+    -145.5,
+    -5.705
+   ],
+   "volume_in3": 3.46,
+   "mass_kg": 0.0795
+  },
+  {
+   "component": "Drip riser",
+   "path": "Drip Irrigation:1+Drip riser:2",
+   "body": "1/2 in elbow, bottom",
+   "visible": true,
+   "material": "PVC-Piping",
+   "appearance": "Plastic - Glossy (White)",
+   "dims_in": [
+    1.17,
+    1.585,
+    1.585
+   ],
+   "min": [
+    -165.585,
+    -146.25,
+    -6.71
+   ],
+   "max": [
+    -164.415,
+    -144.665,
+    -5.125
+   ],
+   "volume_in3": 2.09,
+   "mass_kg": 0.048
+  },
+  {
+   "component": "Drip riser",
+   "path": "Drip Irrigation:1+Drip riser:2",
+   "body": "1/2 in pipe, lower riser",
+   "visible": true,
+   "material": "PVC-Piping",
+   "appearance": "Plastic - Glossy (White)",
+   "dims_in": [
+    0.84,
+    0.84,
+    9.0
+   ],
+   "min": [
+    -165.42,
+    -145.67,
+    -5.875
+   ],
+   "max": [
+    -164.58,
+    -144.83,
+    3.125
+   ],
+   "volume_in3": 4.99,
+   "mass_kg": 0.1144
+  },
+  {
+   "component": "Drip riser",
+   "path": "Drip Irrigation:1+Drip riser:2",
+   "body": "1/2 in ball valve",
+   "visible": true,
+   "material": "PVC-Piping",
+   "appearance": "Plastic - Glossy (White)",
+   "dims_in": [
+    2.55,
+    3.0,
+    3.0
+   ],
+   "min": [
+    -167.2,
+    -147.0,
+    2.375
+   ],
+   "max": [
+    -164.2,
+    -144.45,
+    5.375
+   ],
+   "volume_in3": 5.48,
+   "mass_kg": 0.1258
+  },
+  {
+   "component": "Drip riser",
+   "path": "Drip Irrigation:1+Drip riser:2",
+   "body": "1/2 in pipe, upper riser",
+   "visible": true,
+   "material": "PVC-Piping",
+   "appearance": "Plastic - Glossy (White)",
+   "dims_in": [
+    0.84,
+    0.84,
+    6.0
+   ],
+   "min": [
+    -165.42,
+    -145.67,
+    4.625
+   ],
+   "max": [
+    -164.58,
+    -144.83,
+    10.625
+   ],
+   "volume_in3": 3.33,
+   "mass_kg": 0.0763
+  },
+  {
+   "component": "Drip riser",
+   "path": "Drip Irrigation:1+Drip riser:2",
+   "body": "1/2 in elbow, outside",
+   "visible": true,
+   "material": "PVC-Piping",
+   "appearance": "Plastic - Glossy (White)",
+   "dims_in": [
+    1.17,
+    1.585,
+    1.585
+   ],
+   "min": [
+    -165.585,
+    -145.835,
+    9.875
+   ],
+   "max": [
+    -164.415,
+    -144.25,
+    11.46
+   ],
+   "volume_in3": 2.09,
+   "mass_kg": 0.048
+  },
+  {
+   "component": "Drip riser",
+   "path": "Drip Irrigation:1+Drip riser:2",
+   "body": "1/2 in pipe, through wall",
+   "visible": true,
+   "material": "PVC-Piping",
+   "appearance": "Plastic - Glossy (White)",
+   "dims_in": [
+    0.84,
+    0.84,
+    3.5
+   ],
+   "min": [
+    -165.42,
+    -145.0,
+    10.455
+   ],
+   "max": [
+    -164.58,
+    -141.5,
+    11.295
+   ],
+   "volume_in3": 1.94,
+   "mass_kg": 0.0445
+  },
+  {
+   "component": "Drip riser",
+   "path": "Drip Irrigation:1+Drip riser:2",
+   "body": "1/2 in elbow, inside",
+   "visible": true,
+   "material": "PVC-Piping",
+   "appearance": "Plastic - Glossy (White)",
+   "dims_in": [
+    1.17,
+    1.585,
+    1.585
+   ],
+   "min": [
+    -165.585,
+    -142.25,
+    10.29
+   ],
+   "max": [
+    -164.415,
+    -140.665,
+    11.875
+   ],
+   "volume_in3": 2.09,
+   "mass_kg": 0.048
+  },
+  {
+   "component": "Drip riser",
+   "path": "Drip Irrigation:1+Drip riser:2",
+   "body": "1/2 in pipe, head",
+   "visible": true,
+   "material": "PVC-Piping",
+   "appearance": "Plastic - Glossy (White)",
+   "dims_in": [
+    0.84,
+    0.84,
+    4.0
+   ],
+   "min": [
+    -165.42,
+    -141.67,
+    11.125
+   ],
+   "max": [
+    -164.58,
+    -140.83,
+    15.125
+   ],
+   "volume_in3": 2.22,
+   "mass_kg": 0.0509
+  },
+  {
+   "component": "Drip riser",
+   "path": "Drip Irrigation:1+Drip riser:2",
+   "body": "1/2 in NPT x 4-port 1/4 in drip head",
+   "visible": true,
+   "material": "PVC-Piping",
+   "appearance": "Plastic - Glossy (White)",
+   "dims_in": [
+    2.0,
+    2.45,
+    2.45
+   ],
+   "min": [
+    -166.225,
+    -142.475,
+    14.375
+   ],
+   "max": [
+    -163.775,
+    -140.025,
+    16.375
+   ],
+   "volume_in3": 2.57,
+   "mass_kg": 0.059
+  },
+  {
+   "component": "Drip riser",
+   "path": "Drip Irrigation:1+Drip riser:2",
+   "body": "1/2 in stand-off clamp, lower",
+   "visible": true,
+   "material": "Steel, Galvanized",
+   "appearance": "Steel - Galvanized (Small)",
+   "dims_in": [
+    1.0,
+    1.87,
+    2.5
+   ],
+   "min": [
+    -166.25,
+    -145.87,
+    1.0
+   ],
+   "max": [
+    -163.75,
+    -144.0,
+    2.0
+   ],
+   "volume_in3": 4.04,
+   "mass_kg": 0.5195
+  },
+  {
+   "component": "Drip riser",
+   "path": "Drip Irrigation:1+Drip riser:2",
+   "body": "1/2 in stand-off clamp, upper",
+   "visible": true,
+   "material": "Steel, Galvanized",
+   "appearance": "Steel - Galvanized (Small)",
+   "dims_in": [
+    1.0,
+    1.87,
+    2.5
+   ],
+   "min": [
+    -166.25,
+    -145.87,
+    8.25
+   ],
+   "max": [
+    -163.75,
+    -144.0,
+    9.25
+   ],
+   "volume_in3": 4.04,
+   "mass_kg": 0.5195
+  },
+  {
+   "component": "Drip riser",
+   "path": "Drip Irrigation:1+Drip riser:3",
+   "body": "3/4 x 1/2 in reducer tee",
+   "visible": true,
+   "material": "PVC-Piping",
+   "appearance": "Plastic - Glossy (White)",
+   "dims_in": [
+    1.4,
+    1.7,
+    2.5
+   ],
+   "min": [
+    -91.25,
+    -176.7,
+    -6.825
+   ],
+   "max": [
+    -88.75,
+    -175.0,
+    -5.425
+   ],
+   "volume_in3": 4.24,
+   "mass_kg": 0.0974
+  },
+  {
+   "component": "Drip riser",
+   "path": "Drip Irrigation:1+Drip riser:3",
+   "body": "1/2 in pipe, ground",
+   "visible": true,
+   "material": "PVC-Piping",
+   "appearance": "Plastic - Glossy (White)",
+   "dims_in": [
+    0.84,
+    0.84,
+    6.25
+   ],
+   "min": [
+    -90.42,
+    -175.75,
+    -6.545
+   ],
+   "max": [
+    -89.58,
+    -169.5,
+    -5.705
+   ],
+   "volume_in3": 3.46,
+   "mass_kg": 0.0795
+  },
+  {
+   "component": "Drip riser",
+   "path": "Drip Irrigation:1+Drip riser:3",
+   "body": "1/2 in elbow, bottom",
+   "visible": true,
+   "material": "PVC-Piping",
+   "appearance": "Plastic - Glossy (White)",
+   "dims_in": [
+    1.17,
+    1.585,
+    1.585
+   ],
+   "min": [
+    -90.585,
+    -170.25,
+    -6.71
+   ],
+   "max": [
+    -89.415,
+    -168.665,
+    -5.125
+   ],
+   "volume_in3": 2.09,
+   "mass_kg": 0.048
+  },
+  {
+   "component": "Drip riser",
+   "path": "Drip Irrigation:1+Drip riser:3",
+   "body": "1/2 in pipe, lower riser",
+   "visible": true,
+   "material": "PVC-Piping",
+   "appearance": "Plastic - Glossy (White)",
+   "dims_in": [
+    0.84,
+    0.84,
+    9.0
+   ],
+   "min": [
+    -90.42,
+    -169.67,
+    -5.875
+   ],
+   "max": [
+    -89.58,
+    -168.83,
+    3.125
+   ],
+   "volume_in3": 4.99,
+   "mass_kg": 0.1144
+  },
+  {
+   "component": "Drip riser",
+   "path": "Drip Irrigation:1+Drip riser:3",
+   "body": "1/2 in ball valve",
+   "visible": true,
+   "material": "PVC-Piping",
+   "appearance": "Plastic - Glossy (White)",
+   "dims_in": [
+    2.55,
+    3.0,
+    3.0
+   ],
+   "min": [
+    -92.2,
+    -171.0,
+    2.375
+   ],
+   "max": [
+    -89.2,
+    -168.45,
+    5.375
+   ],
+   "volume_in3": 5.48,
+   "mass_kg": 0.1258
+  },
+  {
+   "component": "Drip riser",
+   "path": "Drip Irrigation:1+Drip riser:3",
+   "body": "1/2 in pipe, upper riser",
+   "visible": true,
+   "material": "PVC-Piping",
+   "appearance": "Plastic - Glossy (White)",
+   "dims_in": [
+    0.84,
+    0.84,
+    6.0
+   ],
+   "min": [
+    -90.42,
+    -169.67,
+    4.625
+   ],
+   "max": [
+    -89.58,
+    -168.83,
+    10.625
+   ],
+   "volume_in3": 3.33,
+   "mass_kg": 0.0763
+  },
+  {
+   "component": "Drip riser",
+   "path": "Drip Irrigation:1+Drip riser:3",
+   "body": "1/2 in elbow, outside",
+   "visible": true,
+   "material": "PVC-Piping",
+   "appearance": "Plastic - Glossy (White)",
+   "dims_in": [
+    1.17,
+    1.585,
+    1.585
+   ],
+   "min": [
+    -90.585,
+    -169.835,
+    9.875
+   ],
+   "max": [
+    -89.415,
+    -168.25,
+    11.46
+   ],
+   "volume_in3": 2.09,
+   "mass_kg": 0.048
+  },
+  {
+   "component": "Drip riser",
+   "path": "Drip Irrigation:1+Drip riser:3",
+   "body": "1/2 in pipe, through wall",
+   "visible": true,
+   "material": "PVC-Piping",
+   "appearance": "Plastic - Glossy (White)",
+   "dims_in": [
+    0.84,
+    0.84,
+    3.5
+   ],
+   "min": [
+    -90.42,
+    -169.0,
+    10.455
+   ],
+   "max": [
+    -89.58,
+    -165.5,
+    11.295
+   ],
+   "volume_in3": 1.94,
+   "mass_kg": 0.0445
+  },
+  {
+   "component": "Drip riser",
+   "path": "Drip Irrigation:1+Drip riser:3",
+   "body": "1/2 in elbow, inside",
+   "visible": true,
+   "material": "PVC-Piping",
+   "appearance": "Plastic - Glossy (White)",
+   "dims_in": [
+    1.17,
+    1.585,
+    1.585
+   ],
+   "min": [
+    -90.585,
+    -166.25,
+    10.29
+   ],
+   "max": [
+    -89.415,
+    -164.665,
+    11.875
+   ],
+   "volume_in3": 2.09,
+   "mass_kg": 0.048
+  },
+  {
+   "component": "Drip riser",
+   "path": "Drip Irrigation:1+Drip riser:3",
+   "body": "1/2 in pipe, head",
+   "visible": true,
+   "material": "PVC-Piping",
+   "appearance": "Plastic - Glossy (White)",
+   "dims_in": [
+    0.84,
+    0.84,
+    4.0
+   ],
+   "min": [
+    -90.42,
+    -165.67,
+    11.125
+   ],
+   "max": [
+    -89.58,
+    -164.83,
+    15.125
+   ],
+   "volume_in3": 2.22,
+   "mass_kg": 0.0509
+  },
+  {
+   "component": "Drip riser",
+   "path": "Drip Irrigation:1+Drip riser:3",
+   "body": "1/2 in NPT x 4-port 1/4 in drip head",
+   "visible": true,
+   "material": "PVC-Piping",
+   "appearance": "Plastic - Glossy (White)",
+   "dims_in": [
+    2.0,
+    2.45,
+    2.45
+   ],
+   "min": [
+    -91.225,
+    -166.475,
+    14.375
+   ],
+   "max": [
+    -88.775,
+    -164.025,
+    16.375
+   ],
+   "volume_in3": 2.57,
+   "mass_kg": 0.059
+  },
+  {
+   "component": "Drip riser",
+   "path": "Drip Irrigation:1+Drip riser:3",
+   "body": "1/2 in stand-off clamp, lower",
+   "visible": true,
+   "material": "Steel, Galvanized",
+   "appearance": "Steel - Galvanized (Small)",
+   "dims_in": [
+    1.0,
+    1.87,
+    2.5
+   ],
+   "min": [
+    -91.25,
+    -169.87,
+    1.0
+   ],
+   "max": [
+    -88.75,
+    -168.0,
+    2.0
+   ],
+   "volume_in3": 4.04,
+   "mass_kg": 0.5195
+  },
+  {
+   "component": "Drip riser",
+   "path": "Drip Irrigation:1+Drip riser:3",
+   "body": "1/2 in stand-off clamp, upper",
+   "visible": true,
+   "material": "Steel, Galvanized",
+   "appearance": "Steel - Galvanized (Small)",
+   "dims_in": [
+    1.0,
+    1.87,
+    2.5
+   ],
+   "min": [
+    -91.25,
+    -169.87,
+    8.25
+   ],
+   "max": [
+    -88.75,
+    -168.0,
+    9.25
+   ],
+   "volume_in3": 4.04,
+   "mass_kg": 0.5195
+  },
+  {
+   "component": "Drip riser",
+   "path": "Drip Irrigation:1+Drip riser:4",
+   "body": "3/4 x 1/2 in reducer tee",
+   "visible": true,
+   "material": "PVC-Piping",
+   "appearance": "Plastic - Glossy (White)",
+   "dims_in": [
+    1.4,
+    1.7,
+    2.5
+   ],
+   "min": [
+    -16.25,
+    -200.7,
+    -6.825
+   ],
+   "max": [
+    -13.75,
+    -199.0,
+    -5.425
+   ],
+   "volume_in3": 4.24,
+   "mass_kg": 0.0974
+  },
+  {
+   "component": "Drip riser",
+   "path": "Drip Irrigation:1+Drip riser:4",
+   "body": "1/2 in pipe, ground",
+   "visible": true,
+   "material": "PVC-Piping",
+   "appearance": "Plastic - Glossy (White)",
+   "dims_in": [
+    0.84,
+    0.84,
+    6.25
+   ],
+   "min": [
+    -15.42,
+    -199.75,
+    -6.545
+   ],
+   "max": [
+    -14.58,
+    -193.5,
+    -5.705
+   ],
+   "volume_in3": 3.46,
+   "mass_kg": 0.0795
+  },
+  {
+   "component": "Drip riser",
+   "path": "Drip Irrigation:1+Drip riser:4",
+   "body": "1/2 in elbow, bottom",
+   "visible": true,
+   "material": "PVC-Piping",
+   "appearance": "Plastic - Glossy (White)",
+   "dims_in": [
+    1.17,
+    1.585,
+    1.585
+   ],
+   "min": [
+    -15.585,
+    -194.25,
+    -6.71
+   ],
+   "max": [
+    -14.415,
+    -192.665,
+    -5.125
+   ],
+   "volume_in3": 2.09,
+   "mass_kg": 0.048
+  },
+  {
+   "component": "Drip riser",
+   "path": "Drip Irrigation:1+Drip riser:4",
+   "body": "1/2 in pipe, lower riser",
+   "visible": true,
+   "material": "PVC-Piping",
+   "appearance": "Plastic - Glossy (White)",
+   "dims_in": [
+    0.84,
+    0.84,
+    9.0
+   ],
+   "min": [
+    -15.42,
+    -193.67,
+    -5.875
+   ],
+   "max": [
+    -14.58,
+    -192.83,
+    3.125
+   ],
+   "volume_in3": 4.99,
+   "mass_kg": 0.1144
+  },
+  {
+   "component": "Drip riser",
+   "path": "Drip Irrigation:1+Drip riser:4",
+   "body": "1/2 in ball valve",
+   "visible": true,
+   "material": "PVC-Piping",
+   "appearance": "Plastic - Glossy (White)",
+   "dims_in": [
+    2.55,
+    3.0,
+    3.0
+   ],
+   "min": [
+    -17.2,
+    -195.0,
+    2.375
+   ],
+   "max": [
+    -14.2,
+    -192.45,
+    5.375
+   ],
+   "volume_in3": 5.48,
+   "mass_kg": 0.1258
+  },
+  {
+   "component": "Drip riser",
+   "path": "Drip Irrigation:1+Drip riser:4",
+   "body": "1/2 in pipe, upper riser",
+   "visible": true,
+   "material": "PVC-Piping",
+   "appearance": "Plastic - Glossy (White)",
+   "dims_in": [
+    0.84,
+    0.84,
+    6.0
+   ],
+   "min": [
+    -15.42,
+    -193.67,
+    4.625
+   ],
+   "max": [
+    -14.58,
+    -192.83,
+    10.625
+   ],
+   "volume_in3": 3.33,
+   "mass_kg": 0.0763
+  },
+  {
+   "component": "Drip riser",
+   "path": "Drip Irrigation:1+Drip riser:4",
+   "body": "1/2 in elbow, outside",
+   "visible": true,
+   "material": "PVC-Piping",
+   "appearance": "Plastic - Glossy (White)",
+   "dims_in": [
+    1.17,
+    1.585,
+    1.585
+   ],
+   "min": [
+    -15.585,
+    -193.835,
+    9.875
+   ],
+   "max": [
+    -14.415,
+    -192.25,
+    11.46
+   ],
+   "volume_in3": 2.09,
+   "mass_kg": 0.048
+  },
+  {
+   "component": "Drip riser",
+   "path": "Drip Irrigation:1+Drip riser:4",
+   "body": "1/2 in pipe, through wall",
+   "visible": true,
+   "material": "PVC-Piping",
+   "appearance": "Plastic - Glossy (White)",
+   "dims_in": [
+    0.84,
+    0.84,
+    3.5
+   ],
+   "min": [
+    -15.42,
+    -193.0,
+    10.455
+   ],
+   "max": [
+    -14.58,
+    -189.5,
+    11.295
+   ],
+   "volume_in3": 1.94,
+   "mass_kg": 0.0445
+  },
+  {
+   "component": "Drip riser",
+   "path": "Drip Irrigation:1+Drip riser:4",
+   "body": "1/2 in elbow, inside",
+   "visible": true,
+   "material": "PVC-Piping",
+   "appearance": "Plastic - Glossy (White)",
+   "dims_in": [
+    1.17,
+    1.585,
+    1.585
+   ],
+   "min": [
+    -15.585,
+    -190.25,
+    10.29
+   ],
+   "max": [
+    -14.415,
+    -188.665,
+    11.875
+   ],
+   "volume_in3": 2.09,
+   "mass_kg": 0.048
+  },
+  {
+   "component": "Drip riser",
+   "path": "Drip Irrigation:1+Drip riser:4",
+   "body": "1/2 in pipe, head",
+   "visible": true,
+   "material": "PVC-Piping",
+   "appearance": "Plastic - Glossy (White)",
+   "dims_in": [
+    0.84,
+    0.84,
+    4.0
+   ],
+   "min": [
+    -15.42,
+    -189.67,
+    11.125
+   ],
+   "max": [
+    -14.58,
+    -188.83,
+    15.125
+   ],
+   "volume_in3": 2.22,
+   "mass_kg": 0.0509
+  },
+  {
+   "component": "Drip riser",
+   "path": "Drip Irrigation:1+Drip riser:4",
+   "body": "1/2 in NPT x 4-port 1/4 in drip head",
+   "visible": true,
+   "material": "PVC-Piping",
+   "appearance": "Plastic - Glossy (White)",
+   "dims_in": [
+    2.0,
+    2.45,
+    2.45
+   ],
+   "min": [
+    -16.225,
+    -190.475,
+    14.375
+   ],
+   "max": [
+    -13.775,
+    -188.025,
+    16.375
+   ],
+   "volume_in3": 2.57,
+   "mass_kg": 0.059
+  },
+  {
+   "component": "Drip riser",
+   "path": "Drip Irrigation:1+Drip riser:4",
+   "body": "1/2 in stand-off clamp, lower",
+   "visible": true,
+   "material": "Steel, Galvanized",
+   "appearance": "Steel - Galvanized (Small)",
+   "dims_in": [
+    1.0,
+    1.87,
+    2.5
+   ],
+   "min": [
+    -16.25,
+    -193.87,
+    1.0
+   ],
+   "max": [
+    -13.75,
+    -192.0,
+    2.0
+   ],
+   "volume_in3": 4.04,
+   "mass_kg": 0.5195
+  },
+  {
+   "component": "Drip riser",
+   "path": "Drip Irrigation:1+Drip riser:4",
+   "body": "1/2 in stand-off clamp, upper",
+   "visible": true,
+   "material": "Steel, Galvanized",
+   "appearance": "Steel - Galvanized (Small)",
+   "dims_in": [
+    1.0,
+    1.87,
+    2.5
+   ],
+   "min": [
+    -16.25,
+    -193.87,
+    8.25
+   ],
+   "max": [
+    -13.75,
+    -192.0,
+    9.25
+   ],
+   "volume_in3": 4.04,
+   "mass_kg": 0.5195
+  },
+  {
+   "component": "3/4 in main (existing)",
+   "path": "Drip Irrigation:1+3/4 in main (existing):1",
+   "body": "3/4 in main, along the ends",
+   "visible": true,
+   "material": "PVC-Piping",
+   "appearance": "Plastic - Glossy (White)",
+   "dims_in": [
+    1.05,
+    1.05,
+    63.0
+   ],
+   "min": [
+    -249.0,
+    -128.525,
+    -6.65
+   ],
+   "max": [
+    -186.0,
+    -127.475,
+    -5.6
+   ],
+   "volume_in3": 54.55,
+   "mass_kg": 1.2515
+  },
+  {
+   "component": "3/4 in main (existing)",
+   "path": "Drip Irrigation:1+3/4 in main (existing):1",
+   "body": "3/4 in main, step",
+   "visible": true,
+   "material": "PVC-Piping",
+   "appearance": "Plastic - Glossy (White)",
+   "dims_in": [
+    1.05,
+    1.05,
+    24.0
+   ],
+   "min": [
+    -186.525,
+    -152.0,
+    -6.65
+   ],
+   "max": [
+    -185.475,
+    -128.0,
+    -5.6
+   ],
+   "volume_in3": 20.78,
+   "mass_kg": 0.4768
+  },
+  {
+   "component": "3/4 in main (existing)",
+   "path": "Drip Irrigation:1+3/4 in main (existing):1",
+   "body": "3/4 in main, along the ends (1)",
+   "visible": true,
+   "material": "PVC-Piping",
+   "appearance": "Plastic - Glossy (White)",
+   "dims_in": [
+    1.05,
+    1.05,
+    75.0
+   ],
+   "min": [
+    -186.0,
+    -152.525,
+    -6.65
+   ],
+   "max": [
+    -111.0,
+    -151.475,
+    -5.6
+   ],
+   "volume_in3": 64.94,
+   "mass_kg": 1.4899
+  },
+  {
+   "component": "3/4 in main (existing)",
+   "path": "Drip Irrigation:1+3/4 in main (existing):1",
+   "body": "3/4 in main, step (1)",
+   "visible": true,
+   "material": "PVC-Piping",
+   "appearance": "Plastic - Glossy (White)",
+   "dims_in": [
+    1.05,
+    1.05,
+    24.0
+   ],
+   "min": [
+    -111.525,
+    -176.0,
+    -6.65
+   ],
+   "max": [
+    -110.475,
+    -152.0,
+    -5.6
+   ],
+   "volume_in3": 20.78,
+   "mass_kg": 0.4768
+  },
+  {
+   "component": "3/4 in main (existing)",
+   "path": "Drip Irrigation:1+3/4 in main (existing):1",
+   "body": "3/4 in main, along the ends (2)",
+   "visible": true,
+   "material": "PVC-Piping",
+   "appearance": "Plastic - Glossy (White)",
+   "dims_in": [
+    1.05,
+    1.05,
+    75.0
+   ],
+   "min": [
+    -111.0,
+    -176.525,
+    -6.65
+   ],
+   "max": [
+    -36.0,
+    -175.475,
+    -5.6
+   ],
+   "volume_in3": 64.94,
+   "mass_kg": 1.4899
+  },
+  {
+   "component": "3/4 in main (existing)",
+   "path": "Drip Irrigation:1+3/4 in main (existing):1",
+   "body": "3/4 in main, step (2)",
+   "visible": true,
+   "material": "PVC-Piping",
+   "appearance": "Plastic - Glossy (White)",
+   "dims_in": [
+    1.05,
+    1.05,
+    24.0
+   ],
+   "min": [
+    -36.525,
+    -200.0,
+    -6.65
+   ],
+   "max": [
+    -35.475,
+    -176.0,
+    -5.6
+   ],
+   "volume_in3": 20.78,
+   "mass_kg": 0.4768
+  },
+  {
+   "component": "3/4 in main (existing)",
+   "path": "Drip Irrigation:1+3/4 in main (existing):1",
+   "body": "3/4 in main, along the ends (3)",
+   "visible": true,
+   "material": "PVC-Piping",
+   "appearance": "Plastic - Glossy (White)",
+   "dims_in": [
+    1.05,
+    1.05,
+    26.0
+   ],
+   "min": [
+    -36.0,
+    -200.525,
+    -6.65
+   ],
+   "max": [
+    -10.0,
+    -199.475,
+    -5.6
+   ],
+   "volume_in3": 22.51,
+   "mass_kg": 0.5165
+  },
+  {
+   "component": "3/4 in main (existing)",
+   "path": "Drip Irrigation:1+3/4 in main (existing):1",
+   "body": "3/4 in elbow",
+   "visible": true,
+   "material": "PVC-Piping",
+   "appearance": "Plastic - Glossy (White)",
+   "dims_in": [
+    1.4,
+    1.95,
+    1.95
+   ],
+   "min": [
+    -187.25,
+    -129.25,
+    -6.825
+   ],
+   "max": [
+    -185.3,
+    -127.3,
+    -5.425
+   ],
+   "volume_in3": 3.75,
+   "mass_kg": 0.086
+  },
+  {
+   "component": "3/4 in main (existing)",
+   "path": "Drip Irrigation:1+3/4 in main (existing):1",
+   "body": "3/4 in elbow (1)",
+   "visible": true,
+   "material": "PVC-Piping",
+   "appearance": "Plastic - Glossy (White)",
+   "dims_in": [
+    1.4,
+    1.95,
+    1.95
+   ],
+   "min": [
+    -186.7,
+    -152.7,
+    -6.825
+   ],
+   "max": [
+    -184.75,
+    -150.75,
+    -5.425
+   ],
+   "volume_in3": 3.75,
+   "mass_kg": 0.086
+  },
+  {
+   "component": "3/4 in main (existing)",
+   "path": "Drip Irrigation:1+3/4 in main (existing):1",
+   "body": "3/4 in elbow (2)",
+   "visible": true,
+   "material": "PVC-Piping",
+   "appearance": "Plastic - Glossy (White)",
+   "dims_in": [
+    1.4,
+    1.95,
+    1.95
+   ],
+   "min": [
+    -112.25,
+    -153.25,
+    -6.825
+   ],
+   "max": [
+    -110.3,
+    -151.3,
+    -5.425
+   ],
+   "volume_in3": 3.75,
+   "mass_kg": 0.086
+  },
+  {
+   "component": "3/4 in main (existing)",
+   "path": "Drip Irrigation:1+3/4 in main (existing):1",
+   "body": "3/4 in elbow (3)",
+   "visible": true,
+   "material": "PVC-Piping",
+   "appearance": "Plastic - Glossy (White)",
+   "dims_in": [
+    1.4,
+    1.95,
+    1.95
+   ],
+   "min": [
+    -111.7,
+    -176.7,
+    -6.825
+   ],
+   "max": [
+    -109.75,
+    -174.75,
+    -5.425
+   ],
+   "volume_in3": 3.75,
+   "mass_kg": 0.086
+  },
+  {
+   "component": "3/4 in main (existing)",
+   "path": "Drip Irrigation:1+3/4 in main (existing):1",
+   "body": "3/4 in elbow (4)",
+   "visible": true,
+   "material": "PVC-Piping",
+   "appearance": "Plastic - Glossy (White)",
+   "dims_in": [
+    1.4,
+    1.95,
+    1.95
+   ],
+   "min": [
+    -37.25,
+    -177.25,
+    -6.825
+   ],
+   "max": [
+    -35.3,
+    -175.3,
+    -5.425
+   ],
+   "volume_in3": 3.75,
+   "mass_kg": 0.086
+  },
+  {
+   "component": "3/4 in main (existing)",
+   "path": "Drip Irrigation:1+3/4 in main (existing):1",
+   "body": "3/4 in elbow (5)",
+   "visible": true,
+   "material": "PVC-Piping",
+   "appearance": "Plastic - Glossy (White)",
+   "dims_in": [
+    1.4,
+    1.95,
+    1.95
+   ],
+   "min": [
+    -36.7,
+    -200.7,
+    -6.825
+   ],
+   "max": [
+    -34.75,
+    -198.75,
+    -5.425
+   ],
+   "volume_in3": 3.75,
+   "mass_kg": 0.086
+  }
+ ],
+ "site_lines": [
+  [
+   [
+    0.0,
+    0.0
+   ],
+   [
+    -288.0,
+    0.0
+   ]
+  ],
+  [
+   [
+    -288.0,
+    0.0
+   ],
+   [
+    -288.0,
+    33.0
+   ]
+  ],
+  [
+   [
+    -288.0,
+    33.0
+   ],
+   [
+    0.0,
+    33.0
+   ]
+  ],
+  [
+   [
+    0.0,
+    33.0
+   ],
+   [
+    0.0,
+    0.0
+   ]
+  ],
+  [
+   [
+    0.0,
+    33.0
+   ],
+   [
+    -288.0,
+    33.0
+   ]
+  ],
+  [
+   [
+    -288.0,
+    33.0
+   ],
+   [
+    -288.0,
+    69.0
+   ]
+  ],
+  [
+   [
+    -288.0,
+    69.0
+   ],
+   [
+    0.0,
+    69.0
+   ]
+  ],
+  [
+   [
+    0.0,
+    69.0
+   ],
+   [
+    0.0,
+    33.0
+   ]
+  ],
+  [
+   [
+    0.0,
+    0.0
+   ],
+   [
+    0.0,
+    -216.0
+   ]
+  ],
+  [
+   [
+    -288.0,
+    0.0
+   ],
+   [
+    -288.0,
+    -120.0
+   ]
+  ],
+  [
+   [
+    -288.0,
+    -120.0
+   ],
+   [
+    0.0,
+    -216.0
+   ]
+  ]
+ ],
+ "materials": {
+  "Concrete (paver)": {
+   "density_kg_m3": 2300.0
+  },
+  "Steel, Galvanized": {
+   "density_kg_m3": 7850.0
+  },
+  "Iron, Wrought": {
+   "density_kg_m3": 7849.04686959
+  },
+  "Pine": {
+   "density_kg_m3": 570.2572828
+  },
+  "Stone": {
+   "density_kg_m3": 2700.0
+  },
+  "Steel": {
+   "density_kg_m3": 7850.0
+  },
+  "PVC-Piping": {
+   "density_kg_m3": 1400.0
+  }
+ }
+}
