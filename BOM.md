@@ -19,12 +19,12 @@ Bed walls are 2x8 on edge, 2 courses, 14.5 in tall. Side boards run full length 
 
 | Section | Item | Qty | Unit | Spec | Source | Notes |
 |---|---|---|---|---|---|---|
-| Lumber | 2x8 x 10 ft | 4 | ea | Cedar, redwood, or ground-contact treated | Model (Bed Lumber) | Side boards, used full length (no cut) |
-| Lumber | 2x8 x 12 ft | 4 | ea | Cedar, redwood, or ground-contact treated | Model (Bed Lumber) | Side boards, used full length (no cut) |
-| Lumber | 2x8 x 14 ft | 4 | ea | Cedar, redwood, or ground-contact treated | Model (Bed Lumber) | Side boards, used full length (no cut) |
-| Lumber | 2x8 x 16 ft | 4 | ea | Cedar, redwood, or ground-contact treated | Model (Bed Lumber) | Side boards, used full length (no cut) |
-| Lumber | 2x8 x 8 ft | 7 | ea | Cedar, redwood, or ground-contact treated | Model (Bed Lumber) | End boards: 12 x 48 in (2 per board); 4 x 21 in (4 per board) |
-| Lumber | 2x4 x 8 ft | 13 | ea | Cedar, redwood, or ground-contact treated | Model (Bed Lumber) | 14 corner posts x 14.5 in (6 per board, 3 boards) + 2 trellis posts, uncut 8 ft (2 boards) + 2 arch sills x 60.5 in (1 per board, 2 boards; the 35 3/8 in offcut of each is one stake) + 20 mid-span posts and 4 arch stakes x 23 7/8 in (2 from the sill offcuts, then 4 per board from 6 more boards) |
+| Lumber | 2x8 x 8 ft | 7 | ea | $14.78 each, $103.46; 2x10: $21.08 each | Store price | Bed A 2: 2 end boards x 47 15/16 in (no offcut); Bed B 2: 2 end boards x 47 15/16 in (no offcut); Bed C 2: 2 end boards x 47 15/16 in (no offcut); Bed D 1: 4 end boards x 21 in (11 5/8 in offcut) |
+| Lumber | 2x8 x 10 ft | 4 | ea | $18.88 each, $75.52; 2x10: $26.88 each | Store price | Bed A 4: side board, whole |
+| Lumber | 2x8 x 12 ft | 4 | ea | $22.68 each, $90.72; 2x10: $32.78 each | Store price | Bed B 4: side board, whole |
+| Lumber | 2x8 x 16 ft | 8 | ea | $30.68 each, $245.44; 2x10: $43.08 each | Store price | Bed C 4: 1 side board x 168 in (24 in offcut); Bed D 4: side board, whole |
+| Lumber | 2x4 x 6 ft | 8 | ea | $5.28 each, $42.24 | Store price | Bed A 1: 3 mid-span posts x 23 7/8 in (no offcut); Bed B 1: 3 mid-span posts x 23 7/8 in (no offcut); Bed C 1: 4 corner posts x 14 1/2 in (13 5/8 in offcut), 2: 3 mid-span posts x 23 7/8 in (no offcut); Bed D 1: 4 corner posts x 14 1/2 in (13 5/8 in offcut), 2: 3 mid-span posts x 23 7/8 in (no offcut) |
+| Lumber | 2x4 x 8 ft | 6 | ea | $7.08 each, $42.48 | Store price | Bed A 1: 3 corner posts x 14 1/2 in + 1 mid-span post x 24 in + 1 arch stake x 24 in (4 in offcut), 1: trellis post, whole, 1: 1 arch sill x 60 1/2 in + 1 arch stake x 24 in (11 3/8 in offcut); Bed B 1: 3 corner posts x 14 1/2 in + 1 mid-span post x 24 in + 1 arch stake x 24 in (4 in offcut), 1: trellis post, whole, 1: 1 arch sill x 60 1/2 in + 1 arch stake x 24 in (11 3/8 in offcut) |
 | Hardware | #9 x 3 in exterior structural screws, star drive | 136 | ea | Coated for treated lumber; stainless 305/316 for cedar or redwood | Derived from model | Side boards into the corner post edges (64) + corner ties into end grain (64) + arch stakes into the sill ends (8); buy one 5 lb box (about 350); 1 lb boxes hold only about 70 |
 | Hardware | #9 x 2.5 in exterior structural screws, star drive | 144 | ea | Same finish as the 3 in screws | Derived from model | Side boards into the mid-span post faces (80) + end boards into the corner post faces (64); buy 2 x 1 lb boxes (about 180), or one 5 lb box (about 450) for plenty of spares |
 | Hardware | #9 x 1.25 in exterior screws, star drive | 20 | ea | Same finish; short enough to stay inside a 1.5 in post, stake or sill | Derived from model | Hog-wire panel to the trellis posts (2 each), arch stakes (2 each) and sills (4 each), each through a fender washer; a 1 lb box holds about 180 |
@@ -48,7 +48,7 @@ Bed walls are 2x8 on edge, 2 courses, 14.5 in tall. Side boards run full length 
 | Hoops | Low-tunnel hoop, 1 in tube, 40 in wide x 57 in tall | 6 | ea | 136 in of tube each (11.4 ft), 68 ft in all | Model (Garden Hoops) | 6 over Bed C (14 ft) at 31 in pitch, the first and last 5 in inside the end boards; 36 in legs pushed through the 14.5 in of soil to grade, 21.5 in of straight leg above the soil. 11.4 ft each, so 10 ft sticks need a coupling in one leg; 12 ft stock makes one-piece hoops |
 | Optional (hidden in model) | Single-tube garden arch, 1 in tube, 7 ft wide x 7 ft tall | 1 | ea | 216 in of tube (18 ft) | Model (Garden Arch, hidden) | Superseded by Arch AB at the same spot |
 
-Lumber totals: 23 boards of 2x8 (264 linear ft) plus 13 sticks of 2x4. Model lumber weight about 825 lb (2x10: about 1,053 lb). Pavers weigh about 1,328 lb in total, so plan for delivery.
+Lumber totals: 23 boards of 2x8 (272 linear ft) plus 14 sticks of 2x4, about $599.86 before tax at these prices (2x10 walls: $815.56); prices are single-stick prices from The Home Depot, Colorado Front Range store, #1 ground-contact pressure-treated pine (ProWood / WeatherShield), checked 2026-11-08. Model lumber weight about 825 lb (2x10: about 1,053 lb). Pavers weigh about 1,328 lb in total, so plan for delivery.
 
 ## Screw plan
 
@@ -71,36 +71,73 @@ Every joint is a 2x8 board face-screwed to a 2x4 post, 2 screws per board per po
 | D | 5 | 16 | 16 | 0 | 24 | 16 | 0 | 72 |
 | **Total** | | **64** | **64** | **8** | **80** | **64** | **20** | **300** |
 
-Buy: 3 in, 136 needed, one 5 lb box (about 350); 1 lb boxes hold only about 70; 2.5 in, 144 needed, 2 x 1 lb boxes (about 180), or one 5 lb box (about 450) for plenty of spares; 1.25 in, 20 needed, one 1 lb box. Pre-drill the corner ties and any screw within 2 in of a board end (1/8 in bit for cedar, 3/32 in for SPF). Set the mid-span posts first: chamfer the bottom of each to a point, drive it 9 3/8 in at the marked centerline with its wide face toward the wall, stop when its top is flush with the top of the wall, then screw the side boards to it from outside. Corner posts stay 14.5 in and sit on grade, except the 2 inside corner posts at the near end of beds A and B under the arch, which are uncut 8 ft trellis posts set 20 in deep (see the arch).
+Buy: 3 in, 136 needed, one 5 lb box (about 350); 1 lb boxes hold only about 70; 2.5 in, 144 needed, 2 x 1 lb boxes (about 180), or one 5 lb box (about 450) for plenty of spares; 1.25 in, 20 needed, one 1 lb box. Pre-drill the corner ties and any screw within 2 in of a board end (1/8 in bit for cedar, 3/32 in for SPF). Set the mid-span posts first: chamfer the bottom of each to a point, drive it 9 1/2 in at the marked centerline with its wide face toward the wall, stop when its top is flush with the top of the wall, then screw the side boards to it from outside. Corner posts stay 14.5 in and sit on grade, except the 2 inside corner posts at the near end of beds A and B under the arch, which are uncut 8 ft trellis posts set 20 in deep (see the arch).
 
 ## Cut list
 
-Cutting the short pieces from 8 ft stock:
+Stock lengths and prices: The Home Depot, Colorado Front Range store, #1 ground-contact pressure-treated pine (ProWood / WeatherShield), checked 2026-11-08. 2x8 and 2x10 come in 8, 10, 12, 16 ft (no 14 ft, so the 14 ft side boards of Bed C are 16 ft boards cut down); 2x4 comes in 2, 4, 6, 8, 10, 12, 16 ft. Each bed's plan is the cheapest set of sticks for that bed on its own, so the four plans add up to the shopping list. Side boards are whole sticks. End boards may be cut up to 1/4 in short so two 48 in pieces clear the saw kerf on one 8 ft board; corner posts may run up to 1/2 in short of the wall height and mid-span posts and arch stakes up to 1 in short, which only takes them a little less deep into the ground, when that lets one more piece fit a stick.
 
-- 12 x 48 in: 2 per board from 6 boards (offcut 0 in each). Two 48 in pieces from one 96 in board leaves no room for the saw kerf; one piece will be a hair short, which is fine, or buy 10 ft boards.
-- 4 x 21 in: 4 per board from 1 boards (offcut 12 in each).
-- 14 corner posts x 14.5 in: 6 per 2x4 from 3 sticks.
-- 2 trellis posts: uncut 8 ft sticks, 2 of them.
-- 2 arch sills x 60.5 in: 1 per 2x4 from 2 sticks; the 35 3/8 in left of each is one arch stake.
-- 20 mid-span posts and 4 arch stakes x 23 7/8 in: 2 from the sill offcuts, then 4 per 2x4 from 6 more sticks; cut 23 7/8 rather than 24 in so 4 clear the saw kerfs, which leaves 9 3/8 in in the ground.
+| Buy | Qty | Each | Total | For |
+|---|---|---|---|---|
+| 2x8 x 8 ft | **7** | $14.78 | $103.46 | Bed A 2: 2 end boards x 47 15/16 in (no offcut); Bed B 2: 2 end boards x 47 15/16 in (no offcut); Bed C 2: 2 end boards x 47 15/16 in (no offcut); Bed D 1: 4 end boards x 21 in (11 5/8 in offcut) |
+| 2x8 x 10 ft | **4** | $18.88 | $75.52 | Bed A 4: side board, whole |
+| 2x8 x 12 ft | **4** | $22.68 | $90.72 | Bed B 4: side board, whole |
+| 2x8 x 16 ft | **8** | $30.68 | $245.44 | Bed C 4: 1 side board x 168 in (24 in offcut); Bed D 4: side board, whole |
+| 2x4 x 6 ft | **8** | $5.28 | $42.24 | Bed A 1: 3 mid-span posts x 23 7/8 in (no offcut); Bed B 1: 3 mid-span posts x 23 7/8 in (no offcut); Bed C 1: 4 corner posts x 14 1/2 in (13 5/8 in offcut), 2: 3 mid-span posts x 23 7/8 in (no offcut); Bed D 1: 4 corner posts x 14 1/2 in (13 5/8 in offcut), 2: 3 mid-span posts x 23 7/8 in (no offcut) |
+| 2x4 x 8 ft | **6** | $7.08 | $42.48 | Bed A 1: 3 corner posts x 14 1/2 in + 1 mid-span post x 24 in + 1 arch stake x 24 in (4 in offcut), 1: trellis post, whole, 1: 1 arch sill x 60 1/2 in + 1 arch stake x 24 in (11 3/8 in offcut); Bed B 1: 3 corner posts x 14 1/2 in + 1 mid-span post x 24 in + 1 arch stake x 24 in (4 in offcut), 1: trellis post, whole, 1: 1 arch sill x 60 1/2 in + 1 arch stake x 24 in (11 3/8 in offcut) |
+| **Total** | **37** | | **$599.86** | 2x10 walls: $815.56 |
+
+Cutting all four beds from one pile instead: 33 sticks, $580.64, saving $19.22 over the per-bed plans (offcuts from one bed become pieces for another).
+
+| Buy | Qty | Each one is cut into | Offcut |
+|---|---|---|---|
+| 2x8 x 16 ft | 4 | side board, whole | 0 in |
+| 2x8 x 16 ft | 4 | 1 side board x 168 in + 1 end board x 21 in | 2 7/8 in |
+| 2x8 x 12 ft | 4 | side board, whole | 0 in |
+| 2x8 x 10 ft | 4 | side board, whole | 0 in |
+| 2x8 x 8 ft | 6 | 2 end boards x 47 15/16 in | 0 in |
+| 2x4 x 12 ft | 1 | 2 corner posts x 14 in + 5 mid or stake posts x 23 in | 1/4 in |
+| 2x4 x 12 ft | 2 | 1 corner post x 14 in + 3 mid or stake posts x 23 in + 1 arch sill x 60 1/2 in | 0 in |
+| 2x4 x 8 ft | 1 | 5 corner posts x 14 5/16 in + 1 mid or stake post x 23 13/16 in | 0 in |
+| 2x4 x 8 ft | 2 | trellis post, whole | 0 in |
+| 2x4 x 6 ft | 1 | 5 corner posts x 14 1/4 in | 1/4 in |
+| 2x4 x 6 ft | 4 | 3 mid or stake posts x 23 7/8 in | 1/8 in |
 
 ## Materials by bed
 
-Everything that goes to one bed, with its cut lengths, so each bed can be checked on its own. Lumber and fasteners come from the model and the screw plan. The hog-wire panel spans beds A and B and is listed under both (buy one); the 1/2 in drip pipe for every bed is cut from the sticks on the shopping list. The same lists are in BOM-by-bed.csv, and bom.html has tick boxes that are remembered in the browser.
+Everything that goes to one bed, so each bed can be checked on its own. The lumber lines are the sticks to buy, in store lengths with store prices, and the cut lines beneath them say what every stick becomes; fasteners come from the screw plan. The hog-wire panel spans beds A and B and is listed under both (buy one); the 1/2 in drip pipe for every bed is cut from the sticks on the shopping list. The same lists are in BOM-by-bed.csv, and bom.html has tick boxes that are remembered in the browser.
 
 ### Bed A: 10 ft x 51 in, 14.5 in tall
 
-Inside 48 x 117 in. 23 lines.
+Inside 48 x 117 in. 27 lines. Lumber: 10 sticks, $131.60 (2x10 walls: $176.20).
+
+| Buy | Qty | Each one is cut into | Offcut |
+|---|---|---|---|
+| 2x8 x 10 ft | 4 | side board, whole | 0 in |
+| 2x8 x 8 ft | 2 | 2 end boards x 47 15/16 in | 0 in |
+| 2x4 x 8 ft | 1 | 3 corner posts x 14 1/2 in + 1 mid-span post x 24 in + 1 arch stake x 24 in | 4 in |
+| 2x4 x 8 ft | 1 | trellis post, whole | 0 in |
+| 2x4 x 8 ft | 1 | 1 arch sill x 60 1/2 in + 1 arch stake x 24 in | 11 3/8 in |
+| 2x4 x 6 ft | 1 | 3 mid-span posts x 23 7/8 in | 1/8 in |
+
+Other ways to buy it: 2x8: 8 ft boards for the ends, 10 ft for the sides: 6 sticks, $105.08, 0 in offcut (chosen); 10 ft boards only: 6 sticks, $113.28, 47 3/4 in offcut (+$8.20); 12 ft boards only: 6 sticks, $136.08, 192 1/8 in offcut (+$31.00); 16 ft boards only: 4 sticks, $122.72, 95 1/2 in offcut (+$17.64). 2x4: 6 ft sticks plus the uncut 8 ft trellis post: 4 sticks, $26.52, 15 1/2 in offcut (chosen); 8 ft sticks: 4 sticks, $28.32, 39 1/8 in offcut (+$1.80); 10 ft sticks: 3 sticks, $26.94, 15 1/8 in offcut (+$0.42); 12 ft sticks: 3 sticks, $32.64, 90 1/2 in offcut (+$6.12); 16 ft sticks: 2 sticks, $33.56, 38 7/8 in offcut (+$7.04).
 
 **Lumber**
 
-- [ ] **4 x** Side board. 2x8 x 10 ft, full length (120 in). 2 per course, outside; no cut. *Model (Bed Lumber)*
-- [ ] **4 x** End board. 2x8, cut 48 in from 8 ft stock. 2 per 8 ft board, between the side boards. *Model (Bed Lumber)*
-- [ ] **3 x** 2x4 corner post. 2x4, cut 14.5 in (18.5 in with 2x10 walls). Inside each corner, edge-on to the side boards, standing on grade. *Model (Bed Lumber)*
-- [ ] **4 x** 2x4 mid-span post. 2x4, cut 23 7/8 in. Flat against the side boards, centred 41, 79 in from the near end; 9 3/8 in in the ground. *Model (Bed Lumber)*
+- [ ] **2 x** 2x8 x 8 ft. $14.78 each, $29.56. Each: 2 end boards x 47 15/16 in (no offcut). *Store price*
+- [ ] **4 x** 2x8 x 10 ft. $18.88 each, $75.52. Side board, whole. *Store price*
+- [ ] **1 x** 2x4 x 6 ft. $5.28 each, $5.28. 3 mid-span posts x 23 7/8 in (no offcut). *Store price*
+- [ ] **3 x** 2x4 x 8 ft. $7.08 each, $21.24. One each: 3 corner posts x 14 1/2 in + 1 mid-span post x 24 in + 1 arch stake x 24 in (4 in offcut); trellis post, whole; 1 arch sill x 60 1/2 in + 1 arch stake x 24 in (11 3/8 in offcut). *Store price*
+
+**Cuts**
+
+- [ ] **4 x** Side board. 2x8 x 10 ft, whole board. 2 per course, outside. *Model (Bed Lumber)*
+- [ ] **4 x** End board. 2x8, cut 47 15/16 in. 4 from 2 x 8 ft, between the side boards; a hair under 48 so two clear the kerf. *Model (Bed Lumber)*
+- [ ] **3 x** 2x4 corner post. 2x4, cut 14 1/2 in (18.5 in with 2x10 walls). Inside each corner, edge-on to the side boards, standing on grade; 3 from 1 x 8 ft. *Model (Bed Lumber)*
+- [ ] **4 x** 2x4 mid-span post. 2x4, cut 23 7/8 or 24 in. Flat against the side boards, centred 41, 79 in from the near end, about 9 1/2 in in the ground; 1 from 1 x 8 ft, 3 from 1 x 6 ft. *Model (Bed Lumber)*
 - [ ] **1 x** 2x4 trellis post. 2x4 x 8 ft, uncut. East corner at the near end; in place of a corner post, set 20 in deep, 76 in above grade; holds the arch near its crown. *Model (Bed Lumber)*
-- [ ] **1 x** 2x4 arch sill. 2x4, cut 60.5 in. Flat on grade along the bed centreline, 3 to 63.5 in from the near end; the arch foot sits on it. *Model (Bed Lumber)*
-- [ ] **2 x** 2x4 arch stake. 2x4, cut 23 7/8 in. One at each end of the sill, 10.5 in in the ground, 13.5 in above grade. *Model (Bed Lumber)*
+- [ ] **1 x** 2x4 arch sill. 2x4, cut 60 1/2 in. Flat on grade along the bed centreline, 3 to 63.5 in from the near end; the arch foot sits on it; 1 from 1 x 8 ft. *Model (Bed Lumber)*
+- [ ] **2 x** 2x4 arch stake. 2x4, cut 24 in. One at each end of the sill, 10.5 in in the ground, 13.5 in above grade; 2 from 2 x 8 ft. *Model (Bed Lumber)*
 
 **Fasteners**
 
@@ -135,17 +172,35 @@ Inside 48 x 117 in. 23 lines.
 
 ### Bed B: 12 ft x 51 in, 14.5 in tall
 
-Inside 48 x 141 in. 23 lines.
+Inside 48 x 141 in. 27 lines. Lumber: 10 sticks, $146.80 (2x10 walls: $199.80).
+
+| Buy | Qty | Each one is cut into | Offcut |
+|---|---|---|---|
+| 2x8 x 12 ft | 4 | side board, whole | 0 in |
+| 2x8 x 8 ft | 2 | 2 end boards x 47 15/16 in | 0 in |
+| 2x4 x 8 ft | 1 | 3 corner posts x 14 1/2 in + 1 mid-span post x 24 in + 1 arch stake x 24 in | 4 in |
+| 2x4 x 8 ft | 1 | trellis post, whole | 0 in |
+| 2x4 x 8 ft | 1 | 1 arch sill x 60 1/2 in + 1 arch stake x 24 in | 11 3/8 in |
+| 2x4 x 6 ft | 1 | 3 mid-span posts x 23 7/8 in | 1/8 in |
+
+Other ways to buy it: 2x8: 8 ft boards for the ends, 12 ft for the sides: 6 sticks, $120.28, 0 in offcut (chosen); 10 ft boards for the ends, 12 ft for the sides: 6 sticks, $128.48, 47 3/4 in offcut (+$8.20); 12 ft boards only: 6 sticks, $136.08, 96 1/8 in offcut (+$15.80); 16 ft boards only: 4 sticks, $122.72, 0 in offcut (+$2.44). 2x4: 6 ft sticks plus the uncut 8 ft trellis post: 4 sticks, $26.52, 15 1/2 in offcut (chosen); 8 ft sticks: 4 sticks, $28.32, 39 1/8 in offcut (+$1.80); 10 ft sticks: 3 sticks, $26.94, 15 1/8 in offcut (+$0.42); 12 ft sticks: 3 sticks, $32.64, 90 1/2 in offcut (+$6.12); 16 ft sticks: 2 sticks, $33.56, 38 7/8 in offcut (+$7.04).
 
 **Lumber**
 
-- [ ] **4 x** Side board. 2x8 x 12 ft, full length (144 in). 2 per course, outside; no cut. *Model (Bed Lumber)*
-- [ ] **4 x** End board. 2x8, cut 48 in from 8 ft stock. 2 per 8 ft board, between the side boards. *Model (Bed Lumber)*
-- [ ] **3 x** 2x4 corner post. 2x4, cut 14.5 in (18.5 in with 2x10 walls). Inside each corner, edge-on to the side boards, standing on grade. *Model (Bed Lumber)*
-- [ ] **4 x** 2x4 mid-span post. 2x4, cut 23 7/8 in. Flat against the side boards, centred 49, 95 in from the near end; 9 3/8 in in the ground. *Model (Bed Lumber)*
+- [ ] **2 x** 2x8 x 8 ft. $14.78 each, $29.56. Each: 2 end boards x 47 15/16 in (no offcut). *Store price*
+- [ ] **4 x** 2x8 x 12 ft. $22.68 each, $90.72. Side board, whole. *Store price*
+- [ ] **1 x** 2x4 x 6 ft. $5.28 each, $5.28. 3 mid-span posts x 23 7/8 in (no offcut). *Store price*
+- [ ] **3 x** 2x4 x 8 ft. $7.08 each, $21.24. One each: 3 corner posts x 14 1/2 in + 1 mid-span post x 24 in + 1 arch stake x 24 in (4 in offcut); trellis post, whole; 1 arch sill x 60 1/2 in + 1 arch stake x 24 in (11 3/8 in offcut). *Store price*
+
+**Cuts**
+
+- [ ] **4 x** Side board. 2x8 x 12 ft, whole board. 2 per course, outside. *Model (Bed Lumber)*
+- [ ] **4 x** End board. 2x8, cut 47 15/16 in. 4 from 2 x 8 ft, between the side boards; a hair under 48 so two clear the kerf. *Model (Bed Lumber)*
+- [ ] **3 x** 2x4 corner post. 2x4, cut 14 1/2 in (18.5 in with 2x10 walls). Inside each corner, edge-on to the side boards, standing on grade; 3 from 1 x 8 ft. *Model (Bed Lumber)*
+- [ ] **4 x** 2x4 mid-span post. 2x4, cut 23 7/8 or 24 in. Flat against the side boards, centred 49, 95 in from the near end, about 9 1/2 in in the ground; 1 from 1 x 8 ft, 3 from 1 x 6 ft. *Model (Bed Lumber)*
 - [ ] **1 x** 2x4 trellis post. 2x4 x 8 ft, uncut. West corner at the near end; in place of a corner post, set 20 in deep, 76 in above grade; holds the arch near its crown. *Model (Bed Lumber)*
-- [ ] **1 x** 2x4 arch sill. 2x4, cut 60.5 in. Flat on grade along the bed centreline, 3 to 63.5 in from the near end; the arch foot sits on it. *Model (Bed Lumber)*
-- [ ] **2 x** 2x4 arch stake. 2x4, cut 23 7/8 in. One at each end of the sill, 10.5 in in the ground, 13.5 in above grade. *Model (Bed Lumber)*
+- [ ] **1 x** 2x4 arch sill. 2x4, cut 60 1/2 in. Flat on grade along the bed centreline, 3 to 63.5 in from the near end; the arch foot sits on it; 1 from 1 x 8 ft. *Model (Bed Lumber)*
+- [ ] **2 x** 2x4 arch stake. 2x4, cut 24 in. One at each end of the sill, 10.5 in in the ground, 13.5 in above grade; 2 from 2 x 8 ft. *Model (Bed Lumber)*
 
 **Fasteners**
 
@@ -180,14 +235,29 @@ Inside 48 x 141 in. 23 lines.
 
 ### Bed C: 14 ft x 51 in, 14.5 in tall
 
-Inside 48 x 165 in. 18 lines.
+Inside 48 x 165 in. 21 lines. Lumber: 9 sticks, $168.12 (2x10 walls: $230.32).
+
+| Buy | Qty | Each one is cut into | Offcut |
+|---|---|---|---|
+| 2x8 x 16 ft | 4 | 1 side board x 168 in | 24 in |
+| 2x8 x 8 ft | 2 | 2 end boards x 47 15/16 in | 0 in |
+| 2x4 x 6 ft | 1 | 4 corner posts x 14 1/2 in | 13 5/8 in |
+| 2x4 x 6 ft | 2 | 3 mid-span posts x 23 7/8 in | 1/8 in |
+
+Other ways to buy it: 2x8: 8 ft boards for the ends, 16 ft for the sides: 6 sticks, $152.28, 96 in offcut (chosen); 10 ft boards for the ends, 16 ft for the sides: 5 sticks, $153.40, 96 1/8 in offcut (+$1.12); 12 ft boards for the ends, 16 ft for the sides: 5 sticks, $153.40, 96 1/8 in offcut (+$1.12); 16 ft boards only: 5 sticks, $153.40, 96 1/8 in offcut (+$1.12). 2x4: 6 ft sticks: 3 sticks, $15.84, 13 7/8 in offcut (chosen); 8 ft sticks: 3 sticks, $21.24, 85 5/8 in offcut (+$5.40); 10 ft sticks: 2 sticks, $17.96, 37 in offcut (+$2.12); 12 ft sticks: 2 sticks, $21.76, 85 in offcut (+$5.92); 16 ft sticks: 2 sticks, $33.56, 181 in offcut (+$17.72).
 
 **Lumber**
 
-- [ ] **4 x** Side board. 2x8 x 14 ft, full length (168 in). 2 per course, outside; no cut. *Model (Bed Lumber)*
-- [ ] **4 x** End board. 2x8, cut 48 in from 8 ft stock. 2 per 8 ft board, between the side boards. *Model (Bed Lumber)*
-- [ ] **4 x** 2x4 corner post. 2x4, cut 14.5 in (18.5 in with 2x10 walls). Inside each corner, edge-on to the side boards, standing on grade. *Model (Bed Lumber)*
-- [ ] **6 x** 2x4 mid-span post. 2x4, cut 23 7/8 in. Flat against the side boards, centred 44, 84, 124 in from the near end; 9 3/8 in in the ground. *Model (Bed Lumber)*
+- [ ] **2 x** 2x8 x 8 ft. $14.78 each, $29.56. Each: 2 end boards x 47 15/16 in (no offcut). *Store price*
+- [ ] **4 x** 2x8 x 16 ft. $30.68 each, $122.72. Each: 1 side board x 168 in (24 in offcut). *Store price*
+- [ ] **3 x** 2x4 x 6 ft. $5.28 each, $15.84. 1 x 4 corner posts x 14 1/2 in (13 5/8 in offcut); 2 x 3 mid-span posts x 23 7/8 in (no offcut). *Store price*
+
+**Cuts**
+
+- [ ] **4 x** Side board. 2x8, cut 168 in from a 16 ft board (24 in left; no 14 ft stock). 2 per course, outside. *Model (Bed Lumber)*
+- [ ] **4 x** End board. 2x8, cut 47 15/16 in. 4 from 2 x 8 ft, between the side boards; a hair under 48 so two clear the kerf. *Model (Bed Lumber)*
+- [ ] **4 x** 2x4 corner post. 2x4, cut 14 1/2 in (18.5 in with 2x10 walls). Inside each corner, edge-on to the side boards, standing on grade; 4 from 1 x 6 ft. *Model (Bed Lumber)*
+- [ ] **6 x** 2x4 mid-span post. 2x4, cut 23 7/8 in. Flat against the side boards, centred 44, 84, 124 in from the near end, about 9 1/2 in in the ground; 6 from 2 x 6 ft. *Model (Bed Lumber)*
 
 **Fasteners**
 
@@ -220,14 +290,29 @@ Inside 48 x 165 in. 18 lines.
 
 ### Bed D: 16 ft x 24 in, 14.5 in tall
 
-Inside 21 x 189 in. 17 lines.
+Inside 21 x 189 in. 20 lines. Lumber: 8 sticks, $153.34 (2x10 walls: $209.24).
+
+| Buy | Qty | Each one is cut into | Offcut |
+|---|---|---|---|
+| 2x8 x 16 ft | 4 | side board, whole | 0 in |
+| 2x8 x 8 ft | 1 | 4 end boards x 21 in | 11 5/8 in |
+| 2x4 x 6 ft | 1 | 4 corner posts x 14 1/2 in | 13 5/8 in |
+| 2x4 x 6 ft | 2 | 3 mid-span posts x 23 7/8 in | 1/8 in |
+
+Other ways to buy it: 2x8: 8 ft boards for the ends, 16 ft for the sides: 5 sticks, $137.50, 11 5/8 in offcut (chosen); 10 ft boards for the ends, 16 ft for the sides: 5 sticks, $141.60, 35 5/8 in offcut (+$4.10); 12 ft boards for the ends, 16 ft for the sides: 5 sticks, $145.40, 59 5/8 in offcut (+$7.90); 16 ft boards only: 5 sticks, $153.40, 107 5/8 in offcut (+$15.90). 2x4: 6 ft sticks: 3 sticks, $15.84, 13 7/8 in offcut (chosen); 8 ft sticks: 3 sticks, $21.24, 85 5/8 in offcut (+$5.40); 10 ft sticks: 2 sticks, $17.96, 37 in offcut (+$2.12); 12 ft sticks: 2 sticks, $21.76, 85 in offcut (+$5.92); 16 ft sticks: 2 sticks, $33.56, 181 in offcut (+$17.72).
 
 **Lumber**
 
-- [ ] **4 x** Side board. 2x8 x 16 ft, full length (192 in). 2 per course, outside; no cut. *Model (Bed Lumber)*
-- [ ] **4 x** End board. 2x8, cut 21 in from 8 ft stock. 4 per 8 ft board, between the side boards. *Model (Bed Lumber)*
-- [ ] **4 x** 2x4 corner post. 2x4, cut 14.5 in (18.5 in with 2x10 walls). Inside each corner, edge-on to the side boards, standing on grade. *Model (Bed Lumber)*
-- [ ] **6 x** 2x4 mid-span post. 2x4, cut 23 7/8 in. Flat against the side boards, centred 50, 96, 142 in from the near end; 9 3/8 in in the ground. *Model (Bed Lumber)*
+- [ ] **1 x** 2x8 x 8 ft. $14.78 each, $14.78. 4 end boards x 21 in (11 5/8 in offcut). *Store price*
+- [ ] **4 x** 2x8 x 16 ft. $30.68 each, $122.72. Side board, whole. *Store price*
+- [ ] **3 x** 2x4 x 6 ft. $5.28 each, $15.84. 1 x 4 corner posts x 14 1/2 in (13 5/8 in offcut); 2 x 3 mid-span posts x 23 7/8 in (no offcut). *Store price*
+
+**Cuts**
+
+- [ ] **4 x** Side board. 2x8 x 16 ft, whole board. 2 per course, outside. *Model (Bed Lumber)*
+- [ ] **4 x** End board. 2x8, cut 21 in. 4 from 1 x 8 ft, between the side boards. *Model (Bed Lumber)*
+- [ ] **4 x** 2x4 corner post. 2x4, cut 14 1/2 in (18.5 in with 2x10 walls). Inside each corner, edge-on to the side boards, standing on grade; 4 from 1 x 6 ft. *Model (Bed Lumber)*
+- [ ] **6 x** 2x4 mid-span post. 2x4, cut 23 7/8 in. Flat against the side boards, centred 50, 96, 142 in from the near end, about 9 1/2 in in the ground; 6 from 2 x 6 ft. *Model (Bed Lumber)*
 
 **Fasteners**
 

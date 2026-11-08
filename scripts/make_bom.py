@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 """Generate BOM.md, BOM.csv, BOM-by-bed.csv and bom.html from data/model_extract.json.
 
+Lumber is listed as store-length sticks to buy, chosen by scripts/cutstock.py from the
+lengths and prices in STOCK_PRICES, with the cuts each stick becomes.
+
 The extract is written by scripts/fusion_extract_model.py from the Fusion
 design "Raised Bed Design". Everything with a quantity in the BOM is counted from
 model bodies; hardware, base material and soil are derived estimates and are
@@ -12,8 +15,12 @@ import html
 import json
 import math
 import re
+import sys
 from collections import Counter, OrderedDict
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import cutstock  # noqa: E402  (scripts/cutstock.py: least-cost cutting of a bed's pieces from store lengths)
 
 ROOT = Path(__file__).resolve().parent.parent
 DATA = ROOT / 'data' / 'model_extract.json'
@@ -25,7 +32,6 @@ params = d['params']
 BOARD_W = params['Board_Width']['value_in']
 COURSES = int(round(params['Courses']['value_in']))
 T = 1.5           # 2x actual thickness
-STOCK_IN = 96.0   # 8 ft stock used for the short pieces
 KG2LB = 2.20462
 ALT_BOARD_W = 9.25  # the 2x10 alternative
 HOGWIRE_LEN = params['Hogwire_length']['value_in']
@@ -48,7 +54,23 @@ SCREW_HEIGHTS = (1.75, 5.5)  # in from the bottom edge of each board, post screw
 TIE_HEIGHTS = (2.75, 4.5)    # in from the bottom edge, corner ties (staggered off the post screws)
 MID_OFFSET = 0.75           # in either side of a mid-span post's centerline: its two screws per board are staggered across the 3.5 in face
 PER_LB = {3.0: 70, 2.5: 90, 1.25: 180}  # about this many #9 screws per pound, by length
-KERF = 0.125                # saw kerf, in
+KERF = cutstock.KERF        # saw kerf, in
+
+# Store lumber: the lengths stocked and single-stick prices before tax, used for the buy lists.
+PRICE_STORE = 'The Home Depot, Colorado Front Range store'
+PRICE_DATE = '2026-11-08'
+PRICE_GRADE = '#1 ground-contact pressure-treated pine (ProWood / WeatherShield)'
+PRICE_SOURCE = f'{PRICE_STORE}, {PRICE_GRADE}, checked {PRICE_DATE}'
+STOCK_PRICES = {            # nominal -> {length ft: $ each}. No 14 ft 2x8 or 2x10 is stocked; 20 ft is delivery-only and left out.
+    '2x4': {2: 1.98, 4: 4.78, 6: 5.28, 8: 7.08, 10: 8.98, 12: 10.88, 16: 16.78},
+    '2x8': {8: 14.78, 10: 18.88, 12: 22.68, 16: 30.68},
+    '2x10': {8: 21.08, 10: 26.88, 12: 32.78, 16: 43.08},
+}
+STOCK_IN_PRICES = {nom: {ft * 12.0: price for ft, price in d.items()} for nom, d in STOCK_PRICES.items()}
+END_TOL = 0.25              # an end board may run this much short so two clear the kerf on one 8 ft board
+CORNER_TOL = 0.5            # a corner post may run this much short of the wall height
+POST_TOL = 1.0              # a mid-span post or arch stake may run this much short (it comes out of the ground, not the wall)
+OPTION_MIN_FT = 6           # 'buy only this length' comparisons start here; 2 ft and 4 ft sticks stay available to the solver
 
 
 def buy_text(n, length):
@@ -212,9 +234,10 @@ for name, bd in sorted(beds.items(), key=lambda kv: kv[0]):
         'posts': bd['posts'],
     })
 
-# ------------------------------------------------------------------ lumber stock
+# ------------------------------------------------------------------ lumber stock: what to buy, bed by bed
+# The pieces each bed needs, then the cheapest set of store-length sticks that yields them (scripts/cutstock.py).
+# Side boards are whole sticks; end boards may run END_TOL short so two clear the kerf on one 8 ft board; posts may run a little short.
 side_stock = Counter()
-short_pieces = Counter()
 post_pieces = 0
 mid_post_pieces = 0
 trellis_pieces = 0
@@ -222,73 +245,111 @@ sill_pieces = 0
 stake_pieces = 0
 for r in bed_rows:
     side_stock[(NOM, r['L'])] += r['n_sides']
-    short_pieces[r['E']] += r['n_ends']
     post_pieces += r['n_posts']
     mid_post_pieces += r['n_mid_plain']
     trellis_pieces += r['n_trellis']
     sill_pieces += r['n_sills']
     stake_pieces += r['n_stakes']
-
-cut_plan = []
-short_stock = 0
-for length, qty in sorted(short_pieces.items(), reverse=True):
-    per = int(STOCK_IN // length)
-    sticks = math.ceil(qty / per)
-    short_stock += sticks
-    cut_plan.append({'length': length, 'qty': qty, 'per_stick': per, 'sticks': sticks,
-                     'offcut': STOCK_IN - per * length})
 corner_pieces = post_pieces - mid_post_pieces - trellis_pieces
-posts_per_stick = int(STOCK_IN // POST_H)        # 14.5 in corner posts: 6 per 96 in stick
-corner_sticks = math.ceil(corner_pieces / posts_per_stick)
-mid_per_stick = int(STOCK_IN // MID_LEN)         # 24 in mid-span posts: 4 per stick
-# four 24 in pieces plus three kerfs do not fit a 96 in stick, so the mid-span posts are cut a kerf short
-mid_cut = MID_LEN if mid_per_stick * MID_LEN + (mid_per_stick - 1) * KERF <= STOCK_IN else MID_LEN - KERF
-mid_embed_cut = mid_cut - COURSES * BOARD_W
-mid_cut_note = (f'; cut {frac(mid_cut)} rather than {MID_LEN:g} in so {mid_per_stick} clear the saw kerfs, which leaves {frac(mid_embed_cut)} in in the ground'
-                if mid_cut != MID_LEN else '')
-# trellis posts: uncut 8 ft sticks when Trellis_Post_Length is the stock length; a shorter post leaves an offcut that is one 24 in piece
-trellis_uncut = trellis_pieces > 0 and TRELLIS_LEN >= STOCK_IN - 1e-6
-trellis_per_stick = max(1, int(STOCK_IN // TRELLIS_LEN)) if trellis_pieces else 1
-trellis_sticks = math.ceil(trellis_pieces / trellis_per_stick) if trellis_pieces else 0
-trellis_offcut = max(0.0, STOCK_IN - trellis_per_stick * TRELLIS_LEN - trellis_per_stick * KERF)
-offcut_mids_per_stick = int(trellis_offcut // mid_cut) if trellis_offcut > 0 else 0
-mids_from_offcuts = min(mid_post_pieces, offcut_mids_per_stick * trellis_sticks)
-# arch sills: one 60.5 in sill per stick; the 35 in left is one stake
-sill_per_stick = max(1, int(STOCK_IN // SILL_LEN)) if sill_pieces else 1
-sill_sticks = math.ceil(sill_pieces / sill_per_stick) if sill_pieces else 0
-sill_offcut = max(0.0, STOCK_IN - sill_per_stick * SILL_LEN - sill_per_stick * KERF)
-offcut_stakes_per_stick = int(sill_offcut // mid_cut) if sill_offcut > 0 else 0
-stakes_from_offcuts = min(stake_pieces, offcut_stakes_per_stick * sill_sticks)
-# the mid-span posts and the arch stakes are the same 24 in cut
-short24_pieces = (mid_post_pieces - mids_from_offcuts) + (stake_pieces - stakes_from_offcuts)
-mid_sticks = math.ceil(short24_pieces / mid_per_stick)
-post_sticks = corner_sticks + trellis_sticks + sill_sticks + mid_sticks
-short24_label = f'{mid_post_pieces} mid-span posts' + (f' and {stake_pieces} arch stakes' if stake_pieces else '') + f' x {frac(mid_cut)} in'
-from_offcuts = ([f'{mids_from_offcuts} from the trellis offcuts'] if mids_from_offcuts else []) + ([f'{stakes_from_offcuts} from the sill offcuts'] if stakes_from_offcuts else [])
-offcut_lead = (', '.join(from_offcuts) + ', then ') if from_offcuts else ''
-more = 'more ' if from_offcuts else ''
-trellis_cut_text = ((f'{trellis_pieces} trellis posts: uncut {ft_in(TRELLIS_LEN)} sticks, {trellis_sticks} of them.' if trellis_uncut else
-                     f'{trellis_pieces} trellis posts x {TRELLIS_LEN:g} in: {trellis_per_stick} per {POST_NOM} from {trellis_sticks} sticks; the {frac(trellis_offcut)} in left of each stick is one mid-span post.')
-                    if trellis_pieces else '')
-sill_cut_text = (f'{sill_pieces} arch sills x {SILL_LEN:g} in: {sill_per_stick} per {POST_NOM} from {sill_sticks} sticks; the {frac(sill_offcut)} in left of each is one arch stake.'
-                 if sill_pieces else '')
-short24_cut_text = f'{short24_label}: {offcut_lead}{mid_per_stick} per {POST_NOM} from {mid_sticks} {more}sticks{mid_cut_note}.'
+trellis_uncut = TRELLIS_LEN in STOCK_IN_PRICES[POST_NOM]      # the trellis post is an uncut stock stick
+mid_embed_cut = MID_LEN - COURSES * BOARD_W                    # 9.5 in of a full-length mid-span post below grade
 
-lumber_list = []
-for (nom, L), qty in sorted(side_stock.items(), key=lambda kv: kv[0][1]):
-    lumber_list.append({'item': f'{nom} x {ft_in(L)}', 'qty': qty, 'use': 'Side boards, used full length (no cut)'})
-lumber_list.append({'item': f'{NOM} x 8 ft', 'qty': short_stock,
-                    'use': 'End boards: ' + '; '.join(f"{c['qty']} x {c['length']:g} in ({c['per_stick']} per board)" for c in cut_plan)})
-trellis_use = ((f' + {trellis_pieces} trellis posts, uncut {ft_in(TRELLIS_LEN)} ({trellis_sticks} boards)' if trellis_uncut else
-                f' + {trellis_pieces} trellis posts x {TRELLIS_LEN:g} in ({trellis_per_stick} per board, {trellis_sticks} boards; the offcut of each is {offcut_mids_per_stick} mid-span post)')
-               if trellis_pieces else '')
-sill_use = (f' + {sill_pieces} arch sills x {SILL_LEN:g} in ({sill_per_stick} per board, {sill_sticks} boards; the {frac(sill_offcut)} in offcut of each is one stake)'
-            if sill_pieces else '')
-mid_use = f'{short24_label} ({offcut_lead}{mid_per_stick} per board from {mid_sticks} {more}boards)'
-lumber_list.append({'item': f'{POST_NOM} x 8 ft', 'qty': post_sticks,
-                    'use': f'{corner_pieces} corner posts x {POST_H:g} in ({posts_per_stick} per board, {corner_sticks} boards)' + trellis_use + sill_use + ' + ' + mid_use})
-total_2x_boards = sum(x['qty'] for x in lumber_list[:-1])
-total_lin_ft_2x = sum(L / 12 * q for (n, L), q in side_stock.items()) + short_stock * 8
+
+def board_pieces(r):
+    return [cutstock.Piece('side', 'side board', r['L'], r['n_sides'], short='side'),
+            cutstock.Piece('end', 'end board', r['E'], r['n_ends'], min_len=r['E'] - END_TOL, short='end')]
+
+
+def post_pieces_of(r):
+    return [cutstock.Piece('corner', 'corner post', POST_H, 4 - r['n_tr_corner'], min_len=POST_H - CORNER_TOL, short='corner'),
+            cutstock.Piece('mid', 'mid-span post', MID_LEN, r['n_mid_plain'], min_len=MID_LEN - POST_TOL, short='mid'),
+            cutstock.Piece('trellis', 'trellis post', TRELLIS_LEN, r['n_trellis'], short='trellis'),
+            cutstock.Piece('sill', 'arch sill', SILL_LEN, r['n_sills'], short='sill'),
+            cutstock.Piece('stake', 'arch stake', STAKE_LEN, r['n_stakes'], min_len=STAKE_LEN - POST_TOL, short='stake')]
+
+
+def options_for(pieces, nom):
+    return [o for o in cutstock.single_length_options(pieces, STOCK_IN_PRICES[nom]) if o['length'] >= OPTION_MIN_FT * 12]
+
+
+def plan_key(plan):
+    return sorted((g['stock'], g['count'], tuple((c['key'], c['n'], round(c['len'], 4)) for c in g['cuts'])) for g in plan['sticks'])
+
+
+def same_cutting(a, b):
+    return plan_key(a) == plan_key(b)
+
+
+def priced_as(plan, nom):
+    """The same sticks at another nominal size's prices."""
+    return round(sum(STOCK_IN_PRICES[nom][g['stock']] * g['count'] for g in plan['sticks']), 2)
+
+
+for r in bed_rows:
+    bp, pp = board_pieces(r), post_pieces_of(r)
+    r['plan_boards'] = cutstock.solve(bp, STOCK_IN_PRICES[NOM])
+    r['plan_boards_alt'] = cutstock.solve(bp, STOCK_IN_PRICES[ALT_NOM])
+    r['plan_posts'] = cutstock.solve(pp, STOCK_IN_PRICES[POST_NOM])
+    r['opts_boards'] = options_for(bp, NOM)
+    r['opts_posts'] = options_for(pp, POST_NOM)
+    r['board_cost_alt'] = priced_as(r['plan_boards'], ALT_NOM)        # the same cutting at the 2x10 prices
+    r['alt_same_cutting'] = same_cutting(r['plan_boards'], r['plan_boards_alt'])
+    r['lumber_cost'] = round(r['plan_boards']['cost'] + r['plan_posts']['cost'], 2)
+    r['lumber_cost_alt'] = round(r['board_cost_alt'] + r['plan_posts']['cost'], 2)
+    r['lumber_sticks'] = r['plan_boards']['n_sticks'] + r['plan_posts']['n_sticks']
+    r['board_cuts'] = cutstock.piece_cuts(r['plan_boards'])
+    r['post_cuts'] = cutstock.piece_cuts(r['plan_posts'])
+
+# all four beds cut together: sticks shared between beds can save a little over the per-bed plans
+_boards_all = OrderedDict()
+for r in bed_rows:
+    for p in board_pieces(r):
+        k = (p.key, p.length)
+        if k in _boards_all:
+            _boards_all[k].qty += p.qty
+        else:
+            _boards_all[k] = cutstock.Piece(f'{p.key}{p.length:g}', p.label, p.length, p.qty, min_len=p.min_len, short=p.short)
+_n24 = mid_post_pieces + (stake_pieces if abs(STAKE_LEN - MID_LEN) < 1e-6 else 0)
+_posts_all = [cutstock.Piece('corner', 'corner post', POST_H, corner_pieces, min_len=POST_H - CORNER_TOL, short='corner'),
+              cutstock.Piece('post24', 'mid or stake post' if _n24 > mid_post_pieces else 'mid-span post', MID_LEN, _n24, min_len=MID_LEN - POST_TOL, short='post'),
+              cutstock.Piece('trellis', 'trellis post', TRELLIS_LEN, trellis_pieces, short='trellis'),
+              cutstock.Piece('sill', 'arch sill', SILL_LEN, sill_pieces, short='sill')]
+if abs(STAKE_LEN - MID_LEN) >= 1e-6:
+    _posts_all.append(cutstock.Piece('stake', 'arch stake', STAKE_LEN, stake_pieces, min_len=STAKE_LEN - POST_TOL, short='stake'))
+combined_boards = cutstock.solve(sorted(_boards_all.values(), key=lambda p: -p.length), STOCK_IN_PRICES[NOM])
+combined_posts = cutstock.solve(_posts_all, STOCK_IN_PRICES[POST_NOM])
+per_bed_board_cost = round(sum(r['plan_boards']['cost'] for r in bed_rows), 2)
+per_bed_post_cost = round(sum(r['plan_posts']['cost'] for r in bed_rows), 2)
+combined_cost = round(combined_boards['cost'] + combined_posts['cost'], 2)
+combined_saving = round(per_bed_board_cost + per_bed_post_cost - combined_cost, 2)
+combined_sticks = combined_boards['n_sticks'] + combined_posts['n_sticks']
+
+# shopping-list lumber rows: the per-bed plans added up, so they reconcile with the checklists
+stock_rows = []   # {'nom', 'ft', 'qty', 'price', 'price_alt', 'beds': {letter: n}, 'use': text}
+for nom_key, pk in ((NOM, 'plan_boards'), (POST_NOM, 'plan_posts')):
+    by = OrderedDict()
+    for r in bed_rows:
+        for L_in, n in sorted(r[pk]['by_length'].items()):
+            by.setdefault(L_in, OrderedDict())[r['letter']] = n
+    for L_in in sorted(by):
+        uses = []
+        for r in bed_rows:
+            gs = [g for g in r[pk]['sticks'] if g['stock'] == L_in]
+            if gs:
+                uses.append(f"Bed {r['letter']} " + ', '.join(f"{g['count']}: {cutstock.stick_text(g)}" for g in gs))
+        stock_rows.append({'nom': nom_key, 'ft': int(L_in // 12), 'qty': sum(by[L_in].values()), 'price': STOCK_IN_PRICES[nom_key][L_in],
+                           'price_alt': STOCK_IN_PRICES[ALT_NOM][L_in] if nom_key == NOM else None, 'beds': by[L_in], 'use': '; '.join(uses)})
+lumber_cost = round(sum(x['price'] * x['qty'] for x in stock_rows), 2)
+lumber_cost_alt = round(sum((x['price_alt'] if x['price_alt'] is not None else x['price']) * x['qty'] for x in stock_rows), 2)
+total_2x_boards = sum(x['qty'] for x in stock_rows if x['nom'] == NOM)
+post_sticks = sum(x['qty'] for x in stock_rows if x['nom'] == POST_NOM)
+total_lin_ft_2x = sum(x['ft'] * x['qty'] for x in stock_rows if x['nom'] == NOM)
+lumber_list = [{'item': f"{x['nom']} x {x['ft']} ft", 'qty': x['qty'], 'price': x['price'], 'price_alt': x['price_alt'], 'use': x['use']} for x in stock_rows]
+board_lengths_txt = ', '.join(f'{ft}' for ft in sorted(STOCK_PRICES[NOM])) + ' ft'
+post_lengths_txt = ', '.join(f'{ft}' for ft in sorted(STOCK_PRICES[POST_NOM])) + ' ft'
+cut_rule_txt = (f'Side boards are whole sticks. End boards may be cut up to {frac(END_TOL)} in short so two 48 in pieces clear the saw kerf on one 8 ft board; '
+                f'corner posts may run up to {frac(CORNER_TOL)} in short of the wall height and mid-span posts and arch stakes up to {POST_TOL:g} in short, '
+                f'which only takes them a little less deep into the ground, when that lets one more piece fit a stick.')
 lumber_mass_lb = sum(r['mass_lb'] for r in bed_rows)
 lumber_mass_alt_lb = lumber_mass_lb * ALT_BOARD_W / BOARD_W
 screws_3 = sum(r['screws_3'] for r in bed_rows)
@@ -577,33 +638,81 @@ MASSING = {'A': '4th Bed', 'B': '3rd Bed', 'C': '2nd Bed', 'D': '1st Bed'}
 # ------------------------------------------------------------------ materials by bed
 # One list per bed with everything that goes to that bed, built from the same counts as the shopping list.
 # A part shared by two beds (the arch panel) is listed under both; the 1/2 in drip pipe is cut from the sticks on the shopping list.
-BED_GROUPS = ['Lumber', 'Fasteners', 'Trellis arch', 'Hoops', 'Drip riser', 'Soil', 'Optional']
+BED_GROUPS = ['Lumber', 'Cuts', 'Fasteners', 'Trellis arch', 'Hoops', 'Drip riser', 'Soil', 'Optional']
+
+
+def cuts_text(cuts):
+    return ' or '.join(frac(x) for x in cuts) if cuts else ''
+
+
+def from_text(plan, key):
+    """'4 from 2 x 8 ft' for one piece type in a plan, by stock length."""
+    by = OrderedDict()
+    for g in plan['sticks']:
+        for c in g['cuts']:
+            if c['key'] == key:
+                pieces, sticks = by.get(g['stock'], (0, 0))
+                by[g['stock']] = (pieces + c['n'] * g['count'], sticks + g['count'])
+    return ', '.join(f"{pieces} from {sticks} x {L/12:g} ft" for L, (pieces, sticks) in by.items())
+
+
+def stock_of(plan, key):
+    """(stock length, offcut) of the first stick group that yields a piece type."""
+    for g in plan['sticks']:
+        if any(c['key'] == key for c in g['cuts']):
+            return g['stock'], g['offcut']
+    return None, 0.0
 
 
 def bed_items(r):
     L = r['letter']
     items = []
 
-    def add(group, key, item, qty, unit, spec, source, notes, qty_alt=None):
+    def add(group, key, item, qty, unit, spec, source, notes, qty_alt=None, item_alt=None, spec_alt=None):
         items.append({'group': group, 'key': f'{L.lower()}:{key}', 'item': item, 'qty': qty, 'unit': unit, 'spec': spec,
-                      'source': source, 'notes': notes, 'qty_alt': qty_alt})
+                      'source': source, 'notes': notes, 'qty_alt': qty_alt, 'item_alt': item_alt, 'spec_alt': spec_alt})
 
-    per = int(STOCK_IN // r['E'])
+    pb, pp = r['plan_boards'], r['plan_posts']
+    # Lumber to buy: the cheapest set of store-length sticks for this bed's cuts (one line per length)
+    for nom, plan in ((NOM, pb), (POST_NOM, pp)):
+        for L_in in sorted(plan['by_length']):
+            ft = L_in / 12
+            gs = [g for g in plan['sticks'] if g['stock'] == L_in]
+            n = sum(g['count'] for g in gs)
+            price = STOCK_IN_PRICES[nom][L_in]
+            whole = len(gs) == 1 and gs[0]['cuts'][0]['n'] == 1 and len(gs[0]['cuts']) == 1 and gs[0]['offcut'] < 0.5
+            if len(gs) == 1:
+                notes = ('' if n == 1 or whole else 'each: ') + cutstock.stick_text(gs[0])
+            elif all(g['count'] == 1 for g in gs):
+                notes = 'one each: ' + '; '.join(cutstock.stick_text(g) for g in gs)
+            else:
+                notes = '; '.join(f"{g['count']} x {cutstock.stick_text(g)}" for g in gs)
+            alt = nom == NOM
+            add('Lumber', f'stock-{nom}-{ft:g}', f'{nom} x {ft:g} ft', n, 'ea', f'${price:.2f} each, ${price * n:.2f}', 'Store price', notes,
+                item_alt=f'{ALT_NOM} x {ft:g} ft' if alt else None,
+                spec_alt=f'${STOCK_IN_PRICES[ALT_NOM][L_in]:.2f} each, ${STOCK_IN_PRICES[ALT_NOM][L_in] * n:.2f}' if alt else None)
+    # Cuts: every piece, with the length it is cut to in the plan above
+    bc, pc = r['board_cuts'], r['post_cuts']
     mids = ', '.join(f'{c:.0f}' for c in r['post_centers'][1:-1])
-    add('Lumber', 'side-board', 'Side board', r['n_sides'], 'ea', f'{NOM} x {ft_in(r["L"])}, full length ({r["L"]:g} in)', 'Model (Bed Lumber)', '2 per course, outside; no cut')
-    add('Lumber', 'end-board', 'End board', r['n_ends'], 'ea', f'{NOM}, cut {r["E"]:g} in from 8 ft stock', 'Model (Bed Lumber)', f'{per} per 8 ft board, between the side boards')
-    add('Lumber', 'corner-post', f'{POST_NOM} corner post', 4 - r['n_tr_corner'], 'ea', f'{POST_NOM}, cut {r["H"]:g} in ({r["H_alt"]:g} in with {ALT_NOM} walls)', 'Model (Bed Lumber)',
-        'inside each corner, edge-on to the side boards, standing on grade')
-    add('Lumber', 'mid-post', f'{POST_NOM} mid-span post', r['n_mid_plain'], 'ea', f'{POST_NOM}, cut {frac(mid_cut)} in', 'Model (Bed Lumber)',
-        f'flat against the side boards, centred {mids} in from the near end; {frac(mid_embed_cut)} in in the ground')
+    s_stock, s_off = stock_of(pb, 'side')
+    side_spec = (f'{NOM} x {ft_in(r["L"])}, whole board' if s_stock and abs(s_stock - r['L']) < 1e-6
+                 else f'{NOM}, cut {r["L"]:g} in from a {s_stock/12:g} ft board ({frac(s_off)} in left; no {ft_in(r["L"])} stock)')
+    add('Cuts', 'side-board', 'Side board', r['n_sides'], 'ea', side_spec, 'Model (Bed Lumber)', '2 per course, outside')
+    end_cut = cuts_text(bc.get('end', []))
+    add('Cuts', 'end-board', 'End board', r['n_ends'], 'ea', f'{NOM}, cut {end_cut} in', 'Model (Bed Lumber)',
+        f"{from_text(pb, 'end')}, between the side boards" + (f'; a hair under {r["E"]:g} so two clear the kerf' if bc.get('end') and min(bc['end']) < r['E'] - 1e-6 else ''))
+    add('Cuts', 'corner-post', f'{POST_NOM} corner post', 4 - r['n_tr_corner'], 'ea', f'{POST_NOM}, cut {cuts_text(pc.get("corner", []))} in ({r["H_alt"]:g} in with {ALT_NOM} walls)', 'Model (Bed Lumber)',
+        f"inside each corner, edge-on to the side boards, standing on grade; {from_text(pp, 'corner')}")
+    add('Cuts', 'mid-post', f'{POST_NOM} mid-span post', r['n_mid_plain'], 'ea', f'{POST_NOM}, cut {cuts_text(pc.get("mid", []))} in', 'Model (Bed Lumber)',
+        f"flat against the side boards, centred {mids} in from the near end, about {frac(mid_embed_cut)} in in the ground; {from_text(pp, 'mid')}")
     if r['n_trellis']:
-        add('Lumber', 'trellis-post', f'{POST_NOM} trellis post', r['n_trellis'], 'ea', f'{POST_NOM} x {ft_in(TRELLIS_LEN)}' + (', uncut' if trellis_uncut else f', cut {TRELLIS_LEN:g} in'), 'Model (Bed Lumber)',
+        add('Cuts', 'trellis-post', f'{POST_NOM} trellis post', r['n_trellis'], 'ea', f'{POST_NOM} x {ft_in(TRELLIS_LEN)}' + (', uncut' if trellis_uncut else f', cut {TRELLIS_LEN:g} in'), 'Model (Bed Lumber)',
             f"{'; '.join(r['trellis_where'])}; in place of a corner post, set {TRELLIS_EMBED:g} in deep, {TRELLIS_ABOVE:g} in above grade; holds the arch near its crown")
     if r['n_sills']:
-        add('Lumber', 'sill', f'{POST_NOM} arch sill', r['n_sills'], 'ea', f'{POST_NOM}, cut {SILL_LEN:g} in', 'Model (Bed Lumber)',
-            f"flat on grade along the bed centreline, {-r['sills'][0]['max'][1]:g} to {-r['sills'][0]['min'][1]:g} in from the near end; the arch foot sits on it")
-        add('Lumber', 'stake', f'{POST_NOM} arch stake', r['n_stakes'], 'ea', f'{POST_NOM}, cut {frac(mid_cut)} in', 'Model (Bed Lumber)',
-            f'one at each end of the sill, {STAKE_EMBED:g} in in the ground, {STAKE_ABOVE:g} in above grade')
+        add('Cuts', 'sill', f'{POST_NOM} arch sill', r['n_sills'], 'ea', f'{POST_NOM}, cut {frac(SILL_LEN)} in', 'Model (Bed Lumber)',
+            f"flat on grade along the bed centreline, {-r['sills'][0]['max'][1]:g} to {-r['sills'][0]['min'][1]:g} in from the near end; the arch foot sits on it; {from_text(pp, 'sill')}")
+        add('Cuts', 'stake', f'{POST_NOM} arch stake', r['n_stakes'], 'ea', f'{POST_NOM}, cut {cuts_text(pc.get("stake", []))} in', 'Model (Bed Lumber)',
+            f"one at each end of the sill, {STAKE_EMBED:g} in in the ground, {STAKE_ABOVE:g} in above grade; {from_text(pp, 'stake')}")
     add('Fasteners', 'screw-3', '#9 x 3 in exterior structural screws', r['screws_3'], 'ea', 'star drive; coated for treated lumber, stainless 305/316 for cedar or redwood', 'Derived from model',
         f"{r['corner_side_screws']} side boards into the corner post edges + {r['tie_screws']} corner ties into end grain" + (f" + {r['anchor_screws']} arch stakes into the sill ends" if r['anchor_screws'] else ''))
     add('Fasteners', 'screw-25', '#9 x 2.5 in exterior structural screws', r['screws_25'], 'ea', 'same finish as the 3 in screws', 'Derived from model',
@@ -659,7 +768,8 @@ bed_lines_total = sum(len(items) for _, items in bed_lists)
 # ================================================================== shopping list (CSV + md)
 rows = []  # section, item, qty, unit, spec, source, notes
 for x in lumber_list:
-    rows.append(('Lumber', x['item'], x['qty'], 'ea', 'Cedar, redwood, or ground-contact treated', 'Model (Bed Lumber)', x['use']))
+    rows.append(('Lumber', x['item'], x['qty'], 'ea', f"${x['price']:.2f} each, ${x['price'] * x['qty']:.2f}" + (f"; {ALT_NOM}: ${x['price_alt']:.2f} each" if x['price_alt'] is not None else ''),
+                 'Store price', x['use']))
 rows.append(('Hardware', '#9 x 3 in exterior structural screws, star drive', screws_3, 'ea',
              'Coated for treated lumber; stainless 305/316 for cedar or redwood', 'Derived from model',
              f'Side boards into the corner post edges ({tot_corner_side}) + corner ties into end grain ({tot_tie}) + arch stakes into the sill ends ({tot_anchor}); buy {buy_3}'))
@@ -724,6 +834,26 @@ with open(ROOT / 'BOM-by-bed.csv', 'w', newline='') as f:
         for it in items:
             w.writerow([r['letter'], it['group'], it['item'], it['qty'], it['unit'], it['spec'], it['source'], it['notes']])
 
+def option_label(o, nom):
+    S = f"{o['length']/12:g} ft"
+    forced = ' and '.join(f"{x/12:g} ft" for x in o['forced'])
+    if nom == POST_NOM:
+        return f'{S} sticks' + (f' plus the uncut {forced} trellis post' if forced else '')
+    return f'{S} boards' + (f' for the ends, {forced} for the sides' if forced else ' only')
+
+
+def option_mark(o, plan):
+    diff = round(o['cost'] - plan['cost'], 2)
+    if abs(diff) < 0.005:
+        return 'chosen' if same_cutting(o, plan) else 'same cost'
+    return f'+${diff:.2f}'
+
+
+def options_text(r, nom, opts, plan):
+    parts = [f"{option_label(o, nom)}: {o['n_sticks']} sticks, ${o['cost']:.2f}, {frac(o['offcut'])} in offcut ({option_mark(o, plan)})" for o in opts]
+    return f'{nom}: ' + '; '.join(parts) + '.'
+
+
 # ================================================================== BOM.md
 md = []
 md.append('# Raised Bed Design: bill of materials\n')
@@ -757,7 +887,8 @@ md.append('|---|---|---|---|---|---|---|')
 for r in rows:
     md.append('| ' + ' | '.join(str(x) for x in r) + ' |')
 md.append('')
-md.append(f'Lumber totals: {total_2x_boards} boards of {NOM} ({total_lin_ft_2x:.0f} linear ft) plus {post_sticks} sticks of {POST_NOM}. '
+md.append(f'Lumber totals: {total_2x_boards} boards of {NOM} ({total_lin_ft_2x:.0f} linear ft) plus {post_sticks} sticks of {POST_NOM}, '
+          f'about ${lumber_cost:.2f} before tax at these prices ({ALT_NOM} walls: ${lumber_cost_alt:.2f}); prices are single-stick prices from {PRICE_SOURCE}. '
           f'Model lumber weight about {lumber_mass_lb:,.0f} lb ({ALT_NOM}: about {lumber_mass_alt_lb:,.0f} lb). '
           f'Pavers weigh about {paver_total_lb:,.0f} lb in total, so plan for delivery.\n')
 
@@ -787,24 +918,39 @@ md.append(f'Buy: 3 in, {screws_3} needed, {buy_3}; 2.5 in, {screws_25} needed, {
           f'stop when its top is flush with the top of the wall, then screw the side boards to it from outside. Corner posts stay {POST_H:g} in and sit on grade, except the {tot_tr_corner} inside corner posts at the near end of beds A and B under the arch, which are uncut {ft_in(TRELLIS_LEN)} trellis posts set {TRELLIS_EMBED:g} in deep (see the arch).\n')
 
 md.append('## Cut list\n')
-md.append('Cutting the short pieces from 8 ft stock:\n')
-for c in cut_plan:
-    md.append(f"- {c['qty']} x {c['length']:g} in: {c['per_stick']} per board from {c['sticks']} boards (offcut {c['offcut']:g} in each)."
-              + (' Two 48 in pieces from one 96 in board leaves no room for the saw kerf; one piece will be a hair short, which is fine, or buy 10 ft boards.' if c['length'] == 48 else ''))
-md.append(f'- {corner_pieces} corner posts x {POST_H:g} in: {posts_per_stick} per {POST_NOM} from {corner_sticks} sticks.')
-if trellis_pieces:
-    md.append('- ' + trellis_cut_text)
-if sill_pieces:
-    md.append('- ' + sill_cut_text)
-md.append('- ' + short24_cut_text + '\n')
+md.append(f'Stock lengths and prices: {PRICE_SOURCE}. {NOM} and {ALT_NOM} come in {board_lengths_txt} (no 14 ft, so the 14 ft side boards of Bed C are 16 ft boards cut down); '
+          f'{POST_NOM} comes in {post_lengths_txt}. Each bed\'s plan is the cheapest set of sticks for that bed on its own, so the four plans add up to the shopping list. '
+          f'{cut_rule_txt}\n')
+md.append('| Buy | Qty | Each | Total | For |')
+md.append('|---|---|---|---|---|')
+for x in stock_rows:
+    md.append(f"| {x['nom']} x {x['ft']} ft | **{x['qty']}** | ${x['price']:.2f} | ${x['price'] * x['qty']:.2f} | {x['use']} |")
+md.append(f"| **Total** | **{total_2x_boards + post_sticks}** | | **${lumber_cost:.2f}** | {ALT_NOM} walls: ${lumber_cost_alt:.2f} |")
+md.append('')
+md.append(f'Cutting all four beds from one pile instead: {combined_sticks} sticks, ${combined_cost:.2f}'
+          + (f', saving ${combined_saving:.2f} over the per-bed plans (offcuts from one bed become pieces for another).' if combined_saving > 0.005 else '; the per-bed plans are already as cheap.') + '\n')
+md.append('| Buy | Qty | Each one is cut into | Offcut |')
+md.append('|---|---|---|---|')
+for nom, plan in ((NOM, combined_boards), (POST_NOM, combined_posts)):
+    for g in plan['sticks']:
+        md.append(f"| {nom} x {g['stock']/12:g} ft | {g['count']} | {cutstock.stick_text(g, offcut=False)} | {frac(g['offcut'])} in |")
+md.append('')
 
 md.append('## Materials by bed\n')
-md.append('Everything that goes to one bed, with its cut lengths, so each bed can be checked on its own. Lumber and fasteners come from the model and the screw plan. '
+md.append('Everything that goes to one bed, so each bed can be checked on its own. The lumber lines are the sticks to buy, in store lengths with store prices, '
+          'and the cut lines beneath them say what every stick becomes; fasteners come from the screw plan. '
           'The hog-wire panel spans beds A and B and is listed under both (buy one); the 1/2 in drip pipe for every bed is cut from the sticks on the shopping list. '
           'The same lists are in BOM-by-bed.csv, and bom.html has tick boxes that are remembered in the browser.\n')
 for r, items in bed_lists:
     md.append(f"### Bed {r['letter']}: {ft_in(r['L'])} x {r['W']:g} in, {r['H']:g} in tall\n")
-    md.append(f"Inside {r['E']:g} x {r['inner_L']:g} in. {len(items)} lines.\n")
+    md.append(f"Inside {r['E']:g} x {r['inner_L']:g} in. {len(items)} lines. Lumber: {r['lumber_sticks']} sticks, ${r['lumber_cost']:.2f} ({ALT_NOM} walls: ${r['lumber_cost_alt']:.2f}).\n")
+    md.append('| Buy | Qty | Each one is cut into | Offcut |')
+    md.append('|---|---|---|---|')
+    for nom, plan in ((NOM, r['plan_boards']), (POST_NOM, r['plan_posts'])):
+        for g in plan['sticks']:
+            md.append(f"| {nom} x {g['stock']/12:g} ft | {g['count']} | {cutstock.stick_text(g, offcut=False)} | {frac(g['offcut'])} in |")
+    md.append('')
+    md.append('Other ways to buy it: ' + ' '.join(options_text(r, nom, opts, plan) for nom, opts, plan in ((NOM, r['opts_boards'], r['plan_boards']), (POST_NOM, r['opts_posts'], r['plan_posts']))) + '\n')
     for g in BED_GROUPS:
         gi = [it for it in items if it['group'] == g]
         if not gi:
@@ -1539,21 +1685,71 @@ def src_tag(s):
 shop_rows = ''.join(tr([esc(r[0]), esc(r[1]), f'<b>{esc(r[2])}</b>', esc(r[3]), esc(r[4]), src_tag(r[5]), esc(r[6])]) for r in rows)
 shop_text = '\n'.join(f'{r[2]} {r[3]}  {r[1]}  [{r[5]}]' for r in rows)
 
+def ufrac(x):
+    whole = int(math.floor(x + 1e-9))
+    rem = round(x - whole, 4)
+    glyph = {0.5: '½', 0.25: '¼', 0.75: '¾', 0.125: '⅛', 0.375: '⅜', 0.625: '⅝', 0.875: '⅞'}.get(rem)
+    if rem == 0:
+        return f'{whole}'
+    if glyph:
+        return f'{whole}{glyph}' if whole else glyph
+    return frac(x)
+
+
+def bars_html(plan, nom, scale_len, toggle=False):
+    parts = []
+    for g in plan['sticks']:
+        segs = []
+        cls = 'post' if nom == POST_NOM else 'board'
+        for c in g['cuts']:
+            for _ in range(c['n']):
+                segs.append(f'<span class="pc {cls}" style="flex-grow:{c["len"]:.3f}" title="{esc(c["label"])} {frac(c["len"])} in"><i>{ufrac(c["len"])}</i></span>')
+        if g['offcut'] >= 0.5:
+            segs.append(f'<span class="pc waste" style="flex-grow:{g["offcut"]:.3f}" title="offcut {frac(g["offcut"])} in"><i>{ufrac(g["offcut"]) if g["offcut"] >= 4 else ""}</i></span>')
+        nom_html = f'<span class="nom">{esc(nom)}</span>' if toggle else esc(nom)
+        price_html = num(g['price'], STOCK_IN_PRICES[ALT_NOM][g['stock']], '${:.2f}') if toggle else f"${g['price']:.2f}"
+        parts.append(f'<div class="cutbar"><div class="stock"><b>{g["count"]} x</b> {nom_html} x {g["stock"]/12:g} ft <span class="muted">{price_html} each</span></div>'
+                     f'<div class="bar" style="width:{g["stock"]/scale_len*100:.1f}%">{"".join(segs)}</div><div class="legend">{esc(cutstock.stick_text(g))}</div></div>')
+    return f'<div class="cutbars">{"".join(parts)}</div>'
+
+
+def options_html(r):
+    lis = []
+    for nom, opts, plan, toggle in ((NOM, r['opts_boards'], r['plan_boards'], True), (POST_NOM, r['opts_posts'], r['plan_posts'], False)):
+        items = []
+        for o in opts:
+            cost = num(o['cost'], priced_as(o, ALT_NOM), '${:.2f}') if toggle else f"${o['cost']:.2f}"
+            mark = option_mark(o, plan)
+            items.append(f'{esc(option_label(o, nom))}: {o["n_sticks"]} sticks, {cost}, {frac(o["offcut"])} in offcut '
+                         + (f'<b>({mark})</b>' if mark in ('chosen', 'same cost') else f'<span class="muted">({esc(mark)})</span>'))
+        nom_html = f'<span class="nom">{esc(nom)}</span>' if toggle else esc(nom)
+        lis.append(f'<li><b>{nom_html}</b>: ' + '<span class="sep">·</span>'.join(items) + '</li>')
+    return '<p class="opts-h">Other ways to buy it</p><ul class="opts">' + ''.join(lis) + '</ul>'
+
+
 bed_cards = []
 for r, items in bed_lists:
     body = []
+    scale = max(g['stock'] for p in (r['plan_boards'], r['plan_posts']) for g in p['sticks'])
     for g in BED_GROUPS:
         gi = [it for it in items if it['group'] == g]
         if not gi:
             continue
-        body.append(f'<tr class="grp"><td colspan="5">{esc(g)}</td></tr>')
+        head = esc(g)
+        if g == 'Lumber':
+            head += f' <span class="sub">{r["lumber_sticks"]} sticks, {num(r["lumber_cost"], r["lumber_cost_alt"], "${:.2f}")} at store prices</span>'
+        body.append(f'<tr class="grp"><td colspan="5">{head}</td></tr>')
         for it in gi:
             cid = 'ck-' + it['key'].replace(':', '-')
             qty = num(it['qty'], it['qty_alt'], '{:g}') if it['qty_alt'] is not None else f"{it['qty']:g}"
             unit = '' if it['unit'] == 'ea' else f' <span class="muted">{esc(it["unit"])}</span>'
+            item = num(esc(it['item']), esc(it['item_alt']), '{}') if it.get('item_alt') else esc(it['item'])
+            spec = num(esc(it['spec']), esc(it['spec_alt']), '{}') if it.get('spec_alt') else esc(it['spec'])
             body.append(f'<tr><td class="ck"><input type="checkbox" id="{cid}" data-key="{esc(it["key"])}"></td>'
-                        f'<td><label for="{cid}">{esc(it["item"])}</label> {src_tag(it["source"])}</td>'
-                        f'<td><b>{qty}</b>{unit}</td><td>{esc(it["spec"])}</td><td>{esc(it["notes"])}</td></tr>')
+                        f'<td><label for="{cid}">{item}</label> {src_tag(it["source"])}</td>'
+                        f'<td><b>{qty}</b>{unit}</td><td>{spec}</td><td>{esc(it["notes"])}</td></tr>')
+        if g == 'Lumber':
+            body.append(f'<tr class="cuts"><td colspan="5">{bars_html(r["plan_boards"], NOM, scale, toggle=True)}{bars_html(r["plan_posts"], POST_NOM, scale)}{options_html(r)}</td></tr>')
     bed_cards.append(f"""
 <article class="card bed-card" id="bed-{r['letter'].lower()}" data-bed="{r['letter']}">
   <header><span class="letter">{r['letter']}</span><div class="grow"><h3>Bed {r['letter']} <small>{ft_in(r['L'])} x {r['W']:g} in</small></h3>
@@ -1584,8 +1780,13 @@ for _k in ('Drip Irrigation', 'Drip riser', '3/4 in main (existing)'):
 _n = re.sub(r'`([^`]+)`', r'<code>\1</code>', esc(_n).replace('&lt;b&gt;', '<b>').replace('&lt;/b&gt;', '</b>'))
 drip_model_note_html = f'<li>{_n}</li>'
 soil_rows = ''.join(tr([f"Bed {r['letter']}", f"{r['E']:g} x {r['inner_L']:g} in", num(r['H'], r['H_alt'], '{:g}', ' in'), num(r['soil_ft3'], r['soil_alt_ft3'], '{:.1f}', ' cu ft')]) for r in bed_rows)
-cut_items = ''.join(f"<li>{c['qty']} x {c['length']:g} in: {c['per_stick']} per board from {c['sticks']} boards, {c['offcut']:g} in offcut each." + (' Two 48 in pieces from a 96 in board leave no kerf; one piece runs a hair short, which is fine, or buy 10 ft boards.' if c['length'] == 48 else '') + '</li>' for c in cut_plan)
-lumber_rows = ''.join(tr([esc(x['item']), f"<b>{x['qty']}</b>", esc(x['use'])]) for x in lumber_list)
+lumber_rows = ''.join(tr([(f'<span class="nom">{esc(x["nom"])}</span>' if x['nom'] == NOM else esc(x['nom'])) + f" x {x['ft']} ft", f"<b>{x['qty']}</b>",
+                             num(x['price'], x['price_alt'], '${:.2f}') if x['price_alt'] is not None else f"${x['price']:.2f}",
+                             num(x['price'] * x['qty'], x['price_alt'] * x['qty'], '${:.2f}') if x['price_alt'] is not None else f"${x['price'] * x['qty']:.2f}",
+                             esc(x['use'])]) for x in stock_rows)
+lumber_rows += tr(['<b>Total</b>', f'<b>{total_2x_boards + post_sticks}</b>', '', f'<b>{num(lumber_cost, lumber_cost_alt, "${:.2f}")}</b>', 'before tax, single-stick prices'])
+combined_scale = max(g['stock'] for p in (combined_boards, combined_posts) for g in p['sticks'])
+combined_bars = bars_html(combined_boards, NOM, combined_scale, toggle=True) + bars_html(combined_posts, POST_NOM, combined_scale)
 screw_bed_rows = ''.join(tr([f"Bed {r['letter']}", str(r['posts_per_side']), str(r['corner_side_screws']), str(r['tie_screws']), str(r['anchor_screws']), str(r['mid_side_screws']), str(r['end_screws']), str(r['panel_screws']), f"<b>{r['screws_3']+r['screws_25']+r['screws_125']}</b>"]) for r in bed_rows)
 screw_bed_rows += tr(['<b>Total</b>', '', f"<b>{tot_corner_side}</b>", f"<b>{tot_tie}</b>", f"<b>{tot_anchor}</b>", f"<b>{tot_mid_side}</b>", f"<b>{tot_end}</b>", f"<b>{tot_panel}</b>", f"<b>{screws_total}</b>"])
 screw_joint_rows = ''.join([
@@ -1704,8 +1905,8 @@ textarea.copytext { width: 100%; min-height: 160px; font: 0.85rem/1.4 ui-monospa
 .check-state .count { font-variant-numeric: tabular-nums; }
 .checklist th.ck, .checklist td.ck { width: 40px; padding-right: 0; }
 .checklist input[type="checkbox"] { width: 20px; height: 20px; margin: 1px 0 0; accent-color: var(--arch); cursor: pointer; vertical-align: top; }
-.checklist tbody tr:not(.grp) { cursor: pointer; }
-.checklist tbody tr:not(.grp):hover { background: var(--soft); }
+.checklist tbody tr:not(.grp):not(.cuts) { cursor: pointer; }
+.checklist tbody tr:not(.grp):not(.cuts):hover { background: var(--soft); }
 .checklist label { cursor: pointer; }
 .checklist tr.grp td { background: var(--soft); color: var(--muted); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; padding: 6px 10px; }
 .checklist tr.done td { color: var(--muted); }
@@ -1715,6 +1916,23 @@ textarea.copytext { width: 100%; min-height: 160px; font: 0.85rem/1.4 ui-monospa
 .card.done .letter::after { content: " \2713"; font-size: 0.9rem; }
 .vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .checklist td:nth-child(3) { white-space: nowrap; }
+#cuts table td:first-child { white-space: nowrap; }
+.checklist tr.grp .sub { text-transform: none; letter-spacing: 0; font-weight: 500; margin-left: 8px; }
+.checklist tbody tr.cuts, .checklist tbody tr.cuts:hover { cursor: default; background: var(--panel); }
+.checklist tr.cuts td { padding: 10px 10px 14px; }
+.cutbars { display: grid; gap: 10px; }
+.cutbar .stock { font-size: 0.92rem; margin-bottom: 4px; }
+.cutbar .bar { display: flex; gap: 2px; height: 28px; min-width: 140px; }
+.pc { display: flex; align-items: center; justify-content: center; flex: 0 1 0; min-width: 0; overflow: hidden; border: 1px solid var(--line); border-radius: 4px; font-size: 0.74rem; font-variant-numeric: tabular-nums; color: var(--ink); }
+.pc i { font-style: normal; white-space: nowrap; padding: 0 2px; }
+.pc.board { background: color-mix(in srgb, var(--lumber) 30%, var(--panel)); }
+.pc.post { background: color-mix(in srgb, var(--arch) 26%, var(--panel)); }
+.pc.waste { background: repeating-linear-gradient(135deg, var(--soft) 0 4px, var(--panel) 4px 8px); color: var(--muted); border-style: dashed; }
+.cutbar .legend { font-size: 0.86rem; color: var(--muted); margin-top: 4px; }
+.opts-h { margin: 14px 0 4px; font-weight: 600; font-size: 0.9rem; }
+.opts { margin: 0; padding-left: 18px; font-size: 0.9rem; }
+.opts li { margin: 4px 0; }
+.opts .sep { color: var(--muted); padding: 0 6px; }
 @media (max-width: 640px) {
   /* each checklist line stacks: tick, item and qty on the first line, spec and notes beneath */
   .bed-card { overflow-x: visible; }
@@ -1722,8 +1940,11 @@ textarea.copytext { width: 100%; min-height: 160px; font: 0.85rem/1.4 ui-monospa
   .checklist thead { display: none; }
   .checklist tr.grp { display: block; }
   .checklist tr.grp td { display: block; border-radius: 6px; }
-  .checklist tbody tr:not(.grp) { display: grid; grid-template-columns: 30px minmax(0, 1fr) auto; column-gap: 8px; row-gap: 2px; padding: 10px 4px; border-bottom: 1px solid var(--line); }
-  .checklist tbody tr:not(.grp) td { display: block; border: 0; padding: 0; }
+  .checklist tr.cuts, .checklist tr.cuts td { display: block; }
+  .checklist tr.cuts td { padding: 10px 0 14px; }
+  .cutbar .bar { width: 100% !important; }
+  .checklist tbody tr:not(.grp):not(.cuts) { display: grid; grid-template-columns: 30px minmax(0, 1fr) auto; column-gap: 8px; row-gap: 2px; padding: 10px 4px; border-bottom: 1px solid var(--line); }
+  .checklist tbody tr:not(.grp):not(.cuts) td { display: block; border: 0; padding: 0; }
   .checklist td.ck { grid-column: 1; grid-row: 1 / span 3; width: auto; }
   .checklist td:nth-child(2) { grid-column: 2; grid-row: 1; }
   .checklist td:nth-child(3) { grid-column: 3; grid-row: 1; text-align: right; }
@@ -1819,7 +2040,7 @@ JS = r'''
       b.checked = !!checks[k];
       b.addEventListener('change', function () { if (b.checked) checks[k] = true; else delete checks[k]; saveChecks(); updateCard(card); });
     });
-    card.querySelectorAll('tbody tr:not(.grp)').forEach(function (row) {
+    card.querySelectorAll('tbody tr:not(.grp):not(.cuts)').forEach(function (row) {
       row.addEventListener('click', function (e) {
         if (e.target.closest('input, label, button, a') || String(window.getSelection && window.getSelection())) return;
         var b = row.querySelector('input[type="checkbox"]');
@@ -1873,7 +2094,7 @@ HTML = f'''<!DOCTYPE html>
 </nav>
 
 <div class="tiles">
-  <div class="tile"><div class="n">{total_2x_boards}</div><div class="l"><span class="nom">{NOM}</span> boards + {post_sticks} x {POST_NOM}</div></div>
+  <div class="tile"><div class="n">{total_2x_boards + post_sticks}</div><div class="l">sticks of lumber: {total_2x_boards} <span class="nom">{NOM}</span> + {post_sticks} {POST_NOM}, about {num(lumber_cost, lumber_cost_alt, '${:.2f}')}</div></div>
   <div class="tile"><div class="n">{screws_total}</div><div class="l">screws: {screws_3} x 3 in, {screws_25} x 2.5 in</div></div>
   <div class="tile"><div class="n">{paver_n}</div><div class="l">12 x 12 in pavers, {paver_total_lb:,.0f} lb</div></div>
   <div class="tile"><div class="n">{n_arches}</div><div class="l">{HOGWIRE_LEN/12:g} ft hog-wire arch: {trellis_pieces} x {ft_in(TRELLIS_LEN)} posts, {sill_pieces} sills, {stake_pieces} stakes</div></div>
@@ -1900,7 +2121,7 @@ HTML = f'''<!DOCTYPE html>
     <thead>{tr(['Section', 'Item', 'Qty', 'Unit', 'Spec', 'Source', 'Notes'], True)}</thead>
     <tbody>{shop_rows}</tbody>
   </table></div>
-  <p class="muted">Lumber: {total_2x_boards} boards of <span class="nom">{NOM}</span>, {total_lin_ft_2x:.0f} linear ft, plus {post_sticks} sticks of {POST_NOM}; about {num(lumber_mass_lb, lumber_mass_alt_lb, '{:,.0f}', ' lb')} in the model. Use cedar, redwood or ground-contact treated stock; the model material is pine.</p>
+  <p class="muted">Lumber: {total_2x_boards} boards of <span class="nom">{NOM}</span>, {total_lin_ft_2x:.0f} linear ft, plus {post_sticks} sticks of {POST_NOM}, about {num(lumber_cost, lumber_cost_alt, '${:.2f}')} before tax at single-stick prices ({esc(PRICE_SOURCE)}); about {num(lumber_mass_lb, lumber_mass_alt_lb, '{:,.0f}', ' lb')} in the model. Rows tagged <span class="src est">Store price</span> carry those prices; the <a href="#cuts">cut list</a> shows how each stick is cut.</p>
 </section>
 
 <section id="screws">
@@ -1934,17 +2155,19 @@ HTML = f'''<!DOCTYPE html>
 
 <section id="cuts">
   <h2>Cut list</h2>
+  <p>Stock lengths and prices: {esc(PRICE_SOURCE)}. <span class="nom">{NOM}</span> comes in {board_lengths_txt} (no 14 ft, so the 14 ft side boards of Bed C are 16 ft boards cut down) and {POST_NOM} in {post_lengths_txt}. Each bed's plan under <a href="#beds">Materials by bed</a> is the cheapest set of sticks for that bed on its own, so the four plans add up to this table. {esc(cut_rule_txt)}</p>
   <div class="card tablewrap"><table>
-    <thead>{tr(['Buy', 'Qty', 'Used for'], True)}</thead>
+    <thead>{tr(['Buy', 'Qty', 'Each', 'Total', 'Used for'], True)}</thead>
     <tbody>{lumber_rows}</tbody>
   </table></div>
-  <ul>{cut_items}<li>{corner_pieces} corner posts x {POST_H:g} in: {posts_per_stick} per {POST_NOM} from {corner_sticks} sticks.</li>{f'<li>{esc(trellis_cut_text)}</li>' if trellis_pieces else ''}{f'<li>{esc(sill_cut_text)}</li>' if sill_pieces else ''}<li>{esc(short24_cut_text)}</li></ul>
-  <p class="muted">Each bed's own pieces and their cut lengths are listed under <a href="#beds">Materials by bed</a>.</p>
+  <h3>All four beds from one pile</h3>
+  <p>Cutting every bed from one pile instead: {combined_sticks} sticks, {num(combined_cost, priced_as(combined_boards, ALT_NOM) + combined_posts['cost'], '${:.2f}')}{f', saving {num(combined_saving, round(per_bed_board_cost - combined_boards["cost"] + per_bed_post_cost - combined_posts["cost"], 2), "${:.2f}")} over the per-bed plans because offcuts from one bed become pieces for another.' if combined_saving > 0.005 else '; the per-bed plans are already as cheap.'}</p>
+  <div class="card">{combined_bars}</div>
 </section>
 
 <section id="beds">
   <h2>Materials by bed</h2>
-  <p>Everything that goes to one bed, with its cut lengths, so each bed can be checked on its own: lumber, screws and washers, the arch panel, the hoops, the drip riser and the soil. Tick a line as you check or buy it; the ticks are kept in this browser. The hog-wire panel spans beds A and B and is listed under both (buy one). The 1/2 in drip pipe for every bed is cut from the {drip_sticks} x 10 ft stick{'s' if drip_sticks > 1 else ''} on the shopping list.</p>
+  <p>Everything that goes to one bed, so each bed can be checked on its own. The lumber lines are the sticks to buy, in store lengths with store prices ({esc(PRICE_STORE)}, {PRICE_DATE}), and the bars beneath them show how each stick is cut; then the cuts themselves, screws and washers, the arch panel, the hoops, the drip riser and the soil. Tick a line as you check or buy it; the ticks are kept in this browser. The hog-wire panel spans beds A and B and is listed under both (buy one). The 1/2 in drip pipe for every bed is cut from the {drip_sticks} x 10 ft stick{'s' if drip_sticks > 1 else ''} on the shopping list.</p>
   <div class="toolbar"><span class="muted" id="checkTotal" aria-live="polite">0 of {bed_lines_total} lines ticked</span><button type="button" id="clearAll">Clear all ticks</button></div>
   {''.join(bed_cards)}
 </section>
@@ -2050,10 +2273,15 @@ HTML = f'''<!DOCTYPE html>
 '''
 (ROOT / 'bom.html').write_text(HTML)
 print('wrote', ROOT / 'BOM.md', ROOT / 'BOM.csv', ROOT / 'BOM-by-bed.csv', ROOT / 'bom.html', f'({bed_lines_total} per-bed lines)')
-print(f'beds={len(bed_rows)} {NOM} boards={total_2x_boards} {POST_NOM} sticks={post_sticks} ({corner_sticks} corner + {trellis_sticks} trellis + {sill_sticks} sill + {mid_sticks} mid/stake, mid cut {frac(mid_cut)} in, {stakes_from_offcuts} stakes from sill offcuts) '
+print(f'beds={len(bed_rows)} {NOM} boards={total_2x_boards} {POST_NOM} sticks={post_sticks} lumber=${lumber_cost:.2f} (alt ${lumber_cost_alt:.2f}; all beds from one pile {combined_sticks} sticks ${combined_cost:.2f}, saving ${combined_saving:.2f}) '
       f'screws 3in={screws_3} 2.5in={screws_25} 1.25in={screws_125} total={screws_total} pavers={paver_n} arches={n_arches} hoops={n_hoops} risers={n_risers} pipe={drip_pipe_total if risers else 0:g}in sticks={drip_sticks if risers else 0} '
       f'soil={soil_ft3:.1f} ft3 ({soil_ft3/27:.2f} yd3) alt={soil_alt_ft3/27:.2f} yd3')
 for r in bed_rows:
     print(f"  Bed {r['letter']}: posts/side={r['posts_per_side']} corner={r['corner_side_screws']} mid={r['mid_side_screws']} ties={r['tie_screws']} end={r['end_screws']} mid centers={r['post_centers']}")
 for x in lumber_list:
-    print('  ', x['qty'], 'x', x['item'], '|', x['use'])
+    print('  ', x['qty'], 'x', x['item'], f"@ ${x['price']:.2f}", '|', x['use'])
+for r in bed_rows:
+    print(f"  Bed {r['letter']} lumber: {r['lumber_sticks']} sticks ${r['lumber_cost']:.2f}" + ('' if r['alt_same_cutting'] else f"  [note: a different cutting is cheaper at {ALT_NOM} prices: ${r['plan_boards_alt']['cost']:.2f} vs ${r['board_cost_alt']:.2f}]"))
+    for nom, p in ((NOM, r['plan_boards']), (POST_NOM, r['plan_posts'])):
+        for g in p['sticks']:
+            print(f"     {g['count']} x {nom} {g['stock']/12:g} ft: {cutstock.stick_text(g)}")

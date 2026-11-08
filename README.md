@@ -14,7 +14,8 @@ pavers, soil, arch, hoops and drip parts in the BOM are counted from an extract 
 | `scripts/fusion_build_bed_lumber.py` | Builds the bed lumber (boards, corner posts, mid-span stakes, trellis posts, arch sills and stakes) in Fusion from the massing bodies and the user parameters. |
 | `scripts/fusion_build_irrigation.py` | Builds the drip risers, cuts the hole in each far end wall, and draws the reference main. Re-runnable; constants at the top. |
 | `scripts/fusion_extract_model.py` | Run inside Fusion (read-only): dumps every body to `data/model_extract.json`. |
-| `scripts/make_bom.py` | Turns the extract into `BOM.md`, `BOM.csv`, `BOM-by-bed.csv` and `bom.html` (plan, elevations, details, drip drawings, and a materials checklist for each bed whose ticks are kept in the browser). |
+| `scripts/make_bom.py` | Turns the extract into `BOM.md`, `BOM.csv`, `BOM-by-bed.csv` and `bom.html` (plan, elevations, details, drip drawings, and a materials checklist for each bed whose ticks are kept in the browser). Lumber is listed as store-length sticks to buy, with store prices and a cut diagram for every stick; the prices and stocked lengths are the `STOCK_PRICES` table at the top of the script. |
+| `scripts/cutstock.py` | The small exact solver behind the buy lists: the cheapest set of stocked sticks that yields one bed's pieces, with posts allowed to run a little short when that fits one more on a stick. |
 | `scripts/make_arch_study.py` | Elastica study of the hog-wire arch: `arch-study.html` and `data/arch_study.json`. |
 | `renders/` | Screenshots of the model as it was built. |
 

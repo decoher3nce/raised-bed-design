@@ -102,8 +102,8 @@ textarea.copytext { width: 100%; min-height: 160px; font: 0.85rem/1.4 ui-monospa
 .check-state .count { font-variant-numeric: tabular-nums; }
 .checklist th.ck, .checklist td.ck { width: 40px; padding-right: 0; }
 .checklist input[type="checkbox"] { width: 20px; height: 20px; margin: 1px 0 0; accent-color: var(--arch); cursor: pointer; vertical-align: top; }
-.checklist tbody tr:not(.grp) { cursor: pointer; }
-.checklist tbody tr:not(.grp):hover { background: var(--soft); }
+.checklist tbody tr:not(.grp):not(.cuts) { cursor: pointer; }
+.checklist tbody tr:not(.grp):not(.cuts):hover { background: var(--soft); }
 .checklist label { cursor: pointer; }
 .checklist tr.grp td { background: var(--soft); color: var(--muted); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; padding: 6px 10px; }
 .checklist tr.done td { color: var(--muted); }
@@ -113,6 +113,23 @@ textarea.copytext { width: 100%; min-height: 160px; font: 0.85rem/1.4 ui-monospa
 .card.done .letter::after { content: " \2713"; font-size: 0.9rem; }
 .vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .checklist td:nth-child(3) { white-space: nowrap; }
+#cuts table td:first-child { white-space: nowrap; }
+.checklist tr.grp .sub { text-transform: none; letter-spacing: 0; font-weight: 500; margin-left: 8px; }
+.checklist tbody tr.cuts, .checklist tbody tr.cuts:hover { cursor: default; background: var(--panel); }
+.checklist tr.cuts td { padding: 10px 10px 14px; }
+.cutbars { display: grid; gap: 10px; }
+.cutbar .stock { font-size: 0.92rem; margin-bottom: 4px; }
+.cutbar .bar { display: flex; gap: 2px; height: 28px; min-width: 140px; }
+.pc { display: flex; align-items: center; justify-content: center; flex: 0 1 0; min-width: 0; overflow: hidden; border: 1px solid var(--line); border-radius: 4px; font-size: 0.74rem; font-variant-numeric: tabular-nums; color: var(--ink); }
+.pc i { font-style: normal; white-space: nowrap; padding: 0 2px; }
+.pc.board { background: color-mix(in srgb, var(--lumber) 30%, var(--panel)); }
+.pc.post { background: color-mix(in srgb, var(--arch) 26%, var(--panel)); }
+.pc.waste { background: repeating-linear-gradient(135deg, var(--soft) 0 4px, var(--panel) 4px 8px); color: var(--muted); border-style: dashed; }
+.cutbar .legend { font-size: 0.86rem; color: var(--muted); margin-top: 4px; }
+.opts-h { margin: 14px 0 4px; font-weight: 600; font-size: 0.9rem; }
+.opts { margin: 0; padding-left: 18px; font-size: 0.9rem; }
+.opts li { margin: 4px 0; }
+.opts .sep { color: var(--muted); padding: 0 6px; }
 @media (max-width: 640px) {
   /* each checklist line stacks: tick, item and qty on the first line, spec and notes beneath */
   .bed-card { overflow-x: visible; }
@@ -120,8 +137,11 @@ textarea.copytext { width: 100%; min-height: 160px; font: 0.85rem/1.4 ui-monospa
   .checklist thead { display: none; }
   .checklist tr.grp { display: block; }
   .checklist tr.grp td { display: block; border-radius: 6px; }
-  .checklist tbody tr:not(.grp) { display: grid; grid-template-columns: 30px minmax(0, 1fr) auto; column-gap: 8px; row-gap: 2px; padding: 10px 4px; border-bottom: 1px solid var(--line); }
-  .checklist tbody tr:not(.grp) td { display: block; border: 0; padding: 0; }
+  .checklist tr.cuts, .checklist tr.cuts td { display: block; }
+  .checklist tr.cuts td { padding: 10px 0 14px; }
+  .cutbar .bar { width: 100% !important; }
+  .checklist tbody tr:not(.grp):not(.cuts) { display: grid; grid-template-columns: 30px minmax(0, 1fr) auto; column-gap: 8px; row-gap: 2px; padding: 10px 4px; border-bottom: 1px solid var(--line); }
+  .checklist tbody tr:not(.grp):not(.cuts) td { display: block; border: 0; padding: 0; }
   .checklist td.ck { grid-column: 1; grid-row: 1 / span 3; width: auto; }
   .checklist td:nth-child(2) { grid-column: 2; grid-row: 1; }
   .checklist td:nth-child(3) { grid-column: 3; grid-row: 1; text-align: right; }
