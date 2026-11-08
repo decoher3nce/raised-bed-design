@@ -57,10 +57,10 @@ PER_LB = {3.0: 70, 2.5: 90, 1.25: 180}  # about this many #9 screws per pound, b
 KERF = cutstock.KERF        # saw kerf, in
 
 # Store lumber: the lengths stocked and single-stick prices before tax, used for the buy lists.
-PRICE_STORE = 'The Home Depot, Colorado Front Range store'
+# The store is deliberately not named anywhere in the generated files (nor its city, nor its house brands).
 PRICE_DATE = '2026-11-08'
-PRICE_GRADE = '#1 ground-contact pressure-treated pine (ProWood / WeatherShield)'
-PRICE_SOURCE = f'{PRICE_STORE}, {PRICE_GRADE}, checked {PRICE_DATE}'
+PRICE_GRADE = '#1 ground-contact pressure-treated pine'
+PRICE_SOURCE = f'single-stick prices for {PRICE_GRADE} at a big-box home center, checked {PRICE_DATE}'
 STOCK_PRICES = {            # nominal -> {length ft: $ each}. No 14 ft 2x8 or 2x10 is stocked; 20 ft is delivery-only and left out.
     '2x4': {2: 1.98, 4: 4.78, 6: 5.28, 8: 7.08, 10: 8.98, 12: 10.88, 16: 16.78},
     '2x8': {8: 14.78, 10: 18.88, 12: 22.68, 16: 30.68},
@@ -135,10 +135,13 @@ def is_flat(p):
 
 
 def kind(p):
-    """'trellis' (Trellis_Post_Length, holds the arch near its crown), 'mid' (flat mid-span stake) or 'corner' (edge-on, on grade)."""
+    """'trellis' (Trellis_Post_Length, holds the arch near its crown), 'joint' (a 2x8 offcut flat behind a side-board seam),
+    'mid' (flat mid-span stake) or 'corner' (edge-on, on grade)."""
     n = p['body'].lower()
     if 'trellis' in n:
         return 'trellis'
+    if 'joint' in n:
+        return 'joint'
     if 'mid' in n or p['min'][2] < -1e-6:
         return 'mid'
     return 'corner'
@@ -152,6 +155,7 @@ all_posts = [p for bd in beds.values() for p in bd['posts']]
 first_corner = next(p for p in all_posts if kind(p) == 'corner')
 first_mid = next((p for p in all_posts if kind(p) == 'mid'), None)
 first_trellis = next((p for p in all_posts if kind(p) == 'trellis'), None)
+first_joint = next((p for p in all_posts if kind(p) == 'joint'), None)
 PT, PW, POST_H = first_corner['dims_in']   # 1.5, 3.5, 14.5 for a 2x4 corner post
 POST_NOM = {(1.5, 3.5): '2x4', (3.5, 3.5): '4x4', (1.5, 5.5): '2x6'}.get((round(PT, 2), round(PW, 2)), f'{PT:g}x{PW:g}')
 MID_LEN = first_mid['dims_in'][2] if first_mid else POST_H     # 24 in: the Mid_Post_Length parameter
@@ -159,6 +163,10 @@ EMBED_IN = -first_mid['min'][2] if first_mid else 0.0           # 9.5 in of each
 TRELLIS_LEN = first_trellis['dims_in'][2] if first_trellis else (TRELLIS_LEN or 0.0)   # 96 in: Trellis_Post_Length, an uncut 8 ft stick
 TRELLIS_EMBED = -first_trellis['min'][2] if first_trellis else EMBED_IN                 # 20 in: Trellis_Post_Embed
 TRELLIS_ABOVE = TRELLIS_LEN - TRELLIS_EMBED                     # 76 in of each trellis post above grade
+JOINT_T, JOINT_W, JOINT_LEN = first_joint['dims_in'] if first_joint else (T, BOARD_W, MID_LEN)   # 1.5 x 7.25 x 24: a 2x8 offcut lying flat behind a seam
+JOINT_NOM = nominal(JOINT_W)                                    # 2x8: the joint posts are offcuts of the wall boards
+JOINT_EMBED = -first_joint['min'][2] if first_joint else EMBED_IN   # 9.5 in of each joint post below grade, like a mid-span post
+JOINT_OFF = 1.75            # in from the seam to each screw into a joint post: two per board end, so four per course where two boards meet
 all_sills = [x for bd in beds.values() for x in bd['sills']]
 all_stakes = [x for bd in beds.values() for x in bd['stakes']]
 SILL_LEN = all_sills[0]['dims_in'][2] if all_sills else 0.0            # 60.5 in: the panel width, between the stakes
@@ -169,16 +177,32 @@ STAKE_ABOVE = STAKE_LEN - STAKE_EMBED                                   # 13.5 i
 bed_rows = []
 for name, bd in sorted(beds.items(), key=lambda kv: kv[0]):
     letter = name.split(' ')[1]
-    L = max(bd['sides'][0]['dims_in'])
+    sides_ymax = max(b['max'][1] for b in bd['sides'])
+    sides_ymin = min(b['min'][1] for b in bd['sides'])
+    L = sides_ymax - sides_ymin                              # the wall runs the bed's full length even when each course is two boards
     E = max(bd['ends'][0]['dims_in'])
     corners = [p for p in bd['posts'] if kind(p) == 'corner']
     mids = [p for p in bd['posts'] if kind(p) == 'mid']
+    joints = [p for p in bd['posts'] if kind(p) == 'joint']  # 2x8 offcuts flat against the wall behind the seams where two side boards meet
     trellis = [p for p in bd['posts'] if kind(p) == 'trellis']
+    # side pieces: lengths per course from the near end, and the seams between them (both walls are cut alike)
+    side_pieces = Counter(round(max(b['dims_in']), 3) for b in bd['sides'])
+    x_east = max(b['max'][0] for b in bd['sides'])
+    side_layout = OrderedDict()
+    seams_by_course = {}
+    for b in sorted(bd['sides'], key=lambda b: (b['min'][2], -b['max'][1])):
+        course = int(round(b['min'][2] / BOARD_W)) + 1
+        if abs(b['max'][0] - x_east) < 1e-3:
+            side_layout.setdefault(course, []).append(round(max(b['dims_in']), 3))
+        if b['max'][1] < sides_ymax - 1e-3:
+            seams_by_course.setdefault(course, set()).add(round(sides_ymax - b['max'][1], 3))
+    side_seams = sorted({x for ss in seams_by_course.values() for x in ss})
     anchors = bd['sills'] + bd['stakes']
     H = COURSES * BOARD_W
     W = E + 2 * T
-    n_posts = len(bd['posts'])
-    n_mid = sum(1 for p in bd['posts'] if is_flat(p))   # mid-span positions (2.5 in screws)
+    n_joint = len(joints)
+    n_posts = len(bd['posts']) - n_joint                 # 2x4 posts; the joint posts are 2x8 offcuts and are counted apart
+    n_mid = sum(1 for p in bd['posts'] if is_flat(p) and kind(p) != 'joint')   # mid-span positions (2.5 in screws)
     n_mid_plain = len(mids)
     n_tr_corner = sum(1 for p in trellis if not is_flat(p))
     n_tr_flat = len(trellis) - n_tr_corner
@@ -205,30 +229,39 @@ for name, bd in sorted(beds.items(), key=lambda kv: kv[0]):
     H_alt = COURSES * ALT_BOARD_W
     soil_alt_in3 = E * inner_L * H_alt - wood_vol(H_alt)
     mass = sum(b['mass_kg'] or 0 for b in bd['bodies'])
-    posts_per_side = 2 + n_mid // 2
+    posts_per_side = 2 + (n_mid + n_joint) // 2
     # screws, per bed
     corner_side_screws = COURSES * 4 * SCREWS_PER_JOINT       # 3 in, side boards into the corner post edges
     mid_side_screws = COURSES * n_mid * SCREWS_PER_JOINT      # 2.5 in, side boards into the mid-span post faces
+    joint_screws = 0                                          # 2.5 in, side boards into the joint post faces: two per board end where two boards meet, the usual pair where one runs past
+    for p in joints:
+        yc = round(sides_ymax - (p['min'][1] + p['max'][1]) / 2, 3)
+        for c in range(1, COURSES + 1):
+            joint_screws += 2 * SCREWS_PER_JOINT if any(abs(x - yc) < 0.01 for x in seams_by_course.get(c, ())) else SCREWS_PER_JOINT
     end_screws = COURSES * 4 * SCREWS_PER_JOINT               # 2.5 in, end boards into the corner post faces
     tie_screws = COURSES * 4 * TIES_PER_CORNER                # 3 in, corner ties into end grain
     anchor_screws = STAKE_SILL_SCREWS * len(bd['stakes'])      # 3 in, through each arch-foot stake into the sill's end grain
     panel_screws = (PANEL_SCREWS_PER_POST * len(trellis) + PANEL_SCREWS_PER_STAKE * len(bd['stakes'])
                     + PANEL_SCREWS_PER_SILL * len(bd['sills']))  # 1.25 in with washers: hog-wire panel to the post, stakes and sill
     centers = sorted({abs(round((p['min'][1] + p['max'][1]) / 2, 2)) for p in bd['posts']})
+    mid_centers = sorted({abs(round((p['min'][1] + p['max'][1]) / 2, 2)) for p in mids})
+    joint_centers = sorted({abs(round((p['min'][1] + p['max'][1]) / 2, 2)) for p in joints})
     bed_rows.append({
         'name': name, 'letter': letter, 'L': L, 'W': W, 'E': E, 'H': H, 'H_alt': H_alt,
         'inner_L': inner_L, 'n_posts': n_posts, 'n_mid': n_mid, 'posts_per_side': posts_per_side,
         'xmin': min(xs), 'xmax': max(xs), 'ymin': min(ys), 'ymax': max(ys),
         'soil_ft3': soil_in3 / 1728, 'soil_alt_ft3': soil_alt_in3 / 1728,
         'mass_lb': mass * KG2LB,
-        'corner_side_screws': corner_side_screws, 'mid_side_screws': mid_side_screws,
+        'corner_side_screws': corner_side_screws, 'mid_side_screws': mid_side_screws, 'joint_screws': joint_screws,
         'end_screws': end_screws, 'tie_screws': tie_screws,
         'panel_screws': panel_screws, 'anchor_screws': anchor_screws,
-        'screws_3': corner_side_screws + tie_screws + anchor_screws, 'screws_25': mid_side_screws + end_screws, 'screws_125': panel_screws,
+        'screws_3': corner_side_screws + tie_screws + anchor_screws, 'screws_25': mid_side_screws + end_screws + joint_screws, 'screws_125': panel_screws,
+        'n_joint': n_joint, 'joints': joints, 'joint_centers': joint_centers, 'mid_centers': mid_centers,
+        'side_pieces': side_pieces, 'side_layout': side_layout, 'side_seams': side_seams, 'seams_by_course': seams_by_course,
         'n_mid_plain': n_mid_plain, 'n_trellis': len(trellis), 'n_tr_corner': n_tr_corner, 'n_tr_flat': n_tr_flat,
         'n_sills': len(bd['sills']), 'n_stakes': len(bd['stakes']), 'sills': bd['sills'], 'stakes': bd['stakes'], 'anchors': anchors,
         'trellis_where': trellis_where, 'trellis_pos': trellis_pos,
-        'post_spacing': (centers[-1] - centers[0]) / (len(centers) - 1) if len(centers) > 1 else 0.0,
+        'post_spacing': max(b - a for a, b in zip(centers, centers[1:])) if len(centers) > 1 else 0.0,   # the longest centre-to-centre gap along a wall
         'post_centers': centers,
         'n_sides': len(bd['sides']), 'n_ends': len(bd['ends']),
         'posts': bd['posts'],
@@ -236,15 +269,19 @@ for name, bd in sorted(beds.items(), key=lambda kv: kv[0]):
 
 # ------------------------------------------------------------------ lumber stock: what to buy, bed by bed
 # The pieces each bed needs, then the cheapest set of store-length sticks that yields them (scripts/cutstock.py).
-# Side boards are whole sticks; end boards may run END_TOL short so two clear the kerf on one 8 ft board; posts may run a little short.
+# Side boards are whole sticks where a stock length fits; a two-board wall's short piece is cut from a stick whose offcut becomes a joint post.
+# End boards may run END_TOL short so two clear the kerf on one 8 ft board; posts may run a little short.
 side_stock = Counter()
 post_pieces = 0
 mid_post_pieces = 0
 trellis_pieces = 0
 sill_pieces = 0
 stake_pieces = 0
+joint_pieces = 0
 for r in bed_rows:
-    side_stock[(NOM, r['L'])] += r['n_sides']
+    for Lp, n in r['side_pieces'].items():
+        side_stock[(NOM, Lp)] += n
+    joint_pieces += r['n_joint']
     post_pieces += r['n_posts']
     mid_post_pieces += r['n_mid_plain']
     trellis_pieces += r['n_trellis']
@@ -256,8 +293,13 @@ mid_embed_cut = MID_LEN - COURSES * BOARD_W                    # 9.5 in of a ful
 
 
 def board_pieces(r):
-    return [cutstock.Piece('side', 'side board', r['L'], r['n_sides'], short='side'),
-            cutstock.Piece('end', 'end board', r['E'], r['n_ends'], min_len=r['E'] - END_TOL, short='end')]
+    """The 2x8 pieces of one bed: side pieces by length (whole sticks where a stock length fits), end boards, and the joint posts,
+    which are offcuts of the same stock and may run POST_TOL short like a mid-span post."""
+    ps = [cutstock.Piece(f'side{Lp:g}', 'side board', Lp, n, short='side') for Lp, n in sorted(r['side_pieces'].items(), reverse=True)]
+    ps.append(cutstock.Piece('end', 'end board', r['E'], r['n_ends'], min_len=r['E'] - END_TOL, short='end'))
+    if r['n_joint']:
+        ps.append(cutstock.Piece('joint', 'joint post', JOINT_LEN, r['n_joint'], min_len=JOINT_LEN - POST_TOL, short='joint'))
+    return ps
 
 
 def post_pieces_of(r):
@@ -308,7 +350,7 @@ for r in bed_rows:
         if k in _boards_all:
             _boards_all[k].qty += p.qty
         else:
-            _boards_all[k] = cutstock.Piece(f'{p.key}{p.length:g}', p.label, p.length, p.qty, min_len=p.min_len, short=p.short)
+            _boards_all[k] = cutstock.Piece(p.key if p.key.startswith('side') else f'{p.key}{p.length:g}', p.label, p.length, p.qty, min_len=p.min_len, short=p.short)
 _n24 = mid_post_pieces + (stake_pieces if abs(STAKE_LEN - MID_LEN) < 1e-6 else 0)
 _posts_all = [cutstock.Piece('corner', 'corner post', POST_H, corner_pieces, min_len=POST_H - CORNER_TOL, short='corner'),
               cutstock.Piece('post24', 'mid or stake post' if _n24 > mid_post_pieces else 'mid-span post', MID_LEN, _n24, min_len=MID_LEN - POST_TOL, short='post'),
@@ -347,8 +389,55 @@ total_lin_ft_2x = sum(x['ft'] * x['qty'] for x in stock_rows if x['nom'] == NOM)
 lumber_list = [{'item': f"{x['nom']} x {x['ft']} ft", 'qty': x['qty'], 'price': x['price'], 'price_alt': x['price_alt'], 'use': x['use']} for x in stock_rows]
 board_lengths_txt = ', '.join(f'{ft}' for ft in sorted(STOCK_PRICES[NOM])) + ' ft'
 post_lengths_txt = ', '.join(f'{ft}' for ft in sorted(STOCK_PRICES[POST_NOM])) + ' ft'
-cut_rule_txt = (f'Side boards are whole sticks. End boards may be cut up to {frac(END_TOL)} in short so two 48 in pieces clear the saw kerf on one 8 ft board; '
-                f'corner posts may run up to {frac(CORNER_TOL)} in short of the wall height and mid-span posts and arch stakes up to {POST_TOL:g} in short, '
+
+
+def beds_text(letters, capital=False):
+    """'Bed C' or 'beds C and D'."""
+    letters = list(letters)
+    if not letters:
+        return ''
+    t = f'Bed {letters[0]}' if len(letters) == 1 else 'beds ' + ', '.join(letters[:-1]) + ' and ' + letters[-1]
+    return t[0].upper() + t[1:] if capital else t
+
+
+split_beds = [r['letter'] for r in bed_rows if r['side_seams']]
+whole_beds = [r['letter'] for r in bed_rows if not r['side_seams']]
+staggered_beds = [r['letter'] for r in bed_rows if len({tuple(v) for v in r['side_layout'].values()}) > 1]
+short_sides = sorted({Lp for r in bed_rows for Lp in r['side_pieces'] if Lp not in STOCK_IN_PRICES[NOM]})
+side_stock_ft = sorted({g['stock'] / 12 for r in bed_rows if r['side_seams'] for g in r['plan_boards']['sticks'] for c in g['cuts'] if c['key'].startswith('side')})
+side_stock_txt = ' and '.join(f'{x:g} ft' for x in side_stock_ft)
+# does the stick that yields a short side piece also yield a joint post, as intended?
+offcut_joints = any(any(c['key'] == 'joint' for c in g['cuts']) for r in bed_rows for g in r['plan_boards']['sticks']
+                    if any(c['key'].startswith('side') and c['len'] not in STOCK_IN_PRICES[NOM] for c in g['cuts']))
+
+
+def layout_txt(r):
+    """'course 1: 96 + 72 in, course 2: 72 + 96 in'."""
+    return ', '.join(f"course {c}: {' + '.join(f'{x:g}' for x in ls)} in" for c, ls in r['side_layout'].items())
+
+
+def sticks_txt(n):
+    return f"{n} stick{'' if n == 1 else 's'}"
+
+
+short_side_beds = [r['letter'] for r in bed_rows if any(Lp not in STOCK_IN_PRICES[NOM] for Lp in r['side_pieces'])]
+
+
+side_scheme_txt = ((f'{beds_text(whole_beds, True)} use one board per course. ' if whole_beds else '')
+                   + (f'{beds_text(split_beds, True)} use two boards per course from {side_stock_txt} stock ('
+                      + '; '.join(f"Bed {r['letter']} {layout_txt(r)}" for r in bed_rows if r['side_seams'])
+                      + f'), meeting over {JOINT_NOM} joint posts: {JOINT_LEN:g} in pieces of {JOINT_NOM} lying flat with the {frac(JOINT_W)} in face against the inside of the wall, '
+                      + f'{JOINT_EMBED:g} in in the ground like a mid-span post.'
+                      + (f" {beds_text(short_side_beds, True)}'s joint posts are the offcuts of {'its' if len(short_side_beds) == 1 else 'their'} "
+                         f"{' and '.join(f'{x:g} in' for x in short_sides)} side pieces." if offcut_joints and short_side_beds else '') if split_beds else '')
+                   + (f" {beds_text(staggered_beds, True)} stagger{'s' if len(staggered_beds) == 1 else ''} the seams course to course, so no joint runs the full height of the wall." if staggered_beds else ''))
+side_stock_note = (f'no 14 ft, so {beds_text(split_beds)} use two boards per course from {side_stock_txt} stock, joined over {JOINT_NOM} joint posts' if split_beds else 'no 14 ft')
+cut_rule_txt = ('Side boards are whole sticks'
+                + (f"; the {' and '.join(f'{x:g} in' for x in short_sides)} side pieces are cut from {side_stock_txt} boards and the offcut becomes a {JOINT_NOM} joint post, "
+                   f"cut up to {POST_TOL:g} in short so both clear the kerf" if short_sides and offcut_joints else
+                   f"; the {' and '.join(f'{x:g} in' for x in short_sides)} side pieces are cut from {side_stock_txt} boards" if short_sides else '')
+                + f'. End boards may be cut up to {frac(END_TOL)} in short so two 48 in pieces clear the saw kerf on one 8 ft board; '
+                f'corner posts may run up to {frac(CORNER_TOL)} in short of the wall height and mid-span posts, joint posts and arch stakes up to {POST_TOL:g} in short, '
                 f'which only takes them a little less deep into the ground, when that lets one more piece fit a stick.')
 lumber_mass_lb = sum(r['mass_lb'] for r in bed_rows)
 lumber_mass_alt_lb = lumber_mass_lb * ALT_BOARD_W / BOARD_W
@@ -360,6 +449,7 @@ tot_corner_side = sum(r['corner_side_screws'] for r in bed_rows)
 tot_mid_side = sum(r['mid_side_screws'] for r in bed_rows)
 tot_end = sum(r['end_screws'] for r in bed_rows)
 tot_tie = sum(r['tie_screws'] for r in bed_rows)
+tot_joint = sum(r['joint_screws'] for r in bed_rows)
 tot_panel = sum(r['panel_screws'] for r in bed_rows)
 tot_anchor = sum(r['anchor_screws'] for r in bed_rows)
 tot_tr_corner = sum(r['n_tr_corner'] for r in bed_rows)
@@ -525,9 +615,18 @@ else:
     hoop_paras = []
     hoops_model_note = '- No hoops are visible in the model.'
 DRIP_SAVED = True                    # the Fusion document was saved again on 2026-11-06 with the drip risers, the 3/4 in main and the end-board holes in it
+SPLIT_SAVED = False                  # the two-board sides of beds C and D (2026-11-08) are in the open document but not saved yet
 saved_note = ('The Fusion document was saved on 2026-11-06 with the bed-centre arch, sills, stakes, the hoop assembly over Bed C and the drip risers in place.' if HOOPS_SAVED and DRIP_SAVED else
               'The Fusion document was saved on 2026-11-06 with the bed-centre arch, sills, stakes and the hoop assembly over Bed C in place; the drip risers, the 3/4 in main and the holes in the end boards came after that save and are not saved yet.' if HOOPS_SAVED else
               'The Fusion document was saved on 2026-11-06 with the bed-centre arch, sills and stakes in place; the hoop assembly and the drip risers came after that save and are not saved yet.')
+if split_beds and not SPLIT_SAVED:
+    saved_note += f' The two-board side walls of {beds_text(split_beds)} with their {JOINT_NOM} joint posts (2026-11-08) came after that save and are not saved yet.'
+split_model_note = ((f'- 2026-11-08, two-board sides: the side walls of {beds_text(split_beds)} are now two boards per course ('
+                     + '; '.join(f"Bed {r['letter']} {layout_txt(r)}" for r in bed_rows if r['side_seams'])
+                     + f') with a {JOINT_NOM} joint post behind every seam, done in place by scripts/fusion_split_sides.py: a hidden construction plane and a Split Body at each seam, '
+                     f'a "Joint posts" sketch with a two-sided `Joint post extrude` (bodies "2x8 joint post", Courses x Board_Width up and the rest of Mid_Post_Length down), '
+                     f'the 2x4 mid posts a joint post replaces removed and the rest moved so the gaps between posts are even, all in the timeline group "Two-board sides". '
+                     f'scripts/fusion_build_bed_lumber.py builds the same layout from scratch (SIDE_SPLITS).') if split_beds else '- All side boards are single sticks.')
 hoop_mass_note = (f' The model hoops are solid 1 in rod of wrought iron, about {hoop_bodies[0]["mass_kg"] * KG2LB:.0f} lb each; real 1 in EMT weighs about {hoop_len/12*0.67:.0f} lb per hoop.'
                   if n_hoops and hoop_bodies[0]['mass_kg'] else '')
 
@@ -693,11 +792,34 @@ def bed_items(r):
                 spec_alt=f'${STOCK_IN_PRICES[ALT_NOM][L_in]:.2f} each, ${STOCK_IN_PRICES[ALT_NOM][L_in] * n:.2f}' if alt else None)
     # Cuts: every piece, with the length it is cut to in the plan above
     bc, pc = r['board_cuts'], r['post_cuts']
-    mids = ', '.join(f'{c:.0f}' for c in r['post_centers'][1:-1])
-    s_stock, s_off = stock_of(pb, 'side')
-    side_spec = (f'{NOM} x {ft_in(r["L"])}, whole board' if s_stock and abs(s_stock - r['L']) < 1e-6
-                 else f'{NOM}, cut {r["L"]:g} in from a {s_stock/12:g} ft board ({frac(s_off)} in left; no {ft_in(r["L"])} stock)')
-    add('Cuts', 'side-board', 'Side board', r['n_sides'], 'ea', side_spec, 'Model (Bed Lumber)', '2 per course, outside')
+    mids = ', '.join(f'{c:.0f}' for c in r['mid_centers'])
+    for Lp, n in sorted(r['side_pieces'].items(), reverse=True):
+        key = f'side{Lp:g}'
+        s_stock, s_off = stock_of(pb, key)
+        mate = next((g for g in pb['sticks'] if any(c['key'] == key for c in g['cuts']) and any(c['key'] == 'joint' for c in g['cuts'])), None)
+        if s_stock and abs(s_stock - Lp) < 1e-6:
+            side_spec = f'{NOM} x {ft_in(Lp)}, whole board'
+        elif mate:
+            jl = next(c['len'] for c in mate['cuts'] if c['key'] == 'joint')
+            side_spec = f'{NOM}, cut {Lp:g} in from a {s_stock/12:g} ft board; the {frac(jl)} in offcut is a joint post'
+        else:
+            side_spec = f'{NOM}, cut {Lp:g} in from a {s_stock/12:g} ft board ({frac(s_off)} in left)'
+        if r['side_seams']:
+            by_course = {}
+            for c, ls in r['side_layout'].items():
+                for i, x in enumerate(ls):
+                    if abs(x - Lp) < 1e-6:
+                        by_course.setdefault(c, []).append('near' if i == 0 else 'far' if i == len(ls) - 1 else 'middle')
+            if len(by_course) == len(r['side_layout']) and all(sorted(e) == ['far', 'near'] for e in by_course.values()):
+                places = 'every course, both ends'
+            else:
+                places = ', '.join(f"course {c} {' and '.join(e)} end{'s' if len(e) > 1 else ''}" for c, e in sorted(by_course.items()))
+            where_txt = f"outside, both walls: {places}; the seams meet over the joint posts"
+            item = f'Side board, {Lp:g} in'
+        else:
+            where_txt = '2 per course, outside'
+            item = 'Side board'
+        add('Cuts', f'side-board-{Lp:g}', item, n, 'ea', side_spec, 'Model (Bed Lumber)', where_txt)
     end_cut = cuts_text(bc.get('end', []))
     add('Cuts', 'end-board', 'End board', r['n_ends'], 'ea', f'{NOM}, cut {end_cut} in', 'Model (Bed Lumber)',
         f"{from_text(pb, 'end')}, between the side boards" + (f'; a hair under {r["E"]:g} so two clear the kerf' if bc.get('end') and min(bc['end']) < r['E'] - 1e-6 else ''))
@@ -705,6 +827,10 @@ def bed_items(r):
         f"inside each corner, edge-on to the side boards, standing on grade; {from_text(pp, 'corner')}")
     add('Cuts', 'mid-post', f'{POST_NOM} mid-span post', r['n_mid_plain'], 'ea', f'{POST_NOM}, cut {cuts_text(pc.get("mid", []))} in', 'Model (Bed Lumber)',
         f"flat against the side boards, centred {mids} in from the near end, about {frac(mid_embed_cut)} in in the ground; {from_text(pp, 'mid')}")
+    if r['n_joint']:
+        jc = ', '.join(f'{c:g}' for c in r['joint_centers'])
+        add('Cuts', 'joint-post', f'{JOINT_NOM} joint post', r['n_joint'], 'ea', f'{JOINT_NOM}, cut {cuts_text(bc.get("joint", []))} in, lying flat', 'Model (Bed Lumber)',
+            f"inside the wall behind each seam, {frac(JOINT_W)} in face against the boards, centred {jc} in from the near end, about {frac(JOINT_EMBED)} in in the ground; {from_text(pb, 'joint')}")
     if r['n_trellis']:
         add('Cuts', 'trellis-post', f'{POST_NOM} trellis post', r['n_trellis'], 'ea', f'{POST_NOM} x {ft_in(TRELLIS_LEN)}' + (', uncut' if trellis_uncut else f', cut {TRELLIS_LEN:g} in'), 'Model (Bed Lumber)',
             f"{'; '.join(r['trellis_where'])}; in place of a corner post, set {TRELLIS_EMBED:g} in deep, {TRELLIS_ABOVE:g} in above grade; holds the arch near its crown")
@@ -716,7 +842,8 @@ def bed_items(r):
     add('Fasteners', 'screw-3', '#9 x 3 in exterior structural screws', r['screws_3'], 'ea', 'star drive; coated for treated lumber, stainless 305/316 for cedar or redwood', 'Derived from model',
         f"{r['corner_side_screws']} side boards into the corner post edges + {r['tie_screws']} corner ties into end grain" + (f" + {r['anchor_screws']} arch stakes into the sill ends" if r['anchor_screws'] else ''))
     add('Fasteners', 'screw-25', '#9 x 2.5 in exterior structural screws', r['screws_25'], 'ea', 'same finish as the 3 in screws', 'Derived from model',
-        f"{r['mid_side_screws']} side boards into the mid-span post faces + {r['end_screws']} end boards into the corner post faces")
+        f"{r['mid_side_screws']} side boards into the mid-span post faces + {r['end_screws']} end boards into the corner post faces"
+        + (f" + {r['joint_screws']} side boards into the joint post faces" if r['joint_screws'] else ''))
     if r['screws_125']:
         add('Fasteners', 'screw-125', f'{PANEL_SCREW} exterior screws', r['screws_125'], 'ea', 'same finish, each through a fender washer', 'Derived from model',
             f'hog-wire panel to the trellis post ({PANEL_SCREWS_PER_POST}), the stakes ({PANEL_SCREWS_PER_STAKE} each) and the sill ({PANEL_SCREWS_PER_SILL})')
@@ -775,7 +902,8 @@ rows.append(('Hardware', '#9 x 3 in exterior structural screws, star drive', scr
              f'Side boards into the corner post edges ({tot_corner_side}) + corner ties into end grain ({tot_tie}) + arch stakes into the sill ends ({tot_anchor}); buy {buy_3}'))
 rows.append(('Hardware', '#9 x 2.5 in exterior structural screws, star drive', screws_25, 'ea',
              'Same finish as the 3 in screws', 'Derived from model',
-             f'Side boards into the mid-span post faces ({tot_mid_side}) + end boards into the corner post faces ({tot_end}); buy {buy_25}'))
+             f'Side boards into the mid-span post faces ({tot_mid_side}) + end boards into the corner post faces ({tot_end})'
+             + (f' + side boards into the joint post faces ({tot_joint})' if tot_joint else '') + f'; buy {buy_25}'))
 rows.append(('Hardware', f'{PANEL_SCREW} exterior screws, star drive', screws_125, 'ea',
              'Same finish; short enough to stay inside a 1.5 in post, stake or sill', 'Derived from model',
              f'Hog-wire panel to the trellis posts ({PANEL_SCREWS_PER_POST} each), arch stakes ({PANEL_SCREWS_PER_STAKE} each) and sills ({PANEL_SCREWS_PER_SILL} each), '
@@ -850,7 +978,7 @@ def option_mark(o, plan):
 
 
 def options_text(r, nom, opts, plan):
-    parts = [f"{option_label(o, nom)}: {o['n_sticks']} sticks, ${o['cost']:.2f}, {frac(o['offcut'])} in offcut ({option_mark(o, plan)})" for o in opts]
+    parts = [f"{option_label(o, nom)}: {sticks_txt(o['n_sticks'])}, ${o['cost']:.2f}, {frac(o['offcut'])} in offcut ({option_mark(o, plan)})" for o in opts]
     return f'{nom}: ' + '; '.join(parts) + '.'
 
 
@@ -871,11 +999,11 @@ for r in bed_rows:
     md.append(f"| **{r['letter']}** | {MASSING[r['letter']]} | {r['W']:g} in x {ft_in(r['L'])} | {r['E']:g} x {r['inner_L']:g} in | "
               f"{r['H']:g} in ({COURSES} x {NOM}) | {r['n_posts']} x {POST_NOM} ({4 - r['n_tr_corner']} corner"
               + (f" + {r['n_trellis']} uncut {ft_in(TRELLIS_LEN)} trellis corner" if r['n_trellis'] else '')
-              + f" + {r['n_mid']} mid at about {r['post_spacing']:.0f} in)"
+              + f" + {r['n_mid']} mid)" + (f" + {r['n_joint']} x {JOINT_NOM} joint" if r['n_joint'] else '') + f", {r['post_spacing']:.0f} in max spacing"
               + (f" + {r['n_sills']} arch sill with {r['n_stakes']} stakes" if r['n_sills'] else '') + f" | {r['soil_ft3']:.0f} cu ft |")
 md.append('')
-md.append(f'Bed walls are {NOM} on edge, {COURSES} courses, {bed_rows[0]["H"]:g} in tall. Side boards run full length on the outside; '
-          f'end boards sit between them. {POST_NOM} corner posts stand inside every corner, edge-on, so side-board screws there get {PW:g} in of post to bite into; '
+md.append(f'Bed walls are {NOM} on edge, {COURSES} courses, {bed_rows[0]["H"]:g} in tall. Side boards run outside the end boards, which sit between them. '
+          f'{side_scheme_txt} {POST_NOM} corner posts stand inside every corner, edge-on, so side-board screws there get {PW:g} in of post to bite into; '
           f'{POST_NOM} mid-span posts lie flat against the long walls and run {MID_LEN:g} in long, {EMBED_IN:g} in of it driven into the ground. '
           f'Under the arch, the inside corner post at the near end of beds A and B is an uncut {ft_in(TRELLIS_LEN)} {POST_NOM} (trellis post) set {TRELLIS_EMBED:g} in deep, '
           f'{TRELLIS_ABOVE:g} in above grade, and a {SILL_LEN:g} in {POST_NOM} sill with a {STAKE_LEN:g} in stake at each end lies on the ground along each of those beds\' centrelines to anchor the arch foot. '
@@ -888,7 +1016,7 @@ for r in rows:
     md.append('| ' + ' | '.join(str(x) for x in r) + ' |')
 md.append('')
 md.append(f'Lumber totals: {total_2x_boards} boards of {NOM} ({total_lin_ft_2x:.0f} linear ft) plus {post_sticks} sticks of {POST_NOM}, '
-          f'about ${lumber_cost:.2f} before tax at these prices ({ALT_NOM} walls: ${lumber_cost_alt:.2f}); prices are single-stick prices from {PRICE_SOURCE}. '
+          f'about ${lumber_cost:.2f} before tax at these prices ({ALT_NOM} walls: ${lumber_cost_alt:.2f}); prices are {PRICE_SOURCE}. '
           f'Model lumber weight about {lumber_mass_lb:,.0f} lb ({ALT_NOM}: about {lumber_mass_alt_lb:,.0f} lb). '
           f'Pavers weigh about {paver_total_lb:,.0f} lb in total, so plan for delivery.\n')
 
@@ -896,29 +1024,32 @@ md.append('## Screw plan\n')
 md.append(f'Every joint is a {NOM} board face-screwed to a {POST_NOM} post, {SCREWS_PER_JOINT} screws per board per post, '
           f'{SCREW_HEIGHTS[0]:g} in and {SCREW_HEIGHTS[1]:g} in up from the bottom edge of each board. Corner posts stand edge-on: {PT:g} in edge against the side board, '
           f'{PW:g} in face against the end board. Mid-span posts lie flat, {PW:g} in face against the side board, and run {MID_LEN:g} in long so {EMBED_IN:g} in is driven into the ground. '
-          f'Use #9 star-drive exterior structural screws (coated for treated lumber; stainless 305 or 316 for cedar or redwood, which stain and corrode plain coated screws).\n')
+          + (f'Where two side boards meet over a {JOINT_NOM} joint post ({beds_text(split_beds)}), each board end gets its own pair, {JOINT_OFF:g} in from the end. ' if split_beds else '')
+          + f'Use #9 star-drive exterior structural screws (coated for treated lumber; stainless 305 or 316 for cedar or redwood, which stain and corrode plain coated screws).\n')
 md.append('| Joint | Screw | Why that length and where | Count |')
 md.append('|---|---|---|---|')
 md.append(f'| Side board into a corner post edge | #9 x 3 in | 1.5 in through the board, 1.5 in into the post\'s {PW:g} in depth. The target is only {PT:g} in wide: mark the post centerline on the outside face first, {T+PT/2:g} in from the board end. | {SCREWS_PER_JOINT} per board per post |')
 md.append(f'| Side board into a mid-span post face | #9 x 2.5 in | 1.5 in through the board, 1 in into the post\'s {PT:g} in thickness; a 3 in screw would poke out the back. The face is {PW:g} in wide, so stagger the pair {MID_OFFSET:g} in either side of the post centerline: the lower screw to one side, the upper to the other. Drive the posts first, then screw the boards to them. | {SCREWS_PER_JOINT} per board per post |')
 md.append(f'| End board into a corner post face | #9 x 2.5 in | Same joint as the mid-span posts: 1 in into the post\'s {PT:g} in thickness. Center them {T+PW/2:g} in from the board end. | {SCREWS_PER_JOINT} per board per post |')
+if split_beds:
+    md.append(f'| Side board end into a joint post face | #9 x 2.5 in | The joint post is a {JOINT_NOM} offcut lying flat, {frac(JOINT_W)} in wide and {JOINT_T:g} in thick, so the screws are the mid-span length. Where two boards meet over it, each board end gets two screws {JOINT_OFF:g} in from the end at the usual heights (pre-drill: they are within 2 in of the end); a course that runs past the post gets the mid-span pair instead. | {2 * SCREWS_PER_JOINT} per course where boards meet, {SCREWS_PER_JOINT} where one runs past |')
 md.append(f'| Corner tie: through the side board into the end board\'s end grain | #9 x 3 in | Holds the corner closed. Pre-drill 1/8 in; place at {TIE_HEIGHTS[0]:g} in and {TIE_HEIGHTS[1]:g} in up, {T/2:g} in from the board end, staggered off the post screws. | {TIES_PER_CORNER} per corner per course |')
 md.append(f'| Hog-wire panel to the trellis posts, arch stakes and sills | {PANEL_SCREW} + 1 in fender washer | The washer beside a wire traps it against the wood, and 1.25 in stays inside a 1.5 in post, stake or sill so no tip pokes out the back. At the post top, one screw each side of the edge wire where it crosses the face; on each stake, beside two cross wires; along the sill, beside the bottom wire. | {PANEL_SCREWS_PER_POST} per post, {PANEL_SCREWS_PER_STAKE} per stake, {PANEL_SCREWS_PER_SILL} per sill |')
 md.append(f'| Arch stake into the sill\'s end grain | #9 x 3 in | 1.5 in through the stake, 1.5 in into the sill end. Pre-drill 1/8 in and drive from the stake\'s back before the end board goes on, {T/2:g} in up, 1 in either side of center. | {STAKE_SILL_SCREWS} per stake |')
 md.append('')
-md.append('| Bed | Posts per side | 3 in: corner posts | 3 in: corner ties | 3 in: arch stakes | 2.5 in: mid-span posts | 2.5 in: end boards | 1.25 in: arch panel | Total |')
-md.append('|---|---|---|---|---|---|---|---|---|')
+md.append('| Bed | Posts per side | 3 in: corner posts | 3 in: corner ties | 3 in: arch stakes | 2.5 in: mid-span posts | 2.5 in: joint posts | 2.5 in: end boards | 1.25 in: arch panel | Total |')
+md.append('|---|---|---|---|---|---|---|---|---|---|')
 for r in bed_rows:
-    md.append(f"| {r['letter']} | {r['posts_per_side']} | {r['corner_side_screws']} | {r['tie_screws']} | {r['anchor_screws']} | {r['mid_side_screws']} | {r['end_screws']} | {r['panel_screws']} | {r['screws_3']+r['screws_25']+r['screws_125']} |")
-md.append(f'| **Total** | | **{tot_corner_side}** | **{tot_tie}** | **{tot_anchor}** | **{tot_mid_side}** | **{tot_end}** | **{tot_panel}** | **{screws_total}** |')
+    md.append(f"| {r['letter']} | {r['posts_per_side']} | {r['corner_side_screws']} | {r['tie_screws']} | {r['anchor_screws']} | {r['mid_side_screws']} | {r['joint_screws']} | {r['end_screws']} | {r['panel_screws']} | {r['screws_3']+r['screws_25']+r['screws_125']} |")
+md.append(f'| **Total** | | **{tot_corner_side}** | **{tot_tie}** | **{tot_anchor}** | **{tot_mid_side}** | **{tot_joint}** | **{tot_end}** | **{tot_panel}** | **{screws_total}** |')
 md.append('')
 md.append(f'Buy: 3 in, {screws_3} needed, {buy_3}; 2.5 in, {screws_25} needed, {buy_25}; 1.25 in, {screws_125} needed, one 1 lb box. '
           f'Pre-drill the corner ties and any screw within 2 in of a board end (1/8 in bit for cedar, 3/32 in for SPF). '
-          f'Set the mid-span posts first: chamfer the bottom of each to a point, drive it {frac(mid_embed_cut)} in at the marked centerline with its wide face toward the wall, '
+          f'Set the mid-span posts{" and the joint posts" if split_beds else ""} first: chamfer the bottom of each to a point, drive it {frac(mid_embed_cut)} in at the marked centerline with its wide face toward the wall, '
           f'stop when its top is flush with the top of the wall, then screw the side boards to it from outside. Corner posts stay {POST_H:g} in and sit on grade, except the {tot_tr_corner} inside corner posts at the near end of beds A and B under the arch, which are uncut {ft_in(TRELLIS_LEN)} trellis posts set {TRELLIS_EMBED:g} in deep (see the arch).\n')
 
 md.append('## Cut list\n')
-md.append(f'Stock lengths and prices: {PRICE_SOURCE}. {NOM} and {ALT_NOM} come in {board_lengths_txt} (no 14 ft, so the 14 ft side boards of Bed C are 16 ft boards cut down); '
+md.append(f'Stock lengths and prices: {PRICE_SOURCE}. {NOM} and {ALT_NOM} come in {board_lengths_txt} ({side_stock_note}); '
           f'{POST_NOM} comes in {post_lengths_txt}. Each bed\'s plan is the cheapest set of sticks for that bed on its own, so the four plans add up to the shopping list. '
           f'{cut_rule_txt}\n')
 md.append('| Buy | Qty | Each | Total | For |')
@@ -1024,6 +1155,7 @@ md.append('- The ten superseded rolled-back features that sat after the timeline
 md.append(f'- 2026-11-06, trellis arch: Arch AB now runs from the centre of Bed A to the centre of Bed B with its feet on the ground (parametric Move "Onto the sills": 21 in across the beds, 1.25 in along them, Board_Thickness up). New parameters `Trellis_Post_Length` ({TRELLIS_LEN:g} in), `Trellis_Post_Embed` ({TRELLIS_EMBED:g} in) and `Stake_Above_Sill` ({STAKE_ABOVE - T:g} in). The inside corner post at the near end of beds A and B moved out of `Post extrude` into a two-sided `Trellis post extrude` (body "2x4 trellis post"); each of those beds got an "Arch anchors" sketch with a `Sill extrude` (body "2x4 sill") and a two-sided `Stake extrude` (bodies "2x4 stake"). `Hogwire_height` is `(Hogwire_length - Hogwire_archlength) / 2` = {HOG_LEG:.1f} in. The earlier wall-top scheme of the same day (72 in posts under the arch legs) is superseded: Arch BC is hidden (parked) and its posts are ordinary again. The T-post anchors are gone.')
 md.append(hoops_model_note)
 md.append(drip_model_note)
+md.append(split_model_note)
 md.append('- ' + saved_note)
 md.append('')
 md.append('Model mass by material (visible bodies): ' + ', '.join(f'{k} {v:,.0f} lb' for k, v in mass_by_mat.items()) + '.' + hoop_mass_note)
@@ -1077,7 +1209,8 @@ for comp, g in paver_groups.items():
 for r in bed_rows:
     x0, x1, y0, y1 = r['xmin'], r['xmax'], r['ymin'], r['ymax']
     tip = (f"Bed {r['letter']}: {r['W']:g} in x {ft_in(r['L'])} outside, {COURSES} x {NOM} = {r['H']:g} in tall, "
-           f"{r['n_posts']} {POST_NOM} posts" + (f" + {r['n_sills']} arch sill with {r['n_stakes']} stakes" if r['n_sills'] else '') + f", {r['screws_3']+r['screws_25']+r['screws_125']} screws, soil {r['soil_ft3']:.0f} cu ft"
+           f"{r['n_posts']} {POST_NOM} posts" + (f" + {r['n_joint']} {JOINT_NOM} joint posts behind the side-board seams" if r['n_joint'] else '')
+           + (f" + {r['n_sills']} arch sill with {r['n_stakes']} stakes" if r['n_sills'] else '') + f", {r['screws_3']+r['screws_25']+r['screws_125']} screws, soil {r['soil_ft3']:.0f} cu ft"
            + (f"; {n_hoops} low-tunnel hoops at {hoop_pitch:g} in pitch" if n_hoops and r['letter'] == hoop_bed_letter else ''))
     svg.append(f'<g class="bed" data-tip="{esc(tip)}">')
     outer = f'M{sx(x0):.1f} {sy(y1):.1f} H{sx(x1):.1f} V{sy(y0):.1f} H{sx(x0):.1f} Z'
@@ -1086,6 +1219,9 @@ for r in bed_rows:
     svg.append(f'<rect x="{sx(x0+T):.1f}" y="{sy(y1-T):.1f}" width="{(r["W"]-2*T)*S:.1f}" height="{(r["L"]-2*T)*S:.1f}" fill="var(--lumber)" opacity="0.12"/>')
     for p in r['posts'] + r['anchors']:
         svg.append(f'<rect x="{sx(p["min"][0]):.1f}" y="{sy(p["max"][1]):.1f}" width="{(p["max"][0]-p["min"][0])*S:.1f}" height="{(p["max"][1]-p["min"][1])*S:.1f}" fill="var(--lumber)" opacity="0.85"/>')
+    for s_ in r['side_seams']:       # where two side boards meet (one course or both), a hairline across each wall
+        for wx in (x0, x1 - T):
+            svg.append(f'<line x1="{sx(wx):.1f}" y1="{sy(y1 - s_):.1f}" x2="{sx(wx + T):.1f}" y2="{sy(y1 - s_):.1f}" stroke="var(--panel)" stroke-width="1.2"/>')
     cx, cy = sx((x0 + x1) / 2), sy((y0 + y1) / 2)
     svg.append(f'<text x="{cx:.1f}" y="{cy-6:.1f}" text-anchor="middle" font-size="26" font-weight="700" fill="currentColor">{r["letter"]}</text>')
     svg.append(f'<text x="{cx:.1f}" y="{cy+14:.1f}" text-anchor="middle" font-size="12" fill="currentColor">{ft_in(r["L"])}</text>')
@@ -1282,6 +1418,59 @@ me.append(f'<text x="{mx0}" y="{m_bot+16:.1f}" font-size="11" fill="currentColor
 me.append(f'<text x="{mx0}" y="{m_bot+32:.1f}" font-size="11" fill="currentColor">{NOM} boards, {BOARD_W:g} in each, seen from outside</text>')
 me.append('</svg>')
 MID_ELEV_SVG = '\n'.join(me)
+
+# ---- elevation at a joint post, outside face of a side wall: the lower course's two boards meet over the post, the upper course runs past it ----
+J_K = 16
+jx0, jy0 = 30, 34
+JWID = 14.0                     # inches of wall shown; the post is centred
+JCX = jx0 + JWID / 2 * J_K      # post and seam centreline, px
+j_grade = jy0 + EH * J_K
+j_bot = j_grade + JOINT_EMBED * J_K
+LXJ = jx0 + JWID * J_K
+je = []
+je.append(f'<svg viewBox="0 0 {int(LXJ+252)} {int(j_bot+52)}" role="img" aria-label="Outside elevation of a side wall at a joint post: the post {frac(JOINT_W)} in wide behind the boards and {JOINT_EMBED:g} in below grade; in the lower course two boards meet over it and each end gets two 2.5 in screws {JOINT_OFF:g} in from the end, the upper course runs past with the staggered mid-span pair" xmlns="http://www.w3.org/2000/svg">')
+je.append(f'<rect x="0" y="{j_grade:.1f}" width="{int(LXJ+252)}" height="{j_bot-j_grade+18:.1f}" fill="currentColor" opacity="0.05"/>')
+SEAM_COURSE = COURSES - 1       # drawn index of the course with the seam: the lowest course (Bed C has the seam in one course only; Bed D in both)
+for c in range(COURSES):
+    y_top = jy0 + c * BOARD_W * J_K
+    if c == SEAM_COURSE:
+        je.append(f'<rect x="{jx0}" y="{y_top:.1f}" width="{(JWID/2 - KERF/2)*J_K:.1f}" height="{BOARD_W*J_K:.1f}" fill="var(--lumber)" opacity="0.45" stroke="var(--lumber)" stroke-width="1.5"/>')
+        je.append(f'<rect x="{JCX + KERF/2*J_K:.1f}" y="{y_top:.1f}" width="{(JWID/2 - KERF/2)*J_K:.1f}" height="{BOARD_W*J_K:.1f}" fill="var(--lumber)" opacity="0.45" stroke="var(--lumber)" stroke-width="1.5"/>')
+    else:
+        je.append(f'<rect x="{jx0}" y="{y_top:.1f}" width="{JWID*J_K:.1f}" height="{BOARD_W*J_K:.1f}" fill="var(--lumber)" opacity="0.45" stroke="var(--lumber)" stroke-width="1.5"/>')
+jp0 = JCX - JOINT_W / 2 * J_K
+jp1 = JCX + JOINT_W / 2 * J_K
+jpt_y = j_bot - 2.0 * J_K
+je.append(f'<path d="M{jp0:.1f} {jy0-6} V{jpt_y:.1f} L{JCX:.1f} {j_bot:.1f} L{jp1:.1f} {jpt_y:.1f} V{jy0-6} Z" fill="none" stroke="currentColor" stroke-width="1.2" stroke-dasharray="4 3"/>')
+je.append(f'<line x1="{JCX:.1f}" y1="{jy0-6}" x2="{JCX:.1f}" y2="{j_bot:.1f}" stroke="currentColor" stroke-width="0.8" stroke-dasharray="2 4" opacity="0.6"/>')
+je.append(f'<line x1="{jx0-20}" y1="{j_grade:.1f}" x2="{LXJ+20}" y2="{j_grade:.1f}" stroke="currentColor" stroke-width="1.2" stroke-dasharray="8 4"/>')
+je.append(f'<text x="{LXJ+28:.1f}" y="{j_grade+4:.1f}" font-size="11" fill="currentColor">grade</text>')
+je.append(f'<text x="{jx0}" y="{jy0-12}" font-size="11" fill="currentColor">{JOINT_NOM} joint post behind the boards, {frac(JOINT_W)} in face, flat</text>')
+for c in range(COURSES):
+    bottom = jy0 + (c + 1) * BOARD_W * J_K
+    if c == SEAM_COURSE:
+        for h in SCREW_HEIGHTS:
+            yy = bottom - h * J_K
+            for side in (-1, 1):
+                je.append(f'<circle cx="{JCX + side * JOINT_OFF * J_K:.1f}" cy="{yy:.1f}" r="4" fill="currentColor"/>')
+            je.append(f'<line x1="{LXJ+6:.1f}" y1="{yy:.1f}" x2="{LXJ+24:.1f}" y2="{yy:.1f}" stroke="currentColor" stroke-width="1"/>')
+            je.append(f'<text x="{LXJ+28:.1f}" y="{yy+4:.1f}" font-size="11" fill="currentColor">{h:g} in up, one each side, {frac(JOINT_OFF)} in from the ends</text>')
+    else:
+        for h, side in zip(SCREW_HEIGHTS, (-1, 1)):
+            yy = bottom - h * J_K
+            je.append(f'<circle cx="{JCX + side * MID_OFFSET * J_K:.1f}" cy="{yy:.1f}" r="4" fill="currentColor"/>')
+            je.append(f'<line x1="{LXJ+6:.1f}" y1="{yy:.1f}" x2="{LXJ+24:.1f}" y2="{yy:.1f}" stroke="currentColor" stroke-width="1"/>')
+            je.append(f'<text x="{LXJ+28:.1f}" y="{yy+4:.1f}" font-size="11" fill="currentColor">{h:g} in up, {frac(MID_OFFSET)} in {"left" if side < 0 else "right"}: the board runs past</text>')
+je.append(f'<text x="{JCX:.1f}" y="{jy0 + (SEAM_COURSE + 1) * BOARD_W * J_K + 14:.1f}" font-size="11" fill="currentColor" text-anchor="middle">seam, {frac(KERF)} in gap</text>')
+je.append(f'<text x="{jx0}" y="{j_bot+16:.1f}" font-size="11" fill="currentColor">{JOINT_LEN:g} in offcut, {JOINT_EMBED:g} in below grade, bottom chamfered to a point</text>')
+je.append(f'<text x="{jx0}" y="{j_bot+32:.1f}" font-size="11" fill="currentColor">{NOM} boards, {BOARD_W:g} in each, seen from outside</text>')
+je.append('</svg>')
+JOINT_ELEV_SVG = '\n'.join(je)
+joint_elev_caption = (f"Outside face of a side wall at a joint post: a {JOINT_LEN:g} in {JOINT_NOM} offcut lying flat behind the boards, {frac(JOINT_W)} in wide, {JOINT_EMBED:g} in below grade. "
+                      f"Where two boards meet over it (the lower course here), each board end gets two 2.5 in screws {frac(JOINT_OFF)} in from the end at the usual heights; pre-drill them, they are within 2 in of the end. "
+                      f"A course that runs past the post gets the same staggered pair as a mid-span post. "
+                      + (f"{beds_text(staggered_beds, True)} stagger{'s' if len(staggered_beds) == 1 else ''} the seams, so every joint post sees one of each; " if staggered_beds else '')
+                      + (f"in {beds_text([b for b in split_beds if b not in staggered_beds])} both courses meet over the post." if [b for b in split_beds if b not in staggered_beds] else ''))
 
 
 # ---- the arch in elevation, seen from the near end: both beds, the walkway, the trellis posts, the sills and stakes, the panel ----
@@ -1720,7 +1909,7 @@ def options_html(r):
         for o in opts:
             cost = num(o['cost'], priced_as(o, ALT_NOM), '${:.2f}') if toggle else f"${o['cost']:.2f}"
             mark = option_mark(o, plan)
-            items.append(f'{esc(option_label(o, nom))}: {o["n_sticks"]} sticks, {cost}, {frac(o["offcut"])} in offcut '
+            items.append(f'{esc(option_label(o, nom))}: {sticks_txt(o["n_sticks"])}, {cost}, {frac(o["offcut"])} in offcut '
                          + (f'<b>({mark})</b>' if mark in ('chosen', 'same cost') else f'<span class="muted">({esc(mark)})</span>'))
         nom_html = f'<span class="nom">{esc(nom)}</span>' if toggle else esc(nom)
         lis.append(f'<li><b>{nom_html}</b>: ' + '<span class="sep">·</span>'.join(items) + '</li>')
@@ -1753,7 +1942,7 @@ for r, items in bed_lists:
     bed_cards.append(f"""
 <article class="card bed-card" id="bed-{r['letter'].lower()}" data-bed="{r['letter']}">
   <header><span class="letter">{r['letter']}</span><div class="grow"><h3>Bed {r['letter']} <small>{ft_in(r['L'])} x {r['W']:g} in</small></h3>
-  <p class="muted">Inside {r['E']:g} x {r['inner_L']:g} in, {num(r['H'], r['H_alt'], '{:g}', ' in')} tall. {len(items)} lines. Replaces massing body "{MASSING[r['letter']]}".</p></div>
+  <p class="muted">Inside {r['E']:g} x {r['inner_L']:g} in, {num(r['H'], r['H_alt'], '{:g}', ' in')} tall. {len(items)} lines.{f" Side walls: two boards per course ({esc(layout_txt(r))}) over {r['n_joint']} {JOINT_NOM} joint posts." if r['side_seams'] else ''} Replaces massing body "{MASSING[r['letter']]}".</p></div>
   <div class="check-state"><span class="count" aria-live="polite">0 of {len(items)} checked</span><button type="button" class="clear">Clear</button></div></header>
   <table class="checklist">
     <thead><tr><th class="ck"><span class="vh">Checked</span></th><th>Item</th><th>Qty</th><th>Spec / cut</th><th>Notes</th></tr></thead>
@@ -1779,6 +1968,9 @@ for _k in ('Drip Irrigation', 'Drip riser', '3/4 in main (existing)'):
     _n = _n.replace(f'**{_k}**', f'<b>{_k}</b>')
 _n = re.sub(r'`([^`]+)`', r'<code>\1</code>', esc(_n).replace('&lt;b&gt;', '<b>').replace('&lt;/b&gt;', '</b>'))
 drip_model_note_html = f'<li>{_n}</li>'
+_n = re.sub(r'`([^`]+)`', r'<code>\1</code>', esc(split_model_note[2:]))
+split_model_note_html = f'<li>{_n}</li>'
+joint_fig_html = (f'<figure>\n      {JOINT_ELEV_SVG}\n      <figcaption>{esc(joint_elev_caption)}</figcaption>\n    </figure>' if split_beds else '')
 soil_rows = ''.join(tr([f"Bed {r['letter']}", f"{r['E']:g} x {r['inner_L']:g} in", num(r['H'], r['H_alt'], '{:g}', ' in'), num(r['soil_ft3'], r['soil_alt_ft3'], '{:.1f}', ' cu ft')]) for r in bed_rows)
 lumber_rows = ''.join(tr([(f'<span class="nom">{esc(x["nom"])}</span>' if x['nom'] == NOM else esc(x['nom'])) + f" x {x['ft']} ft", f"<b>{x['qty']}</b>",
                              num(x['price'], x['price_alt'], '${:.2f}') if x['price_alt'] is not None else f"${x['price']:.2f}",
@@ -1787,8 +1979,8 @@ lumber_rows = ''.join(tr([(f'<span class="nom">{esc(x["nom"])}</span>' if x['nom
 lumber_rows += tr(['<b>Total</b>', f'<b>{total_2x_boards + post_sticks}</b>', '', f'<b>{num(lumber_cost, lumber_cost_alt, "${:.2f}")}</b>', 'before tax, single-stick prices'])
 combined_scale = max(g['stock'] for p in (combined_boards, combined_posts) for g in p['sticks'])
 combined_bars = bars_html(combined_boards, NOM, combined_scale, toggle=True) + bars_html(combined_posts, POST_NOM, combined_scale)
-screw_bed_rows = ''.join(tr([f"Bed {r['letter']}", str(r['posts_per_side']), str(r['corner_side_screws']), str(r['tie_screws']), str(r['anchor_screws']), str(r['mid_side_screws']), str(r['end_screws']), str(r['panel_screws']), f"<b>{r['screws_3']+r['screws_25']+r['screws_125']}</b>"]) for r in bed_rows)
-screw_bed_rows += tr(['<b>Total</b>', '', f"<b>{tot_corner_side}</b>", f"<b>{tot_tie}</b>", f"<b>{tot_anchor}</b>", f"<b>{tot_mid_side}</b>", f"<b>{tot_end}</b>", f"<b>{tot_panel}</b>", f"<b>{screws_total}</b>"])
+screw_bed_rows = ''.join(tr([f"Bed {r['letter']}", str(r['posts_per_side']), str(r['corner_side_screws']), str(r['tie_screws']), str(r['anchor_screws']), str(r['mid_side_screws']), str(r['joint_screws']), str(r['end_screws']), str(r['panel_screws']), f"<b>{r['screws_3']+r['screws_25']+r['screws_125']}</b>"]) for r in bed_rows)
+screw_bed_rows += tr(['<b>Total</b>', '', f"<b>{tot_corner_side}</b>", f"<b>{tot_tie}</b>", f"<b>{tot_anchor}</b>", f"<b>{tot_mid_side}</b>", f"<b>{tot_joint}</b>", f"<b>{tot_end}</b>", f"<b>{tot_panel}</b>", f"<b>{screws_total}</b>"])
 screw_joint_rows = ''.join([
     tr(["Side board into a corner post edge", "<b>#9 x 3 in</b>",
         f"1.5 in through the board, 1.5 in into the post's {PW:g} in depth. The target is only {PT:g} in wide: mark the post centerline on the outside face before driving, {T+PT/2:g} in from the board end.",
@@ -1799,6 +1991,11 @@ screw_joint_rows = ''.join([
     tr(["End board into a corner post face", "<b>#9 x 2.5 in</b>",
         f"Same joint as the mid-span posts: 1 in into the post's {PT:g} in thickness. Center them {T+PW/2:g} in from the board end.",
         f"{SCREWS_PER_JOINT} per board per post"]),
+] + ([
+    tr(["Side board end into a joint post face", "<b>#9 x 2.5 in</b>",
+        f"The joint post is a {JOINT_NOM} offcut lying flat, {frac(JOINT_W)} in wide and {JOINT_T:g} in thick, so the screws are the mid-span length. Where two boards meet over it, each board end gets two screws {JOINT_OFF:g} in from the end at the usual heights (pre-drill: they are within 2 in of the end); a course that runs past the post gets the mid-span pair instead.",
+        f"{2 * SCREWS_PER_JOINT} per course where boards meet, {SCREWS_PER_JOINT} where one runs past"]),
+] if split_beds else []) + [
     tr(["Corner tie through the side board into the end board's end grain", "<b>#9 x 3 in</b>",
         f"Holds the corner closed. Pre-drill 1/8 in. Place at {TIE_HEIGHTS[0]:g} in and {TIE_HEIGHTS[1]:g} in up, {T/2:g} in from the board end, staggered off the post screws.",
         f"{TIES_PER_CORNER} per corner per course"]),
@@ -2105,11 +2302,11 @@ HTML = f'''<!DOCTYPE html>
 
 <section id="plan">
   <h2>Plan</h2>
-  <p>Four beds in a 24 ft x 18 ft plot. Side boards run full length on the outside and the end boards sit between them, so every side board is a stock length and every end board is 48 in (21 in for Bed D). {POST_NOM} posts stand inside each corner, edge-on to the side boards, and lie flat against the long walls at mid-span, where they run {MID_LEN:g} in long and are driven {EMBED_IN:g} in into the ground. The hog-wire arch between beds A and B stands on {POST_NOM} sills at the bed centrelines and is held near its crown by the two inside corner posts at the near end, uncut {ft_in(TRELLIS_LEN)} {POST_NOM}s set {TRELLIS_EMBED:g} in deep. Letters follow the arch names in the model: Arch AB spans beds A and B; Arch BC is modeled but parked. {f'{n_hoops} low-tunnel hoops of 1 in tube (the blue bars) cover Bed {hoop_bed_letter} at {hoop_pitch:g} in pitch, the first and last {hoop_near_gap:g} in inside the end boards.' if n_hoops else ''}</p>
+  <p>Four beds in a 24 ft x 18 ft plot. Side boards run outside the end boards, which are 48 in (21 in for Bed D). {esc(side_scheme_txt)} {POST_NOM} posts stand inside each corner, edge-on to the side boards, and lie flat against the long walls at mid-span, where they run {MID_LEN:g} in long and are driven {EMBED_IN:g} in into the ground. The hog-wire arch between beds A and B stands on {POST_NOM} sills at the bed centrelines and is held near its crown by the two inside corner posts at the near end, uncut {ft_in(TRELLIS_LEN)} {POST_NOM}s set {TRELLIS_EMBED:g} in deep. Letters follow the arch names in the model: Arch AB spans beds A and B; Arch BC is modeled but parked. {f'{n_hoops} low-tunnel hoops of 1 in tube (the blue bars) cover Bed {hoop_bed_letter} at {hoop_pitch:g} in pitch, the first and last {hoop_near_gap:g} in inside the end boards.' if n_hoops else ''}</p>
   <div class="legend"><span><i class="sw-lumber"></i><span>bed walls and posts (<span class="nom">{NOM}</span>, {POST_NOM})</span></span><span><i class="sw-arch"></i><span>hog-wire arch footprint</span></span>{'<span><i class="sw-hoop"></i><span>low-tunnel hoops (solid bars, a dot at each leg)</span></span>' if n_hoops else ''}{'<span><i class="sw-drip"></i><span>drip main (dash-dot, buried) and risers (circles)</span></span>' if risers else ''}<span><i class="sw-paver"></i><span>12 x 12 pavers</span></span></div>
   <figure class="plan">
     <div class="scroll">{SVG}</div>
-    <figcaption>Top view, 1 px = 0.4 in. Hover or tap a bed, path or arch for its numbers. Beds are 24 in apart with one paver centered in each gap; the walkway strip is 33 in with two paver rows.</figcaption>
+    <figcaption>Top view, 1 px = 0.4 in. Hover or tap a bed, path or arch for its numbers. Beds are 24 in apart with one paver centered in each gap; the walkway strip is 33 in with two paver rows.{f' The wider posts on the long walls of {esc(beds_text(split_beds))} are the {JOINT_NOM} joint posts, with a hairline across the wall where the boards meet.' if split_beds else ''}</figcaption>
   </figure>
 </section>
 
@@ -2121,12 +2318,12 @@ HTML = f'''<!DOCTYPE html>
     <thead>{tr(['Section', 'Item', 'Qty', 'Unit', 'Spec', 'Source', 'Notes'], True)}</thead>
     <tbody>{shop_rows}</tbody>
   </table></div>
-  <p class="muted">Lumber: {total_2x_boards} boards of <span class="nom">{NOM}</span>, {total_lin_ft_2x:.0f} linear ft, plus {post_sticks} sticks of {POST_NOM}, about {num(lumber_cost, lumber_cost_alt, '${:.2f}')} before tax at single-stick prices ({esc(PRICE_SOURCE)}); about {num(lumber_mass_lb, lumber_mass_alt_lb, '{:,.0f}', ' lb')} in the model. Rows tagged <span class="src est">Store price</span> carry those prices; the <a href="#cuts">cut list</a> shows how each stick is cut.</p>
+  <p class="muted">Lumber: {total_2x_boards} boards of <span class="nom">{NOM}</span>, {total_lin_ft_2x:.0f} linear ft, plus {post_sticks} sticks of {POST_NOM}, about {num(lumber_cost, lumber_cost_alt, '${:.2f}')} before tax ({esc(PRICE_SOURCE)}); about {num(lumber_mass_lb, lumber_mass_alt_lb, '{:,.0f}', ' lb')} in the model. Rows tagged <span class="src est">Store price</span> carry those prices; the <a href="#cuts">cut list</a> shows how each stick is cut.</p>
 </section>
 
 <section id="screws">
   <h2>Screw plan</h2>
-  <p>Every joint is a <span class="nom">{NOM}</span> board face-screwed to a {POST_NOM} post: {SCREWS_PER_JOINT} screws per board per post, {SCREW_HEIGHTS[0]:g} in and {SCREW_HEIGHTS[1]:g} in up from the bottom edge of each board. Corner posts stand edge-on, {PT:g} in edge against the side board and {PW:g} in face against the end board, so the side-board screws there drive into {PW:g} in of post. Mid-span posts lie flat, {PW:g} in face against the side board, and run {MID_LEN:g} in long so {EMBED_IN:g} in is driven into the ground; the screws into them are shorter and staggered across the face.</p>
+  <p>Every joint is a <span class="nom">{NOM}</span> board face-screwed to a {POST_NOM} post: {SCREWS_PER_JOINT} screws per board per post, {SCREW_HEIGHTS[0]:g} in and {SCREW_HEIGHTS[1]:g} in up from the bottom edge of each board. Corner posts stand edge-on, {PT:g} in edge against the side board and {PW:g} in face against the end board, so the side-board screws there drive into {PW:g} in of post. Mid-span posts lie flat, {PW:g} in face against the side board, and run {MID_LEN:g} in long so {EMBED_IN:g} in is driven into the ground; the screws into them are shorter and staggered across the face.{f' Where two side boards meet over a {JOINT_NOM} joint post ({esc(beds_text(split_beds))}), each board end gets its own pair, {JOINT_OFF:g} in from the end.' if split_beds else ''}</p>
   <div class="card tablewrap"><table>
     <thead>{tr(['Joint', 'Screw', 'Why that length and where', 'Count'], True)}</thead>
     <tbody>{screw_joint_rows}</tbody>
@@ -2144,18 +2341,19 @@ HTML = f'''<!DOCTYPE html>
       {MID_ELEV_SVG}
       <figcaption>Outside face of a side board at a mid-span post. The post is {PW:g} in wide behind the board and continues {EMBED_IN:g} in below grade. Each course gets two 2.5 in screws, the lower one {MID_OFFSET:g} in left of the post centerline and the upper one {MID_OFFSET:g} in right, so the board cannot pivot on the post.</figcaption>
     </figure>
+    {joint_fig_html}
   </div>
   <div class="card tablewrap"><table>
-    <thead>{tr(['Bed', 'Posts per side', '3 in: corner posts', '3 in: corner ties', '3 in: arch stakes', '2.5 in: mid-span posts', '2.5 in: end boards', '1.25 in: arch panel', 'Total'], True)}</thead>
+    <thead>{tr(['Bed', 'Posts per side', '3 in: corner posts', '3 in: corner ties', '3 in: arch stakes', '2.5 in: mid-span posts', '2.5 in: joint posts', '2.5 in: end boards', '1.25 in: arch panel', 'Total'], True)}</thead>
     <tbody>{screw_bed_rows}</tbody>
   </table></div>
   <p>Buy 3 in: {screws_3} needed, {buy_3}. Buy 2.5 in: {screws_25} needed, {buy_25}. Use #9 star-drive exterior structural screws, coated for treated lumber or stainless 305 or 316 for cedar and redwood, which stain and corrode plain coated screws. Pre-drill the corner ties and any screw within 2 in of a board end (1/8 in bit for cedar, 3/32 in for SPF).</p>
-  <div class="note">Set the mid-span posts first: chamfer the bottom of each to a point, drive it {frac(mid_embed_cut)} in at the marked centerline with its wide face toward the wall, and stop when its top is flush with the top of the wall. Then screw the side boards to it from outside. Corner posts stay {POST_H:g} in and sit on grade, except the {tot_tr_corner} inside corner posts at the near end of beds A and B under the arch, which are uncut {ft_in(TRELLIS_LEN)} trellis posts set {TRELLIS_EMBED:g} in deep (see the arch).</div>
+  <div class="note">Set the mid-span posts{' and the joint posts' if split_beds else ''} first: chamfer the bottom of each to a point, drive it {frac(mid_embed_cut)} in at the marked centerline with its wide face toward the wall, and stop when its top is flush with the top of the wall. Then screw the side boards to it from outside. Corner posts stay {POST_H:g} in and sit on grade, except the {tot_tr_corner} inside corner posts at the near end of beds A and B under the arch, which are uncut {ft_in(TRELLIS_LEN)} trellis posts set {TRELLIS_EMBED:g} in deep (see the arch).</div>
 </section>
 
 <section id="cuts">
   <h2>Cut list</h2>
-  <p>Stock lengths and prices: {esc(PRICE_SOURCE)}. <span class="nom">{NOM}</span> comes in {board_lengths_txt} (no 14 ft, so the 14 ft side boards of Bed C are 16 ft boards cut down) and {POST_NOM} in {post_lengths_txt}. Each bed's plan under <a href="#beds">Materials by bed</a> is the cheapest set of sticks for that bed on its own, so the four plans add up to this table. {esc(cut_rule_txt)}</p>
+  <p>Stock lengths and prices: {esc(PRICE_SOURCE)}. <span class="nom">{NOM}</span> comes in {board_lengths_txt} ({esc(side_stock_note)}) and {POST_NOM} in {post_lengths_txt}. Each bed's plan under <a href="#beds">Materials by bed</a> is the cheapest set of sticks for that bed on its own, so the four plans add up to this table. {esc(cut_rule_txt)}</p>
   <div class="card tablewrap"><table>
     <thead>{tr(['Buy', 'Qty', 'Each', 'Total', 'Used for'], True)}</thead>
     <tbody>{lumber_rows}</tbody>
@@ -2167,7 +2365,7 @@ HTML = f'''<!DOCTYPE html>
 
 <section id="beds">
   <h2>Materials by bed</h2>
-  <p>Everything that goes to one bed, so each bed can be checked on its own. The lumber lines are the sticks to buy, in store lengths with store prices ({esc(PRICE_STORE)}, {PRICE_DATE}), and the bars beneath them show how each stick is cut; then the cuts themselves, screws and washers, the arch panel, the hoops, the drip riser and the soil. Tick a line as you check or buy it; the ticks are kept in this browser. The hog-wire panel spans beds A and B and is listed under both (buy one). The 1/2 in drip pipe for every bed is cut from the {drip_sticks} x 10 ft stick{'s' if drip_sticks > 1 else ''} on the shopping list.</p>
+  <p>Everything that goes to one bed, so each bed can be checked on its own. The lumber lines are the sticks to buy, in store lengths with store prices (checked {PRICE_DATE}), and the bars beneath them show how each stick is cut; then the cuts themselves, screws and washers, the arch panel, the hoops, the drip riser and the soil. Tick a line as you check or buy it; the ticks are kept in this browser. The hog-wire panel spans beds A and B and is listed under both (buy one). The 1/2 in drip pipe for every bed is cut from the {drip_sticks} x 10 ft stick{'s' if drip_sticks > 1 else ''} on the shopping list.</p>
   <div class="toolbar"><span class="muted" id="checkTotal" aria-live="polite">0 of {bed_lines_total} lines ticked</span><button type="button" id="clearAll">Clear all ticks</button></div>
   {''.join(bed_cards)}
 </section>
@@ -2262,6 +2460,7 @@ HTML = f'''<!DOCTYPE html>
     <li>2026-11-06, trellis arch: Arch AB now runs from the centre of Bed A to the centre of Bed B with its feet on the ground (parametric Move "Onto the sills": 21 in across the beds, 1.25 in along them, Board_Thickness up). New parameters <code>Trellis_Post_Length</code> ({TRELLIS_LEN:g} in), <code>Trellis_Post_Embed</code> ({TRELLIS_EMBED:g} in) and <code>Stake_Above_Sill</code> ({STAKE_ABOVE - T:g} in). The inside corner post at the near end of beds A and B moved out of <code>Post extrude</code> into a two-sided <code>Trellis post extrude</code> (body "2x4 trellis post"); each of those beds got an "Arch anchors" sketch with a <code>Sill extrude</code> (body "2x4 sill") and a two-sided <code>Stake extrude</code> (bodies "2x4 stake"). <code>Hogwire_height</code> is <code>(Hogwire_length - Hogwire_archlength) / 2</code> = {HOG_LEG:.1f} in. The earlier wall-top scheme of the same day (72 in posts under the arch legs) is superseded: Arch BC is hidden (parked) and its posts are ordinary again. The T-post anchors are gone.</li>
     {hoops_model_note_html}
     {drip_model_note_html}
+    {split_model_note_html}
     <li>{esc(saved_note)}</li>
   </ul>
   <p class="muted">Model mass by material (visible bodies): {', '.join(f'{esc(k)} {v:,.0f} lb' for k, v in mass_by_mat.items())}.{esc(hoop_mass_note)}</p>
@@ -2277,7 +2476,8 @@ print(f'beds={len(bed_rows)} {NOM} boards={total_2x_boards} {POST_NOM} sticks={p
       f'screws 3in={screws_3} 2.5in={screws_25} 1.25in={screws_125} total={screws_total} pavers={paver_n} arches={n_arches} hoops={n_hoops} risers={n_risers} pipe={drip_pipe_total if risers else 0:g}in sticks={drip_sticks if risers else 0} '
       f'soil={soil_ft3:.1f} ft3 ({soil_ft3/27:.2f} yd3) alt={soil_alt_ft3/27:.2f} yd3')
 for r in bed_rows:
-    print(f"  Bed {r['letter']}: posts/side={r['posts_per_side']} corner={r['corner_side_screws']} mid={r['mid_side_screws']} ties={r['tie_screws']} end={r['end_screws']} mid centers={r['post_centers']}")
+    print(f"  Bed {r['letter']}: posts/side={r['posts_per_side']} corner={r['corner_side_screws']} mid={r['mid_side_screws']} joint={r['joint_screws']} ties={r['tie_screws']} end={r['end_screws']} "
+          f"mid centers={r['mid_centers']} joints={r['joint_centers']} sides={dict(r['side_pieces'])} layout={dict(r['side_layout'])}")
 for x in lumber_list:
     print('  ', x['qty'], 'x', x['item'], f"@ ${x['price']:.2f}", '|', x['use'])
 for r in bed_rows:

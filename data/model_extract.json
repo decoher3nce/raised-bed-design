@@ -252,17 +252,17 @@
    "path": "Bed Lumber:1+Bed C - 14 ft:1",
    "name": "Bed C - 14 ft",
    "partNumber": "BED-C",
-   "description": "Bed C: 51 x 168 in outside (14 ft), inside 48 x 165 in. Side boards full length outside, end boards 48 in between them, 4 corner 2x4 posts + 6 mid-span 2x4 posts (3.5 in face flat against the side boards, Mid_Post_Length long, driven into the ground). Replaces massing body \"2nd Bed\". No trellis posts (Arch BC parked).",
+   "description": "Bed C: 51 x 168 in outside (14 ft), inside 48 x 165 in. Side walls are two 8 ft boards per course (course 1: 96 + 72 in / course 2: 72 + 96 in) joined over 2x8 joint posts; end boards 48 in between them. 4 corner 2x4 posts + 4 mid-span 2x4 posts (3.5 in face flat against the side boards, Mid_Post_Length long, driven into the ground) + 4 2x8 joint posts (7.25 in face flat against the inside of the wall behind each seam, same length as a mid-span post). The joint posts are the 24 in offcuts of the 72 in side pieces. Reworked in place 2026-11-08 (scripts/fusion_split_sides.py).",
    "visible": true,
-   "bodyCount": 18
+   "bodyCount": 24
   },
   {
    "path": "Bed Lumber:1+Bed D - 16 ft x 2 ft:1",
    "name": "Bed D - 16 ft x 2 ft",
    "partNumber": "BED-D",
-   "description": "Bed D: 24 x 192 in outside (16 ft), inside 21 x 189 in. Side boards full length outside, end boards 21 in between them, 4 corner 2x4 posts + 6 mid-span 2x4 posts (3.5 in face flat against the side boards, Mid_Post_Length long, driven into the ground). Replaces massing body \"1st Bed\".",
+   "description": "Bed D: 24 x 192 in outside (16 ft), inside 21 x 189 in. Side walls are two 8 ft boards per course (course 1: 96 + 96 in / course 2: 96 + 96 in) joined over 2x8 joint posts; end boards 21 in between them. 4 corner 2x4 posts + 4 mid-span 2x4 posts (3.5 in face flat against the side boards, Mid_Post_Length long, driven into the ground) + 2 2x8 joint posts (7.25 in face flat against the inside of the wall behind each seam, same length as a mid-span post). Reworked in place 2026-11-08 (scripts/fusion_split_sides.py).",
    "visible": true,
-   "bodyCount": 18
+   "bodyCount": 22
   },
   {
    "path": "Bed Lumber:1",
@@ -4106,14 +4106,14 @@
   {
    "component": "Bed C - 14 ft",
    "path": "Bed Lumber:1+Bed C - 14 ft:1",
-   "body": "Side board 168 in",
+   "body": "Side board 72 in",
    "visible": true,
    "material": "Pine",
    "appearance": "Pine",
    "dims_in": [
     1.5,
     7.25,
-    168.0
+    72.0
    ],
    "min": [
     -49.5,
@@ -4122,23 +4122,23 @@
    ],
    "max": [
     -48.0,
-    0.0,
+    -96.0,
     7.25
    ],
-   "volume_in3": 1827.0,
-   "mass_kg": 17.073
+   "volume_in3": 783.0,
+   "mass_kg": 7.317
   },
   {
    "component": "Bed C - 14 ft",
    "path": "Bed Lumber:1+Bed C - 14 ft:1",
-   "body": "Side board 168 in (1)",
+   "body": "Side board 72 in (1)",
    "visible": true,
    "material": "Pine",
    "appearance": "Pine",
    "dims_in": [
     1.5,
     7.25,
-    168.0
+    72.0
    ],
    "min": [
     -99.0,
@@ -4147,11 +4147,11 @@
    ],
    "max": [
     -97.5,
-    0.0,
+    -96.0,
     7.25
    ],
-   "volume_in3": 1827.0,
-   "mass_kg": 17.073
+   "volume_in3": 783.0,
+   "mass_kg": 7.317
   },
   {
    "component": "Bed C - 14 ft",
@@ -4206,14 +4206,14 @@
   {
    "component": "Bed C - 14 ft",
    "path": "Bed Lumber:1+Bed C - 14 ft:1",
-   "body": "Side board 168 in (2)",
+   "body": "Side board 96 in (2)",
    "visible": true,
    "material": "Pine",
    "appearance": "Pine",
    "dims_in": [
     1.5,
     7.25,
-    168.0
+    96.0
    ],
    "min": [
     -49.5,
@@ -4222,23 +4222,23 @@
    ],
    "max": [
     -48.0,
-    0.0,
+    -72.0,
     14.5
    ],
-   "volume_in3": 1827.0,
-   "mass_kg": 17.073
+   "volume_in3": 1044.0,
+   "mass_kg": 9.756
   },
   {
    "component": "Bed C - 14 ft",
    "path": "Bed Lumber:1+Bed C - 14 ft:1",
-   "body": "Side board 168 in (1) (1)",
+   "body": "Side board 96 in (3)",
    "visible": true,
    "material": "Pine",
    "appearance": "Pine",
    "dims_in": [
     1.5,
     7.25,
-    168.0
+    96.0
    ],
    "min": [
     -99.0,
@@ -4247,11 +4247,11 @@
    ],
    "max": [
     -97.5,
-    0.0,
+    -72.0,
     14.5
    ],
-   "volume_in3": 1827.0,
-   "mass_kg": 17.073
+   "volume_in3": 1044.0,
+   "mass_kg": 9.756
   },
   {
    "component": "Bed C - 14 ft",
@@ -4406,31 +4406,6 @@
   {
    "component": "Bed C - 14 ft",
    "path": "Bed Lumber:1+Bed C - 14 ft:1",
-   "body": "2x4 mid post",
-   "visible": true,
-   "material": "Pine",
-   "appearance": "Pine",
-   "dims_in": [
-    1.5,
-    3.5,
-    24.0
-   ],
-   "min": [
-    -97.5,
-    -85.75,
-    -9.5
-   ],
-   "max": [
-    -96.0,
-    -82.25,
-    14.5
-   ],
-   "volume_in3": 126.0,
-   "mass_kg": 1.1775
-  },
-  {
-   "component": "Bed C - 14 ft",
-   "path": "Bed Lumber:1+Bed C - 14 ft:1",
    "body": "2x4 mid post (1)",
    "visible": true,
    "material": "Pine",
@@ -4442,12 +4417,12 @@
    ],
    "min": [
     -97.5,
-    -45.375,
+    -39.375,
     -9.5
    ],
    "max": [
     -96.0,
-    -41.875,
+    -35.875,
     14.5
    ],
    "volume_in3": 126.0,
@@ -4467,37 +4442,12 @@
    ],
    "min": [
     -51.0,
-    -126.125,
+    -132.125,
     -9.5
    ],
    "max": [
     -49.5,
-    -122.625,
-    14.5
-   ],
-   "volume_in3": 126.0,
-   "mass_kg": 1.1775
-  },
-  {
-   "component": "Bed C - 14 ft",
-   "path": "Bed Lumber:1+Bed C - 14 ft:1",
-   "body": "2x4 mid post (3)",
-   "visible": true,
-   "material": "Pine",
-   "appearance": "Pine",
-   "dims_in": [
-    1.5,
-    3.5,
-    24.0
-   ],
-   "min": [
-    -51.0,
-    -85.75,
-    -9.5
-   ],
-   "max": [
-    -49.5,
-    -82.25,
+    -128.625,
     14.5
    ],
    "volume_in3": 126.0,
@@ -4517,12 +4467,12 @@
    ],
    "min": [
     -51.0,
-    -45.375,
+    -39.375,
     -9.5
    ],
    "max": [
     -49.5,
-    -41.875,
+    -35.875,
     14.5
    ],
    "volume_in3": 126.0,
@@ -4542,28 +4492,228 @@
    ],
    "min": [
     -97.5,
-    -126.125,
+    -132.125,
     -9.5
    ],
    "max": [
     -96.0,
-    -122.625,
+    -128.625,
     14.5
    ],
    "volume_in3": 126.0,
    "mass_kg": 1.1775
   },
   {
-   "component": "Bed D - 16 ft x 2 ft",
-   "path": "Bed Lumber:1+Bed D - 16 ft x 2 ft:1",
-   "body": "Side board 192 in",
+   "component": "Bed C - 14 ft",
+   "path": "Bed Lumber:1+Bed C - 14 ft:1",
+   "body": "Side board 96 in",
    "visible": true,
    "material": "Pine",
    "appearance": "Pine",
    "dims_in": [
     1.5,
     7.25,
-    192.0
+    96.0
+   ],
+   "min": [
+    -49.5,
+    -96.0,
+    0.0
+   ],
+   "max": [
+    -48.0,
+    0.0,
+    7.25
+   ],
+   "volume_in3": 1044.0,
+   "mass_kg": 9.756
+  },
+  {
+   "component": "Bed C - 14 ft",
+   "path": "Bed Lumber:1+Bed C - 14 ft:1",
+   "body": "Side board 96 in (1)",
+   "visible": true,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    1.5,
+    7.25,
+    96.0
+   ],
+   "min": [
+    -99.0,
+    -96.0,
+    0.0
+   ],
+   "max": [
+    -97.5,
+    0.0,
+    7.25
+   ],
+   "volume_in3": 1044.0,
+   "mass_kg": 9.756
+  },
+  {
+   "component": "Bed C - 14 ft",
+   "path": "Bed Lumber:1+Bed C - 14 ft:1",
+   "body": "Side board 72 in (2)",
+   "visible": true,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    1.5,
+    7.25,
+    72.0
+   ],
+   "min": [
+    -49.5,
+    -72.0,
+    7.25
+   ],
+   "max": [
+    -48.0,
+    0.0,
+    14.5
+   ],
+   "volume_in3": 783.0,
+   "mass_kg": 7.317
+  },
+  {
+   "component": "Bed C - 14 ft",
+   "path": "Bed Lumber:1+Bed C - 14 ft:1",
+   "body": "Side board 72 in (3)",
+   "visible": true,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    1.5,
+    7.25,
+    72.0
+   ],
+   "min": [
+    -99.0,
+    -72.0,
+    7.25
+   ],
+   "max": [
+    -97.5,
+    0.0,
+    14.5
+   ],
+   "volume_in3": 783.0,
+   "mass_kg": 7.317
+  },
+  {
+   "component": "Bed C - 14 ft",
+   "path": "Bed Lumber:1+Bed C - 14 ft:1",
+   "body": "2x8 joint post",
+   "visible": true,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    1.5,
+    7.25,
+    24.0
+   ],
+   "min": [
+    -51.0,
+    -99.625,
+    -9.5
+   ],
+   "max": [
+    -49.5,
+    -92.375,
+    14.5
+   ],
+   "volume_in3": 261.0,
+   "mass_kg": 2.439
+  },
+  {
+   "component": "Bed C - 14 ft",
+   "path": "Bed Lumber:1+Bed C - 14 ft:1",
+   "body": "2x8 joint post (1)",
+   "visible": true,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    1.5,
+    7.25,
+    24.0
+   ],
+   "min": [
+    -97.5,
+    -75.625,
+    -9.5
+   ],
+   "max": [
+    -96.0,
+    -68.375,
+    14.5
+   ],
+   "volume_in3": 261.0,
+   "mass_kg": 2.439
+  },
+  {
+   "component": "Bed C - 14 ft",
+   "path": "Bed Lumber:1+Bed C - 14 ft:1",
+   "body": "2x8 joint post (2)",
+   "visible": true,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    1.5,
+    7.25,
+    24.0
+   ],
+   "min": [
+    -51.0,
+    -75.625,
+    -9.5
+   ],
+   "max": [
+    -49.5,
+    -68.375,
+    14.5
+   ],
+   "volume_in3": 261.0,
+   "mass_kg": 2.439
+  },
+  {
+   "component": "Bed C - 14 ft",
+   "path": "Bed Lumber:1+Bed C - 14 ft:1",
+   "body": "2x8 joint post (3)",
+   "visible": true,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    1.5,
+    7.25,
+    24.0
+   ],
+   "min": [
+    -97.5,
+    -99.625,
+    -9.5
+   ],
+   "max": [
+    -96.0,
+    -92.375,
+    14.5
+   ],
+   "volume_in3": 261.0,
+   "mass_kg": 2.439
+  },
+  {
+   "component": "Bed D - 16 ft x 2 ft",
+   "path": "Bed Lumber:1+Bed D - 16 ft x 2 ft:1",
+   "body": "Side board 96 in",
+   "visible": true,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    1.5,
+    7.25,
+    96.0
    ],
    "min": [
     -1.5,
@@ -4572,23 +4722,23 @@
    ],
    "max": [
     0.0,
-    0.0,
+    -96.0,
     7.25
    ],
-   "volume_in3": 2088.0,
-   "mass_kg": 19.512
+   "volume_in3": 1044.0,
+   "mass_kg": 9.756
   },
   {
    "component": "Bed D - 16 ft x 2 ft",
    "path": "Bed Lumber:1+Bed D - 16 ft x 2 ft:1",
-   "body": "Side board 192 in (1)",
+   "body": "Side board 96 in (1)",
    "visible": true,
    "material": "Pine",
    "appearance": "Pine",
    "dims_in": [
     1.5,
     7.25,
-    192.0
+    96.0
    ],
    "min": [
     -24.0,
@@ -4597,11 +4747,11 @@
    ],
    "max": [
     -22.5,
-    0.0,
+    -96.0,
     7.25
    ],
-   "volume_in3": 2088.0,
-   "mass_kg": 19.512
+   "volume_in3": 1044.0,
+   "mass_kg": 9.756
   },
   {
    "component": "Bed D - 16 ft x 2 ft",
@@ -4656,14 +4806,14 @@
   {
    "component": "Bed D - 16 ft x 2 ft",
    "path": "Bed Lumber:1+Bed D - 16 ft x 2 ft:1",
-   "body": "Side board 192 in (2)",
+   "body": "Side board 96 in (4)",
    "visible": true,
    "material": "Pine",
    "appearance": "Pine",
    "dims_in": [
     1.5,
     7.25,
-    192.0
+    96.0
    ],
    "min": [
     -1.5,
@@ -4672,23 +4822,23 @@
    ],
    "max": [
     0.0,
-    0.0,
+    -96.0,
     14.5
    ],
-   "volume_in3": 2088.0,
-   "mass_kg": 19.512
+   "volume_in3": 1044.0,
+   "mass_kg": 9.756
   },
   {
    "component": "Bed D - 16 ft x 2 ft",
    "path": "Bed Lumber:1+Bed D - 16 ft x 2 ft:1",
-   "body": "Side board 192 in (1) (1)",
+   "body": "Side board 96 in (5)",
    "visible": true,
    "material": "Pine",
    "appearance": "Pine",
    "dims_in": [
     1.5,
     7.25,
-    192.0
+    96.0
    ],
    "min": [
     -24.0,
@@ -4697,11 +4847,11 @@
    ],
    "max": [
     -22.5,
-    0.0,
+    -96.0,
     14.5
    ],
-   "volume_in3": 2088.0,
-   "mass_kg": 19.512
+   "volume_in3": 1044.0,
+   "mass_kg": 9.756
   },
   {
    "component": "Bed D - 16 ft x 2 ft",
@@ -4856,31 +5006,6 @@
   {
    "component": "Bed D - 16 ft x 2 ft",
    "path": "Bed Lumber:1+Bed D - 16 ft x 2 ft:1",
-   "body": "2x4 mid post",
-   "visible": true,
-   "material": "Pine",
-   "appearance": "Pine",
-   "dims_in": [
-    1.5,
-    3.5,
-    24.0
-   ],
-   "min": [
-    -22.5,
-    -97.75,
-    -9.5
-   ],
-   "max": [
-    -21.0,
-    -94.25,
-    14.5
-   ],
-   "volume_in3": 126.0,
-   "mass_kg": 1.1775
-  },
-  {
-   "component": "Bed D - 16 ft x 2 ft",
-   "path": "Bed Lumber:1+Bed D - 16 ft x 2 ft:1",
    "body": "2x4 mid post (1)",
    "visible": true,
    "material": "Pine",
@@ -4923,31 +5048,6 @@
    "max": [
     -1.5,
     -140.625,
-    14.5
-   ],
-   "volume_in3": 126.0,
-   "mass_kg": 1.1775
-  },
-  {
-   "component": "Bed D - 16 ft x 2 ft",
-   "path": "Bed Lumber:1+Bed D - 16 ft x 2 ft:1",
-   "body": "2x4 mid post (3)",
-   "visible": true,
-   "material": "Pine",
-   "appearance": "Pine",
-   "dims_in": [
-    1.5,
-    3.5,
-    24.0
-   ],
-   "min": [
-    -3.0,
-    -97.75,
-    -9.5
-   ],
-   "max": [
-    -1.5,
-    -94.25,
     14.5
    ],
    "volume_in3": 126.0,
@@ -5002,6 +5102,156 @@
    ],
    "volume_in3": 126.0,
    "mass_kg": 1.1775
+  },
+  {
+   "component": "Bed D - 16 ft x 2 ft",
+   "path": "Bed Lumber:1+Bed D - 16 ft x 2 ft:1",
+   "body": "Side board 96 in (2)",
+   "visible": true,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    1.5,
+    7.25,
+    96.0
+   ],
+   "min": [
+    -1.5,
+    -96.0,
+    0.0
+   ],
+   "max": [
+    0.0,
+    0.0,
+    7.25
+   ],
+   "volume_in3": 1044.0,
+   "mass_kg": 9.756
+  },
+  {
+   "component": "Bed D - 16 ft x 2 ft",
+   "path": "Bed Lumber:1+Bed D - 16 ft x 2 ft:1",
+   "body": "Side board 96 in (3)",
+   "visible": true,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    1.5,
+    7.25,
+    96.0
+   ],
+   "min": [
+    -24.0,
+    -96.0,
+    0.0
+   ],
+   "max": [
+    -22.5,
+    0.0,
+    7.25
+   ],
+   "volume_in3": 1044.0,
+   "mass_kg": 9.756
+  },
+  {
+   "component": "Bed D - 16 ft x 2 ft",
+   "path": "Bed Lumber:1+Bed D - 16 ft x 2 ft:1",
+   "body": "Side board 96 in (6)",
+   "visible": true,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    1.5,
+    7.25,
+    96.0
+   ],
+   "min": [
+    -1.5,
+    -96.0,
+    7.25
+   ],
+   "max": [
+    0.0,
+    0.0,
+    14.5
+   ],
+   "volume_in3": 1044.0,
+   "mass_kg": 9.756
+  },
+  {
+   "component": "Bed D - 16 ft x 2 ft",
+   "path": "Bed Lumber:1+Bed D - 16 ft x 2 ft:1",
+   "body": "Side board 96 in (7)",
+   "visible": true,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    1.5,
+    7.25,
+    96.0
+   ],
+   "min": [
+    -24.0,
+    -96.0,
+    7.25
+   ],
+   "max": [
+    -22.5,
+    0.0,
+    14.5
+   ],
+   "volume_in3": 1044.0,
+   "mass_kg": 9.756
+  },
+  {
+   "component": "Bed D - 16 ft x 2 ft",
+   "path": "Bed Lumber:1+Bed D - 16 ft x 2 ft:1",
+   "body": "2x8 joint post",
+   "visible": true,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    1.5,
+    7.25,
+    24.0
+   ],
+   "min": [
+    -3.0,
+    -99.625,
+    -9.5
+   ],
+   "max": [
+    -1.5,
+    -92.375,
+    14.5
+   ],
+   "volume_in3": 261.0,
+   "mass_kg": 2.439
+  },
+  {
+   "component": "Bed D - 16 ft x 2 ft",
+   "path": "Bed Lumber:1+Bed D - 16 ft x 2 ft:1",
+   "body": "2x8 joint post (1)",
+   "visible": true,
+   "material": "Pine",
+   "appearance": "Pine",
+   "dims_in": [
+    1.5,
+    7.25,
+    24.0
+   ],
+   "min": [
+    -22.5,
+    -99.625,
+    -9.5
+   ],
+   "max": [
+    -21.0,
+    -92.375,
+    14.5
+   ],
+   "volume_in3": 261.0,
+   "mass_kg": 2.439
   },
   {
    "component": "Hoop",
@@ -6892,26 +7142,26 @@
   ]
  ],
  "materials": {
+  "PVC-Piping": {
+   "density_kg_m3": 1400.0
+  },
+  "Pine": {
+   "density_kg_m3": 570.2572828
+  },
   "Concrete (paver)": {
    "density_kg_m3": 2300.0
   },
   "Steel, Galvanized": {
    "density_kg_m3": 7850.0
   },
-  "Iron, Wrought": {
-   "density_kg_m3": 7849.04686959
-  },
-  "Pine": {
-   "density_kg_m3": 570.2572828
+  "Steel": {
+   "density_kg_m3": 7850.0
   },
   "Stone": {
    "density_kg_m3": 2700.0
   },
-  "Steel": {
-   "density_kg_m3": 7850.0
-  },
-  "PVC-Piping": {
-   "density_kg_m3": 1400.0
+  "Iron, Wrought": {
+   "density_kg_m3": 7849.04686959
   }
  }
 }

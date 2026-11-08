@@ -11,7 +11,8 @@ pavers, soil, arch, hoops and drip parts in the BOM are counted from an extract 
 
 | Path | What it is |
 |---|---|
-| `scripts/fusion_build_bed_lumber.py` | Builds the bed lumber (boards, corner posts, mid-span stakes, trellis posts, arch sills and stakes) in Fusion from the massing bodies and the user parameters. |
+| `scripts/fusion_build_bed_lumber.py` | Builds the bed lumber (boards, corner posts, mid-span stakes, trellis posts, arch sills and stakes, and the two-board side walls of beds C and D with their 2x8 joint posts) in Fusion from the massing bodies and the user parameters. |
+| `scripts/fusion_split_sides.py` | The in-place edit applied to the live model on 2026-11-08: splits the side boards of beds C and D into two 8 ft pieces per course, adds the 2x8 joint posts behind the seams and re-spaces the 2x4 mid posts. |
 | `scripts/fusion_build_irrigation.py` | Builds the drip risers, cuts the hole in each far end wall, and draws the reference main. Re-runnable; constants at the top. |
 | `scripts/fusion_extract_model.py` | Run inside Fusion (read-only): dumps every body to `data/model_extract.json`. |
 | `scripts/make_bom.py` | Turns the extract into `BOM.md`, `BOM.csv`, `BOM-by-bed.csv` and `bom.html` (plan, elevations, details, drip drawings, and a materials checklist for each bed whose ticks are kept in the browser). Lumber is listed as store-length sticks to buy, with store prices and a cut diagram for every stick; the prices and stocked lengths are the `STOCK_PRICES` table at the top of the script. |

@@ -1,15 +1,15 @@
 Bed,Group,Item,Qty,Unit,Spec,Source,Notes
 A,Lumber,2x8 x 8 ft,2,ea,"$14.78 each, $29.56",Store price,Each: 2 end boards x 47 15/16 in (no offcut)
 A,Lumber,2x8 x 10 ft,4,ea,"$18.88 each, $75.52",Store price,"Side board, whole"
-A,Lumber,2x4 x 6 ft,1,ea,"$5.28 each, $5.28",Store price,3 mid-span posts x 23 7/8 in (no offcut)
-A,Lumber,2x4 x 8 ft,3,ea,"$7.08 each, $21.24",Store price,"One each: 3 corner posts x 14 1/2 in + 1 mid-span post x 24 in + 1 arch stake x 24 in (4 in offcut); trellis post, whole; 1 arch sill x 60 1/2 in + 1 arch stake x 24 in (11 3/8 in offcut)"
+A,Lumber,2x4 x 6 ft,1,ea,"$5.28 each, $5.28",Store price,2 mid-span posts x 23 7/8 in + 1 arch stake x 23 7/8 in (no offcut)
+A,Lumber,2x4 x 8 ft,3,ea,"$7.08 each, $21.24",Store price,"One each: 3 corner posts x 14 1/2 in + 2 mid-span posts x 24 in (4 in offcut); trellis post, whole; 1 arch sill x 60 1/2 in + 1 arch stake x 24 in (11 3/8 in offcut)"
 A,Cuts,Side board,4,ea,"2x8 x 10 ft, whole board",Model (Bed Lumber),"2 per course, outside"
 A,Cuts,End board,4,ea,"2x8, cut 47 15/16 in",Model (Bed Lumber),"4 from 2 x 8 ft, between the side boards; a hair under 48 so two clear the kerf"
 A,Cuts,2x4 corner post,3,ea,"2x4, cut 14 1/2 in (18.5 in with 2x10 walls)",Model (Bed Lumber),"Inside each corner, edge-on to the side boards, standing on grade; 3 from 1 x 8 ft"
-A,Cuts,2x4 mid-span post,4,ea,"2x4, cut 23 7/8 or 24 in",Model (Bed Lumber),"Flat against the side boards, centred 41, 79 in from the near end, about 9 1/2 in in the ground; 1 from 1 x 8 ft, 3 from 1 x 6 ft"
+A,Cuts,2x4 mid-span post,4,ea,"2x4, cut 23 7/8 or 24 in",Model (Bed Lumber),"Flat against the side boards, centred 41, 79 in from the near end, about 9 1/2 in in the ground; 2 from 1 x 8 ft, 2 from 1 x 6 ft"
 A,Cuts,2x4 trellis post,1,ea,"2x4 x 8 ft, uncut",Model (Bed Lumber),"East corner at the near end; in place of a corner post, set 20 in deep, 76 in above grade; holds the arch near its crown"
 A,Cuts,2x4 arch sill,1,ea,"2x4, cut 60 1/2 in",Model (Bed Lumber),"Flat on grade along the bed centreline, 3 to 63.5 in from the near end; the arch foot sits on it; 1 from 1 x 8 ft"
-A,Cuts,2x4 arch stake,2,ea,"2x4, cut 24 in",Model (Bed Lumber),"One at each end of the sill, 10.5 in in the ground, 13.5 in above grade; 2 from 2 x 8 ft"
+A,Cuts,2x4 arch stake,2,ea,"2x4, cut 23 7/8 or 24 in",Model (Bed Lumber),"One at each end of the sill, 10.5 in in the ground, 13.5 in above grade; 1 from 1 x 8 ft, 1 from 1 x 6 ft"
 A,Fasteners,#9 x 3 in exterior structural screws,36,ea,"Star drive; coated for treated lumber, stainless 305/316 for cedar or redwood",Derived from model,16 side boards into the corner post edges + 16 corner ties into end grain + 4 arch stakes into the sill ends
 A,Fasteners,#9 x 2.5 in exterior structural screws,32,ea,Same finish as the 3 in screws,Derived from model,16 side boards into the mid-span post faces + 16 end boards into the corner post faces
 A,Fasteners,#9 x 1.25 in exterior screws,10,ea,"Same finish, each through a fender washer",Derived from model,"Hog-wire panel to the trellis post (2), the stakes (2 each) and the sill (4)"
@@ -28,15 +28,15 @@ A,Soil,Raised-bed soil mix,46.5,cu ft,1.72 cu yd at 14.5 in deep,Derived from mo
 A,Optional,"Hardware cloth 1/2 in, 48 in wide (under the bed)",11,lin ft,Gopher / vole barrier,Estimate,Not in model; one strip the length of the bed plus a foot
 B,Lumber,2x8 x 8 ft,2,ea,"$14.78 each, $29.56",Store price,Each: 2 end boards x 47 15/16 in (no offcut)
 B,Lumber,2x8 x 12 ft,4,ea,"$22.68 each, $90.72",Store price,"Side board, whole"
-B,Lumber,2x4 x 6 ft,1,ea,"$5.28 each, $5.28",Store price,3 mid-span posts x 23 7/8 in (no offcut)
-B,Lumber,2x4 x 8 ft,3,ea,"$7.08 each, $21.24",Store price,"One each: 3 corner posts x 14 1/2 in + 1 mid-span post x 24 in + 1 arch stake x 24 in (4 in offcut); trellis post, whole; 1 arch sill x 60 1/2 in + 1 arch stake x 24 in (11 3/8 in offcut)"
+B,Lumber,2x4 x 6 ft,1,ea,"$5.28 each, $5.28",Store price,2 mid-span posts x 23 7/8 in + 1 arch stake x 23 7/8 in (no offcut)
+B,Lumber,2x4 x 8 ft,3,ea,"$7.08 each, $21.24",Store price,"One each: 3 corner posts x 14 1/2 in + 2 mid-span posts x 24 in (4 in offcut); trellis post, whole; 1 arch sill x 60 1/2 in + 1 arch stake x 24 in (11 3/8 in offcut)"
 B,Cuts,Side board,4,ea,"2x8 x 12 ft, whole board",Model (Bed Lumber),"2 per course, outside"
 B,Cuts,End board,4,ea,"2x8, cut 47 15/16 in",Model (Bed Lumber),"4 from 2 x 8 ft, between the side boards; a hair under 48 so two clear the kerf"
 B,Cuts,2x4 corner post,3,ea,"2x4, cut 14 1/2 in (18.5 in with 2x10 walls)",Model (Bed Lumber),"Inside each corner, edge-on to the side boards, standing on grade; 3 from 1 x 8 ft"
-B,Cuts,2x4 mid-span post,4,ea,"2x4, cut 23 7/8 or 24 in",Model (Bed Lumber),"Flat against the side boards, centred 49, 95 in from the near end, about 9 1/2 in in the ground; 1 from 1 x 8 ft, 3 from 1 x 6 ft"
+B,Cuts,2x4 mid-span post,4,ea,"2x4, cut 23 7/8 or 24 in",Model (Bed Lumber),"Flat against the side boards, centred 49, 95 in from the near end, about 9 1/2 in in the ground; 2 from 1 x 8 ft, 2 from 1 x 6 ft"
 B,Cuts,2x4 trellis post,1,ea,"2x4 x 8 ft, uncut",Model (Bed Lumber),"West corner at the near end; in place of a corner post, set 20 in deep, 76 in above grade; holds the arch near its crown"
 B,Cuts,2x4 arch sill,1,ea,"2x4, cut 60 1/2 in",Model (Bed Lumber),"Flat on grade along the bed centreline, 3 to 63.5 in from the near end; the arch foot sits on it; 1 from 1 x 8 ft"
-B,Cuts,2x4 arch stake,2,ea,"2x4, cut 24 in",Model (Bed Lumber),"One at each end of the sill, 10.5 in in the ground, 13.5 in above grade; 2 from 2 x 8 ft"
+B,Cuts,2x4 arch stake,2,ea,"2x4, cut 23 7/8 or 24 in",Model (Bed Lumber),"One at each end of the sill, 10.5 in in the ground, 13.5 in above grade; 1 from 1 x 8 ft, 1 from 1 x 6 ft"
 B,Fasteners,#9 x 3 in exterior structural screws,36,ea,"Star drive; coated for treated lumber, stainless 305/316 for cedar or redwood",Derived from model,16 side boards into the corner post edges + 16 corner ties into end grain + 4 arch stakes into the sill ends
 B,Fasteners,#9 x 2.5 in exterior structural screws,32,ea,Same finish as the 3 in screws,Derived from model,16 side boards into the mid-span post faces + 16 end boards into the corner post faces
 B,Fasteners,#9 x 1.25 in exterior screws,10,ea,"Same finish, each through a fender washer",Derived from model,"Hog-wire panel to the trellis post (2), the stakes (2 each) and the sill (4)"
@@ -53,15 +53,17 @@ B,Drip riser,#8 x 1 in exterior pan-head screws,4,ea,Same finish as the bed scre
 B,Drip riser,1 in hole through the top far end board,1,ea,"Spade bit, centred 10 7/8 in above grade and 9 in from the bed's west outside face",Model (Drip Irrigation),The through-wall pipe passes it; bore it in place or before the top board goes on
 B,Soil,Raised-bed soil mix,56.2,cu ft,2.08 cu yd at 14.5 in deep,Derived from model,2x10 walls: 71.8 cu ft (2.66 cu yd)
 B,Optional,"Hardware cloth 1/2 in, 48 in wide (under the bed)",13,lin ft,Gopher / vole barrier,Estimate,Not in model; one strip the length of the bed plus a foot
-C,Lumber,2x8 x 8 ft,2,ea,"$14.78 each, $29.56",Store price,Each: 2 end boards x 47 15/16 in (no offcut)
-C,Lumber,2x8 x 16 ft,4,ea,"$30.68 each, $122.72",Store price,Each: 1 side board x 168 in (24 in offcut)
-C,Lumber,2x4 x 6 ft,3,ea,"$5.28 each, $15.84",Store price,1 x 4 corner posts x 14 1/2 in (13 5/8 in offcut); 2 x 3 mid-span posts x 23 7/8 in (no offcut)
-C,Cuts,Side board,4,ea,"2x8, cut 168 in from a 16 ft board (24 in left; no 14 ft stock)",Model (Bed Lumber),"2 per course, outside"
+C,Lumber,2x8 x 8 ft,10,ea,"$14.78 each, $147.80",Store price,"4 x side board, whole; 4 x 1 side board x 72 in + 1 joint post x 23 7/8 in (no offcut); 2 x 2 end boards x 47 15/16 in (no offcut)"
+C,Lumber,2x4 x 6 ft,1,ea,"$5.28 each, $5.28",Store price,3 corner posts x 14 1/2 in + 1 mid-span post x 24 in (4 1/8 in offcut)
+C,Lumber,2x4 x 8 ft,1,ea,"$7.08 each, $7.08",Store price,1 corner post x 14 1/2 in + 3 mid-span posts x 24 in (9 1/8 in offcut)
+C,Cuts,"Side board, 96 in",4,ea,"2x8 x 8 ft, whole board",Model (Bed Lumber),"Outside, both walls: course 1 near end, course 2 far end; the seams meet over the joint posts"
+C,Cuts,"Side board, 72 in",4,ea,"2x8, cut 72 in from a 8 ft board; the 23 7/8 in offcut is a joint post",Model (Bed Lumber),"Outside, both walls: course 1 far end, course 2 near end; the seams meet over the joint posts"
 C,Cuts,End board,4,ea,"2x8, cut 47 15/16 in",Model (Bed Lumber),"4 from 2 x 8 ft, between the side boards; a hair under 48 so two clear the kerf"
-C,Cuts,2x4 corner post,4,ea,"2x4, cut 14 1/2 in (18.5 in with 2x10 walls)",Model (Bed Lumber),"Inside each corner, edge-on to the side boards, standing on grade; 4 from 1 x 6 ft"
-C,Cuts,2x4 mid-span post,6,ea,"2x4, cut 23 7/8 in",Model (Bed Lumber),"Flat against the side boards, centred 44, 84, 124 in from the near end, about 9 1/2 in in the ground; 6 from 2 x 6 ft"
+C,Cuts,2x4 corner post,4,ea,"2x4, cut 14 1/2 in (18.5 in with 2x10 walls)",Model (Bed Lumber),"Inside each corner, edge-on to the side boards, standing on grade; 1 from 1 x 8 ft, 3 from 1 x 6 ft"
+C,Cuts,2x4 mid-span post,4,ea,"2x4, cut 24 in",Model (Bed Lumber),"Flat against the side boards, centred 38, 130 in from the near end, about 9 1/2 in in the ground; 3 from 1 x 8 ft, 1 from 1 x 6 ft"
+C,Cuts,2x8 joint post,4,ea,"2x8, cut 23 7/8 in, lying flat",Model (Bed Lumber),"Inside the wall behind each seam, 7 1/4 in face against the boards, centred 72, 96 in from the near end, about 9 1/2 in in the ground; 4 from 4 x 8 ft"
 C,Fasteners,#9 x 3 in exterior structural screws,32,ea,"Star drive; coated for treated lumber, stainless 305/316 for cedar or redwood",Derived from model,16 side boards into the corner post edges + 16 corner ties into end grain
-C,Fasteners,#9 x 2.5 in exterior structural screws,40,ea,Same finish as the 3 in screws,Derived from model,24 side boards into the mid-span post faces + 16 end boards into the corner post faces
+C,Fasteners,#9 x 2.5 in exterior structural screws,56,ea,Same finish as the 3 in screws,Derived from model,16 side boards into the mid-span post faces + 16 end boards into the corner post faces + 24 side boards into the joint post faces
 C,Hoops,"Low-tunnel hoop, 1 in tube, 40 in wide x 57 in tall",6,ea,"136 in of tube each (11.4 ft), 68 ft in all",Model (Garden Hoops),"31 in pitch, the first and last 5 in inside the end boards; 36 in legs pushed through the soil to grade"
 C,Drip riser,"3/4 x 3/4 x 1/2 in PVC reducer tee, slip",1,ea,Schedule 40,Model (Drip Irrigation),"On the 3/4 in main, 8 in beyond the far end board, 6 1/8 in deep"
 C,Drip riser,"1/2 in PVC pipe, schedule 40",5,pieces,"Cut 6 1/4, 9, 6, 3 1/2, 4 in (28 3/4 in in all)",Model (Drip Irrigation),"Ground run, lower riser, upper riser, through the wall, head; cut from the 1 x 10 ft stick on the shopping list, shared by all 4 beds"
@@ -72,17 +74,19 @@ C,Drip riser,"1/2 in PVC male adapter, slip x MPT",1,ea,Threads the head onto th
 C,Drip riser,1/2 in stand-off pipe clamp,2,ea,Galvanized or UV-stable plastic,Model (Drip Irrigation),"At 1 1/2 and 8 3/4 in above grade, one on each board"
 C,Drip riser,#8 x 1 in exterior pan-head screws,4,ea,Same finish as the bed screws,Derived from model,Two per clamp
 C,Drip riser,1 in hole through the top far end board,1,ea,"Spade bit, centred 10 7/8 in above grade and 9 in from the bed's west outside face",Model (Drip Irrigation),The through-wall pipe passes it; bore it in place or before the top board goes on
-C,Soil,Raised-bed soil mix,66.0,cu ft,2.45 cu yd at 14.5 in deep,Derived from model,2x10 walls: 84.4 cu ft (3.12 cu yd)
+C,Soil,Raised-bed soil mix,65.7,cu ft,2.43 cu yd at 14.5 in deep,Derived from model,2x10 walls: 84.1 cu ft (3.11 cu yd)
 C,Optional,"Hardware cloth 1/2 in, 48 in wide (under the bed)",15,lin ft,Gopher / vole barrier,Estimate,Not in model; one strip the length of the bed plus a foot
-D,Lumber,2x8 x 8 ft,1,ea,"$14.78 each, $14.78",Store price,4 end boards x 21 in (11 5/8 in offcut)
-D,Lumber,2x8 x 16 ft,4,ea,"$30.68 each, $122.72",Store price,"Side board, whole"
-D,Lumber,2x4 x 6 ft,3,ea,"$5.28 each, $15.84",Store price,1 x 4 corner posts x 14 1/2 in (13 5/8 in offcut); 2 x 3 mid-span posts x 23 7/8 in (no offcut)
-D,Cuts,Side board,4,ea,"2x8 x 16 ft, whole board",Model (Bed Lumber),"2 per course, outside"
-D,Cuts,End board,4,ea,"2x8, cut 21 in",Model (Bed Lumber),"4 from 1 x 8 ft, between the side boards"
-D,Cuts,2x4 corner post,4,ea,"2x4, cut 14 1/2 in (18.5 in with 2x10 walls)",Model (Bed Lumber),"Inside each corner, edge-on to the side boards, standing on grade; 4 from 1 x 6 ft"
-D,Cuts,2x4 mid-span post,6,ea,"2x4, cut 23 7/8 in",Model (Bed Lumber),"Flat against the side boards, centred 50, 96, 142 in from the near end, about 9 1/2 in in the ground; 6 from 2 x 6 ft"
+D,Lumber,2x8 x 8 ft,8,ea,"$14.78 each, $118.24",Store price,"Side board, whole"
+D,Lumber,2x8 x 12 ft,1,ea,"$22.68 each, $22.68",Store price,4 end boards x 21 in + 2 joint posts x 24 in (11 3/8 in offcut)
+D,Lumber,2x4 x 6 ft,1,ea,"$5.28 each, $5.28",Store price,3 corner posts x 14 1/2 in + 1 mid-span post x 24 in (4 1/8 in offcut)
+D,Lumber,2x4 x 8 ft,1,ea,"$7.08 each, $7.08",Store price,1 corner post x 14 1/2 in + 3 mid-span posts x 24 in (9 1/8 in offcut)
+D,Cuts,"Side board, 96 in",8,ea,"2x8 x 8 ft, whole board",Model (Bed Lumber),"Outside, both walls: every course, both ends; the seams meet over the joint posts"
+D,Cuts,End board,4,ea,"2x8, cut 21 in",Model (Bed Lumber),"4 from 1 x 12 ft, between the side boards"
+D,Cuts,2x4 corner post,4,ea,"2x4, cut 14 1/2 in (18.5 in with 2x10 walls)",Model (Bed Lumber),"Inside each corner, edge-on to the side boards, standing on grade; 1 from 1 x 8 ft, 3 from 1 x 6 ft"
+D,Cuts,2x4 mid-span post,4,ea,"2x4, cut 24 in",Model (Bed Lumber),"Flat against the side boards, centred 50, 142 in from the near end, about 9 1/2 in in the ground; 3 from 1 x 8 ft, 1 from 1 x 6 ft"
+D,Cuts,2x8 joint post,2,ea,"2x8, cut 24 in, lying flat",Model (Bed Lumber),"Inside the wall behind each seam, 7 1/4 in face against the boards, centred 96 in from the near end, about 9 1/2 in in the ground; 2 from 1 x 12 ft"
 D,Fasteners,#9 x 3 in exterior structural screws,32,ea,"Star drive; coated for treated lumber, stainless 305/316 for cedar or redwood",Derived from model,16 side boards into the corner post edges + 16 corner ties into end grain
-D,Fasteners,#9 x 2.5 in exterior structural screws,40,ea,Same finish as the 3 in screws,Derived from model,24 side boards into the mid-span post faces + 16 end boards into the corner post faces
+D,Fasteners,#9 x 2.5 in exterior structural screws,48,ea,Same finish as the 3 in screws,Derived from model,16 side boards into the mid-span post faces + 16 end boards into the corner post faces + 16 side boards into the joint post faces
 D,Drip riser,"3/4 x 3/4 x 1/2 in PVC reducer tee, slip",1,ea,Schedule 40,Model (Drip Irrigation),"On the 3/4 in main, 8 in beyond the far end board, 6 1/8 in deep"
 D,Drip riser,"1/2 in PVC pipe, schedule 40",5,pieces,"Cut 6 1/4, 9, 6, 3 1/2, 4 in (28 3/4 in in all)",Model (Drip Irrigation),"Ground run, lower riser, upper riser, through the wall, head; cut from the 1 x 10 ft stick on the shopping list, shared by all 4 beds"
 D,Drip riser,"1/2 in PVC 90 degree elbow, slip",3,ea,Schedule 40,Model (Drip Irrigation),At the bottom of the riser and on each side of the wall
@@ -92,5 +96,5 @@ D,Drip riser,"1/2 in PVC male adapter, slip x MPT",1,ea,Threads the head onto th
 D,Drip riser,1/2 in stand-off pipe clamp,2,ea,Galvanized or UV-stable plastic,Model (Drip Irrigation),"At 1 1/2 and 8 3/4 in above grade, one on each board"
 D,Drip riser,#8 x 1 in exterior pan-head screws,4,ea,Same finish as the bed screws,Derived from model,Two per clamp
 D,Drip riser,1 in hole through the top far end board,1,ea,"Spade bit, centred 10 7/8 in above grade and 9 in from the bed's west outside face",Model (Drip Irrigation),The through-wall pipe passes it; bore it in place or before the top board goes on
-D,Soil,Raised-bed soil mix,32.9,cu ft,1.22 cu yd at 14.5 in deep,Derived from model,2x10 walls: 42.1 cu ft (1.56 cu yd)
+D,Soil,Raised-bed soil mix,32.8,cu ft,1.21 cu yd at 14.5 in deep,Derived from model,2x10 walls: 42.0 cu ft (1.55 cu yd)
 D,Optional,"Hardware cloth 1/2 in, 48 in wide (under the bed)",17,lin ft,Gopher / vole barrier,Estimate,"Not in model; one strip the length of the bed plus a foot, trimmed to 21 in wide"

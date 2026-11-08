@@ -5,8 +5,9 @@ Used by make_bom.py for the buy lists. A *piece type* is a cut the design needs
 length the store sells, with a price. The solver enumerates every maximal way
 to cut one stick of each stock length (a pattern), then finds the cheapest set
 of patterns that covers every piece, by memoised search over the remaining
-demand. Demands here are small (a dozen pieces of a handful of types), so this
-is exact and instant.
+demand, always through a pattern that covers the first piece type still
+wanted. Demands here are small (a few dozen pieces of up to a dozen types), so
+this is exact and quick.
 
 Posts may be cut a little short of the model length when that lets one more
 fit on a stick: each piece type carries a ``min_len``. Boards are exact.
@@ -113,15 +114,18 @@ def solve(pieces, stock_prices, allow=None):
             lens, off = cut_lengths(L, counts, pieces)
             pats.append((L, stock_prices[L], counts, off))
     demand0 = tuple(p.qty for p in pieces)
+    # Every pattern in a solution covers some piece, so the solution can be ordered to start with a pattern that
+    # covers the first piece type still in demand: searching only those patterns at each step loses nothing and
+    # keeps the number of demand states small even when a dozen piece types are cut together.
+    pats_by_type = [[pat for pat in pats if pat[2][i]] for i in range(len(pieces))]
 
     @lru_cache(maxsize=None)
     def f(demand):
         if not any(demand):
             return (0.0, 0, 0, 0, 0.0, ())
         best = None
-        for L, price, counts, off in pats:
-            if not any(c and d for c, d in zip(counts, demand)):
-                continue
+        i0 = next(i for i, d in enumerate(demand) if d)
+        for L, price, counts, off in pats_by_type[i0]:
             nd = tuple(max(0, d - c) for d, c in zip(demand, counts))
             spare = sum(max(0, c - d) for d, c in zip(demand, counts))
             sub = f(nd)
