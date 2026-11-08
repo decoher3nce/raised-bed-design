@@ -615,11 +615,14 @@ else:
     hoop_paras = []
     hoops_model_note = '- No hoops are visible in the model.'
 DRIP_SAVED = True                    # the Fusion document was saved again on 2026-11-06 with the drip risers, the 3/4 in main and the end-board holes in it
-SPLIT_SAVED = False                  # the two-board sides of beds C and D (2026-11-08) are in the open document but not saved yet
+SPLIT_SAVED = True                   # the two-board sides of beds C and D were saved in the Fusion document on 2026-11-08
 saved_note = ('The Fusion document was saved on 2026-11-06 with the bed-centre arch, sills, stakes, the hoop assembly over Bed C and the drip risers in place.' if HOOPS_SAVED and DRIP_SAVED else
               'The Fusion document was saved on 2026-11-06 with the bed-centre arch, sills, stakes and the hoop assembly over Bed C in place; the drip risers, the 3/4 in main and the holes in the end boards came after that save and are not saved yet.' if HOOPS_SAVED else
               'The Fusion document was saved on 2026-11-06 with the bed-centre arch, sills and stakes in place; the hoop assembly and the drip risers came after that save and are not saved yet.')
-if split_beds and not SPLIT_SAVED:
+if split_beds and SPLIT_SAVED:
+    saved_note = (f'The Fusion document was saved on 2026-11-08 with the bed-centre arch, sills, stakes, the hoop assembly over Bed C, the drip risers '
+                  f'and the two-board side walls of {beds_text(split_beds)} with their {JOINT_NOM} joint posts in place.')
+elif split_beds:
     saved_note += f' The two-board side walls of {beds_text(split_beds)} with their {JOINT_NOM} joint posts (2026-11-08) came after that save and are not saved yet.'
 split_model_note = ((f'- 2026-11-08, two-board sides: the side walls of {beds_text(split_beds)} are now two boards per course ('
                      + '; '.join(f"Bed {r['letter']} {layout_txt(r)}" for r in bed_rows if r['side_seams'])
