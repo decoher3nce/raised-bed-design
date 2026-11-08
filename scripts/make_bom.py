@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate BOM.md, BOM.csv and bom.html from data/model_extract.json.
+"""Generate BOM.md, BOM.csv, BOM-by-bed.csv and bom.html from data/model_extract.json.
 
 The extract is written by scripts/fusion_extract_model.py from the Fusion
 design "Raised Bed Design". Everything with a quantity in the BOM is counted from
@@ -574,6 +574,88 @@ for b in bodies:
     mass_by_mat[b['material']] += (b['mass_kg'] or 0) * KG2LB
 MASSING = {'A': '4th Bed', 'B': '3rd Bed', 'C': '2nd Bed', 'D': '1st Bed'}
 
+# ------------------------------------------------------------------ materials by bed
+# One list per bed with everything that goes to that bed, built from the same counts as the shopping list.
+# A part shared by two beds (the arch panel) is listed under both; the 1/2 in drip pipe is cut from the sticks on the shopping list.
+BED_GROUPS = ['Lumber', 'Fasteners', 'Trellis arch', 'Hoops', 'Drip riser', 'Soil', 'Optional']
+
+
+def bed_items(r):
+    L = r['letter']
+    items = []
+
+    def add(group, key, item, qty, unit, spec, source, notes, qty_alt=None):
+        items.append({'group': group, 'key': f'{L.lower()}:{key}', 'item': item, 'qty': qty, 'unit': unit, 'spec': spec,
+                      'source': source, 'notes': notes, 'qty_alt': qty_alt})
+
+    per = int(STOCK_IN // r['E'])
+    mids = ', '.join(f'{c:.0f}' for c in r['post_centers'][1:-1])
+    add('Lumber', 'side-board', 'Side board', r['n_sides'], 'ea', f'{NOM} x {ft_in(r["L"])}, full length ({r["L"]:g} in)', 'Model (Bed Lumber)', '2 per course, outside; no cut')
+    add('Lumber', 'end-board', 'End board', r['n_ends'], 'ea', f'{NOM}, cut {r["E"]:g} in from 8 ft stock', 'Model (Bed Lumber)', f'{per} per 8 ft board, between the side boards')
+    add('Lumber', 'corner-post', f'{POST_NOM} corner post', 4 - r['n_tr_corner'], 'ea', f'{POST_NOM}, cut {r["H"]:g} in ({r["H_alt"]:g} in with {ALT_NOM} walls)', 'Model (Bed Lumber)',
+        'inside each corner, edge-on to the side boards, standing on grade')
+    add('Lumber', 'mid-post', f'{POST_NOM} mid-span post', r['n_mid_plain'], 'ea', f'{POST_NOM}, cut {frac(mid_cut)} in', 'Model (Bed Lumber)',
+        f'flat against the side boards, centred {mids} in from the near end; {frac(mid_embed_cut)} in in the ground')
+    if r['n_trellis']:
+        add('Lumber', 'trellis-post', f'{POST_NOM} trellis post', r['n_trellis'], 'ea', f'{POST_NOM} x {ft_in(TRELLIS_LEN)}' + (', uncut' if trellis_uncut else f', cut {TRELLIS_LEN:g} in'), 'Model (Bed Lumber)',
+            f"{'; '.join(r['trellis_where'])}; in place of a corner post, set {TRELLIS_EMBED:g} in deep, {TRELLIS_ABOVE:g} in above grade; holds the arch near its crown")
+    if r['n_sills']:
+        add('Lumber', 'sill', f'{POST_NOM} arch sill', r['n_sills'], 'ea', f'{POST_NOM}, cut {SILL_LEN:g} in', 'Model (Bed Lumber)',
+            f"flat on grade along the bed centreline, {-r['sills'][0]['max'][1]:g} to {-r['sills'][0]['min'][1]:g} in from the near end; the arch foot sits on it")
+        add('Lumber', 'stake', f'{POST_NOM} arch stake', r['n_stakes'], 'ea', f'{POST_NOM}, cut {frac(mid_cut)} in', 'Model (Bed Lumber)',
+            f'one at each end of the sill, {STAKE_EMBED:g} in in the ground, {STAKE_ABOVE:g} in above grade')
+    add('Fasteners', 'screw-3', '#9 x 3 in exterior structural screws', r['screws_3'], 'ea', 'star drive; coated for treated lumber, stainless 305/316 for cedar or redwood', 'Derived from model',
+        f"{r['corner_side_screws']} side boards into the corner post edges + {r['tie_screws']} corner ties into end grain" + (f" + {r['anchor_screws']} arch stakes into the sill ends" if r['anchor_screws'] else ''))
+    add('Fasteners', 'screw-25', '#9 x 2.5 in exterior structural screws', r['screws_25'], 'ea', 'same finish as the 3 in screws', 'Derived from model',
+        f"{r['mid_side_screws']} side boards into the mid-span post faces + {r['end_screws']} end boards into the corner post faces")
+    if r['screws_125']:
+        add('Fasteners', 'screw-125', f'{PANEL_SCREW} exterior screws', r['screws_125'], 'ea', 'same finish, each through a fender washer', 'Derived from model',
+            f'hog-wire panel to the trellis post ({PANEL_SCREWS_PER_POST}), the stakes ({PANEL_SCREWS_PER_STAKE} each) and the sill ({PANEL_SCREWS_PER_SILL})')
+        add('Fasteners', 'washer', '1/4 x 1 in galvanized fender washers', r['panel_screws'], 'ea', 'one under each panel screw', 'Derived from model', 'the washer beside a wire traps it against the wood')
+    for k, a in arch_comps.items():
+        if any(b['letter'] == L for b in a['beds']):
+            others = ' and '.join(f"Bed {b['letter']}" for b in a['beds'] if b['letter'] != L)
+            add('Trellis arch', 'panel-' + k.lower().replace(' ', '-'), f'Hog-wire / cattle panel, {HOGWIRE_LEN/12:g} ft, 4 x 4 in mesh ({k})', 1, 'ea', '4-gauge galvanized, 48 to 60 in wide', 'Model (Hogwire Arches)',
+                f'one panel bent from the centre of this bed to the centre of {others}; it is listed under both beds, buy one. {HOG_LEG:.0f} in straight legs, crown {a["crown"]:.0f} in above grade')
+    if n_hoops and hoop_bed_letter == L:
+        add('Hoops', 'hoop', f'Low-tunnel hoop, 1 in tube, {hoop_w - 1:.0f} in wide x {hoop_h:.0f} in tall', n_hoops, 'ea', f'{hoop_len:.0f} in of tube each ({hoop_len/12:.1f} ft), {hoop_tube_ft:.0f} ft in all', 'Model (Garden Hoops)',
+            f'{hoop_pitch:g} in pitch, the first and last {hoop_near_gap:g} in inside the end boards; {HOOP_LEG:g} in legs pushed through the soil to grade')
+    rb = next((x for x in risers if x['bed'] == L), None)
+    if rb:
+        cuts = ', '.join(frac(rb['pipes'][k]) for k in PIPE_ORDER if k in rb['pipes'])
+        add('Drip riser', 'tee', '3/4 x 3/4 x 1/2 in PVC reducer tee, slip', 1, 'ea', 'schedule 40', 'Model (Drip Irrigation)',
+            f"on the 3/4 in main, {frac(rb['main_offset'])} in beyond the far end board, {frac(rb['main_depth'])} in deep")
+        add('Drip riser', 'pipe', '1/2 in PVC pipe, schedule 40', len(rb['pipes']), 'pieces', f'cut {cuts} in ({frac(sum(rb["pipes"].values()))} in in all)', 'Model (Drip Irrigation)',
+            f"ground run, lower riser, upper riser, through the wall, head; cut from the {drip_sticks} x 10 ft stick{'s' if drip_sticks > 1 else ''} on the shopping list, shared by all {n_risers} beds")
+        add('Drip riser', 'elbow', '1/2 in PVC 90 degree elbow, slip', rb['n_elbows'], 'ea', 'schedule 40', 'Model (Drip Irrigation)', 'at the bottom of the riser and on each side of the wall')
+        add('Drip riser', 'valve', '1/2 in PVC ball valve, slip x slip', 1, 'ea', 'lever handle', 'Model (Drip Irrigation)',
+            f"{frac(rb['valve_z'])} in above grade on the outside of the far end wall, lever west along the wall")
+        add('Drip riser', 'head', '1/2 in FPT x 4-port 1/4 in barb drip manifold head', 1, 'ea', '', 'Model (Drip Irrigation)',
+            f"inside the bed, top {frac(rb['head_top'] - WALL_TOP)} in above the wall top")
+        add('Drip riser', 'adapter', '1/2 in PVC male adapter, slip x MPT', 1, 'ea', 'threads the head onto the riser', 'Derived from model', 'not modelled; a female adapter instead if your head is male')
+        add('Drip riser', 'clamp', '1/2 in stand-off pipe clamp', rb['n_clamps'], 'ea', 'galvanized or UV-stable plastic', 'Model (Drip Irrigation)',
+            f"at {frac(rb['clamps'][0])} and {frac(rb['clamps'][1])} in above grade, one on each board")
+        add('Drip riser', 'clamp-screw', '#8 x 1 in exterior pan-head screws', 2 * rb['n_clamps'], 'ea', 'same finish as the bed screws', 'Derived from model', 'two per clamp')
+        add('Drip riser', 'hole', f'{HOLE_DIA:g} in hole through the top far end board', 1, 'ea',
+            f"spade bit, centred {frac(rb['through_z'])} in above grade and {frac(rb['x_off'])} in from the bed's west outside face", 'Model (Drip Irrigation)',
+            'the through-wall pipe passes it; bore it in place or before the top board goes on')
+    add('Soil', 'soil', 'Raised-bed soil mix', round(r['soil_ft3'], 1), 'cu ft', f"{r['soil_ft3']/27:.2f} cu yd at {r['H']:g} in deep", 'Derived from model',
+        f"{ALT_NOM} walls: {r['soil_alt_ft3']:.1f} cu ft ({r['soil_alt_ft3']/27:.2f} cu yd)", qty_alt=round(r['soil_alt_ft3'], 1))
+    add('Optional', 'cloth', 'Hardware cloth 1/2 in, 48 in wide (under the bed)', round(r['L'] / 12 + 1), 'lin ft', 'gopher / vole barrier', 'Estimate',
+        'not in model; one strip the length of the bed plus a foot' + (f", trimmed to {r['W'] - 2 * T:g} in wide" if r['W'] - 2 * T < 48 else ''))
+    return items
+
+
+def cap(t):
+    return t[0].upper() + t[1:] if t else t
+
+
+bed_lists = [(r, bed_items(r)) for r in bed_rows]
+for _, _items in bed_lists:
+    for _it in _items:
+        _it['spec'], _it['notes'] = cap(_it['spec']), cap(_it['notes'])
+bed_lines_total = sum(len(items) for _, items in bed_lists)
+
 # ================================================================== shopping list (CSV + md)
 rows = []  # section, item, qty, unit, spec, source, notes
 for x in lumber_list:
@@ -634,6 +716,13 @@ with open(ROOT / 'BOM.csv', 'w', newline='') as f:
     w.writerow(['Section', 'Item', 'Qty', 'Unit', 'Spec', 'Source', 'Notes'])
     for r in rows:
         w.writerow(r)
+
+with open(ROOT / 'BOM-by-bed.csv', 'w', newline='') as f:
+    w = csv.writer(f)
+    w.writerow(['Bed', 'Group', 'Item', 'Qty', 'Unit', 'Spec', 'Source', 'Notes'])
+    for r, items in bed_lists:
+        for it in items:
+            w.writerow([r['letter'], it['group'], it['item'], it['qty'], it['unit'], it['spec'], it['source'], it['notes']])
 
 # ================================================================== BOM.md
 md = []
@@ -697,23 +786,7 @@ md.append(f'Buy: 3 in, {screws_3} needed, {buy_3}; 2.5 in, {screws_25} needed, {
           f'Set the mid-span posts first: chamfer the bottom of each to a point, drive it {frac(mid_embed_cut)} in at the marked centerline with its wide face toward the wall, '
           f'stop when its top is flush with the top of the wall, then screw the side boards to it from outside. Corner posts stay {POST_H:g} in and sit on grade, except the {tot_tr_corner} inside corner posts at the near end of beds A and B under the arch, which are uncut {ft_in(TRELLIS_LEN)} trellis posts set {TRELLIS_EMBED:g} in deep (see the arch).\n')
 
-md.append('## Cut list by bed\n')
-for r in bed_rows:
-    md.append(f"### Bed {r['letter']}: {ft_in(r['L'])} x {r['W']:g} in\n")
-    md.append('| Part | Qty | Stock | Cut length | Notes |')
-    md.append('|---|---|---|---|---|')
-    md.append(f"| Side board | {r['n_sides']} | {NOM} x {ft_in(r['L'])} | {r['L']:g} in (full length) | 2 per course, outside |")
-    per = int(STOCK_IN // r['E'])
-    md.append(f"| End board | {r['n_ends']} | {NOM} x 8 ft | {r['E']:g} in | {per} per 8 ft board, between the side boards |")
-    md.append(f"| {POST_NOM} corner post | {4 - r['n_tr_corner']} | {POST_NOM} x 8 ft | {r['H']:g} in | inside each corner, edge-on to the side boards |")
-    md.append(f"| {POST_NOM} mid-span post | {r['n_mid_plain']} | {POST_NOM} x 8 ft | {frac(mid_cut)} in | flat against the side boards, centered {', '.join(f'{c:.0f}' for c in r['post_centers'][1:-1])} in from the near end; {frac(mid_embed_cut)} in in the ground |")
-    if r['n_trellis']:
-        md.append(f"| {POST_NOM} trellis post | {r['n_trellis']} | {POST_NOM} x 8 ft | {TRELLIS_LEN:g} in{' (uncut)' if trellis_uncut else ''} | {'; '.join(r['trellis_where'])}. Same spot and orientation as the corner post it replaces, set {TRELLIS_EMBED:g} in deep, {TRELLIS_ABOVE:g} in above grade; holds the arch near its crown |")
-    if r['n_sills']:
-        md.append(f"| {POST_NOM} arch sill | {r['n_sills']} | {POST_NOM} x 8 ft | {SILL_LEN:g} in | flat on grade along the bed centreline, {-r['sills'][0]['max'][1]:g} to {-r['sills'][0]['min'][1]:g} in from the near end; the arch foot sits on it |")
-        md.append(f"| {POST_NOM} arch stake | {r['n_stakes']} | {POST_NOM} x 8 ft | {frac(mid_cut)} in | one at each end of the sill, {STAKE_EMBED:g} in in the ground, {STAKE_ABOVE:g} in above grade |")
-    md.append(f"| Screws | {r['screws_3']} x 3 in, {r['screws_25']} x 2.5 in" + (f", {r['screws_125']} x 1.25 in + washers" if r['screws_125'] else '') + " | | | see Screw plan |")
-    md.append('')
+md.append('## Cut list\n')
 md.append('Cutting the short pieces from 8 ft stock:\n')
 for c in cut_plan:
     md.append(f"- {c['qty']} x {c['length']:g} in: {c['per_stick']} per board from {c['sticks']} boards (offcut {c['offcut']:g} in each)."
@@ -724,6 +797,24 @@ if trellis_pieces:
 if sill_pieces:
     md.append('- ' + sill_cut_text)
 md.append('- ' + short24_cut_text + '\n')
+
+md.append('## Materials by bed\n')
+md.append('Everything that goes to one bed, with its cut lengths, so each bed can be checked on its own. Lumber and fasteners come from the model and the screw plan. '
+          'The hog-wire panel spans beds A and B and is listed under both (buy one); the 1/2 in drip pipe for every bed is cut from the sticks on the shopping list. '
+          'The same lists are in BOM-by-bed.csv, and bom.html has tick boxes that are remembered in the browser.\n')
+for r, items in bed_lists:
+    md.append(f"### Bed {r['letter']}: {ft_in(r['L'])} x {r['W']:g} in, {r['H']:g} in tall\n")
+    md.append(f"Inside {r['E']:g} x {r['inner_L']:g} in. {len(items)} lines.\n")
+    for g in BED_GROUPS:
+        gi = [it for it in items if it['group'] == g]
+        if not gi:
+            continue
+        md.append(f'**{g}**\n')
+        for it in gi:
+            qty = f"{it['qty']:g} x" if it['unit'] == 'ea' else f"{it['qty']:g} {it['unit']}"
+            spec = f" {it['spec']}." if it['spec'] else ''
+            md.append(f"- [ ] **{qty}** {it['item']}.{spec} {it['notes']}. *{it['source']}*")
+        md.append('')
 
 md.append('## Pavers and paths\n')
 md.append('| Group | Pavers | Where |')
@@ -1449,29 +1540,30 @@ shop_rows = ''.join(tr([esc(r[0]), esc(r[1]), f'<b>{esc(r[2])}</b>', esc(r[3]), 
 shop_text = '\n'.join(f'{r[2]} {r[3]}  {r[1]}  [{r[5]}]' for r in rows)
 
 bed_cards = []
-for r in bed_rows:
-    per = int(STOCK_IN // r['E'])
-    mids = ', '.join(f'{c:.0f}' for c in r['post_centers'][1:-1])
-    bed_cards.append(f'''
-<article class="card bed-card" id="bed-{r['letter'].lower()}">
-  <header><span class="letter">{r['letter']}</span><div><h3>Bed {r['letter']} <small>{ft_in(r['L'])} x {r['W']:g} in</small></h3>
-  <p class="muted">Inside {r['E']:g} x {r['inner_L']:g} in, {num(r['H'], r['H_alt'], '{:g}', ' in')} tall. Soil {num(r['soil_ft3'], r['soil_alt_ft3'], '{:.0f}', ' cu ft')}. Replaces massing body "{MASSING[r['letter']]}".</p></div></header>
-  <table>
-    <thead>{tr(['Part', 'Qty', 'Stock', 'Cut length', 'Notes'], True)}</thead>
-    <tbody>
-      {tr(['Side board', f"<b>{r['n_sides']}</b>", f"{NOM} x {ft_in(r['L'])}", f"{r['L']:g} in, full length", '2 per course, outside'])}
-      {tr(['End board', f"<b>{r['n_ends']}</b>", f"{NOM} x 8 ft", f"{r['E']:g} in", f"{per} per 8 ft board, between the sides"])}
-      {tr([f'{POST_NOM} corner post', f"<b>{4 - r['n_tr_corner']}</b>", f'{POST_NOM} x 8 ft', num(r['H'], r['H_alt'], '{:g}', ' in'), 'inside each corner, edge-on to the side boards'])}
-      {tr([f'{POST_NOM} mid-span post', f"<b>{r['n_mid_plain']}</b>", f'{POST_NOM} x 8 ft', f'{frac(mid_cut)} in', f"flat against the side boards, centered {mids} in from the near end; {frac(mid_embed_cut)} in in the ground"])}
-      {tr([f'{POST_NOM} trellis post', f"<b>{r['n_trellis']}</b>", f'{POST_NOM} x 8 ft', f'{TRELLIS_LEN:g} in' + (' (uncut)' if trellis_uncut else ''), esc('; '.join(r['trellis_where'])) + f". Same spot and orientation as the corner post it replaces, set {TRELLIS_EMBED:g} in deep, {TRELLIS_ABOVE:g} in above grade; holds the arch near its crown"]) if r['n_trellis'] else ''}
-      {tr([f'{POST_NOM} arch sill', f"<b>{r['n_sills']}</b>", f'{POST_NOM} x 8 ft', f'{SILL_LEN:g} in', f"flat on grade along the bed centreline, {-r['sills'][0]['max'][1]:g} to {-r['sills'][0]['min'][1]:g} in from the near end; the arch foot sits on it"]) if r['n_sills'] else ''}
-      {tr([f'{POST_NOM} arch stake', f"<b>{r['n_stakes']}</b>", f'{POST_NOM} x 8 ft', f'{frac(mid_cut)} in', f"one at each end of the sill, {STAKE_EMBED:g} in in the ground, {STAKE_ABOVE:g} in above grade"]) if r['n_stakes'] else ''}
-      {tr(['Screws, 3 in', f"<b>{r['screws_3']}</b>", '#9 exterior', '', f"{r['corner_side_screws']} side boards into corner posts + {r['tie_screws']} corner ties" + (f" + {r['anchor_screws']} arch stakes into the sill ends" if r['anchor_screws'] else '')])}
-      {tr(['Screws, 2.5 in', f"<b>{r['screws_25']}</b>", '#9 exterior', '', f"{r['mid_side_screws']} side boards into mid-span posts + {r['end_screws']} end boards into corner posts"])}
-      {tr(['Screws, 1.25 in', f"<b>{r['screws_125']}</b>", '#9 exterior + 1 in washer', '', f"hog-wire panel to the trellis post ({PANEL_SCREWS_PER_POST}), the stakes ({PANEL_SCREWS_PER_STAKE} each) and the sill ({PANEL_SCREWS_PER_SILL})"]) if r['screws_125'] else ''}
-    </tbody>
+for r, items in bed_lists:
+    body = []
+    for g in BED_GROUPS:
+        gi = [it for it in items if it['group'] == g]
+        if not gi:
+            continue
+        body.append(f'<tr class="grp"><td colspan="5">{esc(g)}</td></tr>')
+        for it in gi:
+            cid = 'ck-' + it['key'].replace(':', '-')
+            qty = num(it['qty'], it['qty_alt'], '{:g}') if it['qty_alt'] is not None else f"{it['qty']:g}"
+            unit = '' if it['unit'] == 'ea' else f' <span class="muted">{esc(it["unit"])}</span>'
+            body.append(f'<tr><td class="ck"><input type="checkbox" id="{cid}" data-key="{esc(it["key"])}"></td>'
+                        f'<td><label for="{cid}">{esc(it["item"])}</label> {src_tag(it["source"])}</td>'
+                        f'<td><b>{qty}</b>{unit}</td><td>{esc(it["spec"])}</td><td>{esc(it["notes"])}</td></tr>')
+    bed_cards.append(f"""
+<article class="card bed-card" id="bed-{r['letter'].lower()}" data-bed="{r['letter']}">
+  <header><span class="letter">{r['letter']}</span><div class="grow"><h3>Bed {r['letter']} <small>{ft_in(r['L'])} x {r['W']:g} in</small></h3>
+  <p class="muted">Inside {r['E']:g} x {r['inner_L']:g} in, {num(r['H'], r['H_alt'], '{:g}', ' in')} tall. {len(items)} lines. Replaces massing body "{MASSING[r['letter']]}".</p></div>
+  <div class="check-state"><span class="count" aria-live="polite">0 of {len(items)} checked</span><button type="button" class="clear">Clear</button></div></header>
+  <table class="checklist">
+    <thead><tr><th class="ck"><span class="vh">Checked</span></th><th>Item</th><th>Qty</th><th>Spec / cut</th><th>Notes</th></tr></thead>
+    <tbody>{''.join(body)}</tbody>
   </table>
-</article>''')
+</article>""")
 
 paver_rows = ''.join(tr([esc(k), f"<b>{g['n']}</b>", esc(PAVER_LABEL.get(k, ''))]) for k, g in paver_groups.items())
 arch_rows = ''.join(tr([esc(k), esc(ARCH_BETWEEN.get(k, '')), f"{a['chord']:.0f} in", f"on {POST_NOM} sills, {a['feet']:g} in above grade", f"{HOG_LEG:.0f} in", f"{a['crown']:.0f} in", esc(a['posts']), esc(headroom(a)), f"{a['ymax']-a['ymin']-2*WIRE_R:.0f} in, {a['wires']} wires at 4 in"]) for k, a in arch_comps.items())
@@ -1607,6 +1699,38 @@ li { margin-bottom: 4px; }
 textarea.copytext { width: 100%; min-height: 160px; font: 0.85rem/1.4 ui-monospace, Menlo, monospace; background: var(--soft); color: var(--ink); border: 1px solid var(--line); border-radius: 8px; padding: 10px; display: none; margin-top: 10px; }
 .toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 8px; }
 .note { border-left: 3px solid var(--lumber); padding: 6px 12px; background: var(--soft); border-radius: 0 8px 8px 0; margin: 10px 0; max-width: 72ch; }
+.card header .grow { flex: 1 1 auto; min-width: 0; }
+.check-state { flex: 0 0 auto; display: flex; gap: 10px; align-items: center; font-size: 0.9rem; color: var(--muted); white-space: nowrap; }
+.check-state .count { font-variant-numeric: tabular-nums; }
+.checklist th.ck, .checklist td.ck { width: 40px; padding-right: 0; }
+.checklist input[type="checkbox"] { width: 20px; height: 20px; margin: 1px 0 0; accent-color: var(--arch); cursor: pointer; vertical-align: top; }
+.checklist tbody tr:not(.grp) { cursor: pointer; }
+.checklist tbody tr:not(.grp):hover { background: var(--soft); }
+.checklist label { cursor: pointer; }
+.checklist tr.grp td { background: var(--soft); color: var(--muted); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; padding: 6px 10px; }
+.checklist tr.done td { color: var(--muted); }
+.checklist tr.done label, .checklist tr.done td b { text-decoration: line-through; text-decoration-thickness: 1.5px; }
+.card.done { border-color: var(--arch); box-shadow: inset 3px 0 0 var(--arch); }
+.card.done .letter { background: var(--arch); }
+.card.done .letter::after { content: " \2713"; font-size: 0.9rem; }
+.vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.checklist td:nth-child(3) { white-space: nowrap; }
+@media (max-width: 640px) {
+  /* each checklist line stacks: tick, item and qty on the first line, spec and notes beneath */
+  .bed-card { overflow-x: visible; }
+  .checklist, .checklist tbody { display: block; }
+  .checklist thead { display: none; }
+  .checklist tr.grp { display: block; }
+  .checklist tr.grp td { display: block; border-radius: 6px; }
+  .checklist tbody tr:not(.grp) { display: grid; grid-template-columns: 30px minmax(0, 1fr) auto; column-gap: 8px; row-gap: 2px; padding: 10px 4px; border-bottom: 1px solid var(--line); }
+  .checklist tbody tr:not(.grp) td { display: block; border: 0; padding: 0; }
+  .checklist td.ck { grid-column: 1; grid-row: 1 / span 3; width: auto; }
+  .checklist td:nth-child(2) { grid-column: 2; grid-row: 1; }
+  .checklist td:nth-child(3) { grid-column: 3; grid-row: 1; text-align: right; }
+  .checklist td:nth-child(4) { grid-column: 2 / span 2; grid-row: 2; font-size: 0.92rem; }
+  .checklist td:nth-child(5) { grid-column: 2 / span 2; grid-row: 3; font-size: 0.92rem; color: var(--muted); }
+  .checklist td:nth-child(4):empty, .checklist td:nth-child(5):empty { display: none; }
+}
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 @media (max-width: 520px) { body { font-size: 16px; } .card header { flex-direction: column; } }
 '''
@@ -1666,6 +1790,57 @@ JS = r'''
       navigator.clipboard.writeText(text).then(function () { copyBtn.textContent = 'Copied'; setTimeout(function () { copyBtn.textContent = 'Copy shopping list'; }, 1800); }, fallback);
     } else { fallback(); }
   });
+
+  // per-bed checklists, remembered in this browser
+  var CK = 'fg-checks';
+  var checks = {};
+  try { checks = JSON.parse(localStorage.getItem(CK) || '{}') || {}; } catch (e) { checks = {}; }
+  function saveChecks() { try { localStorage.setItem(CK, JSON.stringify(checks)); } catch (e) {} }
+  function updateTotal() {
+    var all = document.querySelectorAll('.bed-card input[type="checkbox"]');
+    var n = 0;
+    all.forEach(function (b) { if (b.checked) n++; });
+    var t = document.getElementById('checkTotal');
+    if (t) t.textContent = n + ' of ' + all.length + ' lines ticked across the four beds';
+  }
+  function updateCard(card) {
+    var boxes = card.querySelectorAll('input[type="checkbox"]');
+    var n = 0;
+    boxes.forEach(function (b) { b.closest('tr').classList.toggle('done', b.checked); if (b.checked) n++; });
+    var c = card.querySelector('.count');
+    var done = boxes.length > 0 && n === boxes.length;
+    if (c) c.textContent = done ? 'All ' + boxes.length + ' checked' : n + ' of ' + boxes.length + ' checked';
+    card.classList.toggle('done', done);
+    updateTotal();
+  }
+  document.querySelectorAll('.bed-card').forEach(function (card) {
+    card.querySelectorAll('input[type="checkbox"]').forEach(function (b) {
+      var k = b.getAttribute('data-key');
+      b.checked = !!checks[k];
+      b.addEventListener('change', function () { if (b.checked) checks[k] = true; else delete checks[k]; saveChecks(); updateCard(card); });
+    });
+    card.querySelectorAll('tbody tr:not(.grp)').forEach(function (row) {
+      row.addEventListener('click', function (e) {
+        if (e.target.closest('input, label, button, a') || String(window.getSelection && window.getSelection())) return;
+        var b = row.querySelector('input[type="checkbox"]');
+        if (!b) return;
+        b.checked = !b.checked;
+        b.dispatchEvent(new Event('change', { bubbles: true }));
+      });
+    });
+    var clr = card.querySelector('.clear');
+    if (clr) clr.addEventListener('click', function () {
+      card.querySelectorAll('input[type="checkbox"]').forEach(function (b) { b.checked = false; delete checks[b.getAttribute('data-key')]; });
+      saveChecks(); updateCard(card);
+    });
+    updateCard(card);
+  });
+  var clearAll = document.getElementById('clearAll');
+  if (clearAll) clearAll.addEventListener('click', function () {
+    if (!window.confirm('Clear every tick on all four beds?')) return;
+    checks = {}; saveChecks();
+    document.querySelectorAll('.bed-card').forEach(function (card) { card.querySelectorAll('input[type="checkbox"]').forEach(function (b) { b.checked = false; }); updateCard(card); });
+  });
 })();
 '''
 
@@ -1694,7 +1869,7 @@ HTML = f'''<!DOCTYPE html>
   </div>
 </header>
 <nav class="sticky" aria-label="Sections">
-  <a href="#plan">Plan</a><a href="#shopping">Shopping list</a><a href="#screws">Screws</a><a href="#cuts">Cut list</a><a href="#pavers">Pavers</a><a href="#arches">Trellis arches</a><a href="#hoops">Hoops</a><a href="#drip">Drip</a><a href="#soil">Soil</a><a href="#optional">Optional</a><a href="#model">Model notes</a>
+  <a href="#plan">Plan</a><a href="#shopping">Shopping list</a><a href="#screws">Screws</a><a href="#cuts">Cut list</a><a href="#beds">By bed</a><a href="#pavers">Pavers</a><a href="#arches">Trellis arches</a><a href="#hoops">Hoops</a><a href="#drip">Drip</a><a href="#soil">Soil</a><a href="#optional">Optional</a><a href="#model">Model notes</a>
 </nav>
 
 <div class="tiles">
@@ -1758,12 +1933,19 @@ HTML = f'''<!DOCTYPE html>
 </section>
 
 <section id="cuts">
-  <h2>Cut list by bed</h2>
+  <h2>Cut list</h2>
   <div class="card tablewrap"><table>
     <thead>{tr(['Buy', 'Qty', 'Used for'], True)}</thead>
     <tbody>{lumber_rows}</tbody>
   </table></div>
   <ul>{cut_items}<li>{corner_pieces} corner posts x {POST_H:g} in: {posts_per_stick} per {POST_NOM} from {corner_sticks} sticks.</li>{f'<li>{esc(trellis_cut_text)}</li>' if trellis_pieces else ''}{f'<li>{esc(sill_cut_text)}</li>' if sill_pieces else ''}<li>{esc(short24_cut_text)}</li></ul>
+  <p class="muted">Each bed's own pieces and their cut lengths are listed under <a href="#beds">Materials by bed</a>.</p>
+</section>
+
+<section id="beds">
+  <h2>Materials by bed</h2>
+  <p>Everything that goes to one bed, with its cut lengths, so each bed can be checked on its own: lumber, screws and washers, the arch panel, the hoops, the drip riser and the soil. Tick a line as you check or buy it; the ticks are kept in this browser. The hog-wire panel spans beds A and B and is listed under both (buy one). The 1/2 in drip pipe for every bed is cut from the {drip_sticks} x 10 ft stick{'s' if drip_sticks > 1 else ''} on the shopping list.</p>
+  <div class="toolbar"><span class="muted" id="checkTotal" aria-live="polite">0 of {bed_lines_total} lines ticked</span><button type="button" id="clearAll">Clear all ticks</button></div>
   {''.join(bed_cards)}
 </section>
 
@@ -1867,7 +2049,7 @@ HTML = f'''<!DOCTYPE html>
 </html>
 '''
 (ROOT / 'bom.html').write_text(HTML)
-print('wrote', ROOT / 'BOM.md', ROOT / 'BOM.csv', ROOT / 'bom.html')
+print('wrote', ROOT / 'BOM.md', ROOT / 'BOM.csv', ROOT / 'BOM-by-bed.csv', ROOT / 'bom.html', f'({bed_lines_total} per-bed lines)')
 print(f'beds={len(bed_rows)} {NOM} boards={total_2x_boards} {POST_NOM} sticks={post_sticks} ({corner_sticks} corner + {trellis_sticks} trellis + {sill_sticks} sill + {mid_sticks} mid/stake, mid cut {frac(mid_cut)} in, {stakes_from_offcuts} stakes from sill offcuts) '
       f'screws 3in={screws_3} 2.5in={screws_25} 1.25in={screws_125} total={screws_total} pavers={paver_n} arches={n_arches} hoops={n_hoops} risers={n_risers} pipe={drip_pipe_total if risers else 0:g}in sticks={drip_sticks if risers else 0} '
       f'soil={soil_ft3:.1f} ft3 ({soil_ft3/27:.2f} yd3) alt={soil_alt_ft3/27:.2f} yd3')

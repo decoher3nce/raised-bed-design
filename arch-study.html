@@ -97,6 +97,38 @@ li { margin-bottom: 4px; }
 textarea.copytext { width: 100%; min-height: 160px; font: 0.85rem/1.4 ui-monospace, Menlo, monospace; background: var(--soft); color: var(--ink); border: 1px solid var(--line); border-radius: 8px; padding: 10px; display: none; margin-top: 10px; }
 .toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 8px; }
 .note { border-left: 3px solid var(--lumber); padding: 6px 12px; background: var(--soft); border-radius: 0 8px 8px 0; margin: 10px 0; max-width: 72ch; }
+.card header .grow { flex: 1 1 auto; min-width: 0; }
+.check-state { flex: 0 0 auto; display: flex; gap: 10px; align-items: center; font-size: 0.9rem; color: var(--muted); white-space: nowrap; }
+.check-state .count { font-variant-numeric: tabular-nums; }
+.checklist th.ck, .checklist td.ck { width: 40px; padding-right: 0; }
+.checklist input[type="checkbox"] { width: 20px; height: 20px; margin: 1px 0 0; accent-color: var(--arch); cursor: pointer; vertical-align: top; }
+.checklist tbody tr:not(.grp) { cursor: pointer; }
+.checklist tbody tr:not(.grp):hover { background: var(--soft); }
+.checklist label { cursor: pointer; }
+.checklist tr.grp td { background: var(--soft); color: var(--muted); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; padding: 6px 10px; }
+.checklist tr.done td { color: var(--muted); }
+.checklist tr.done label, .checklist tr.done td b { text-decoration: line-through; text-decoration-thickness: 1.5px; }
+.card.done { border-color: var(--arch); box-shadow: inset 3px 0 0 var(--arch); }
+.card.done .letter { background: var(--arch); }
+.card.done .letter::after { content: " \2713"; font-size: 0.9rem; }
+.vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.checklist td:nth-child(3) { white-space: nowrap; }
+@media (max-width: 640px) {
+  /* each checklist line stacks: tick, item and qty on the first line, spec and notes beneath */
+  .bed-card { overflow-x: visible; }
+  .checklist, .checklist tbody { display: block; }
+  .checklist thead { display: none; }
+  .checklist tr.grp { display: block; }
+  .checklist tr.grp td { display: block; border-radius: 6px; }
+  .checklist tbody tr:not(.grp) { display: grid; grid-template-columns: 30px minmax(0, 1fr) auto; column-gap: 8px; row-gap: 2px; padding: 10px 4px; border-bottom: 1px solid var(--line); }
+  .checklist tbody tr:not(.grp) td { display: block; border: 0; padding: 0; }
+  .checklist td.ck { grid-column: 1; grid-row: 1 / span 3; width: auto; }
+  .checklist td:nth-child(2) { grid-column: 2; grid-row: 1; }
+  .checklist td:nth-child(3) { grid-column: 3; grid-row: 1; text-align: right; }
+  .checklist td:nth-child(4) { grid-column: 2 / span 2; grid-row: 2; font-size: 0.92rem; }
+  .checklist td:nth-child(5) { grid-column: 2 / span 2; grid-row: 3; font-size: 0.92rem; color: var(--muted); }
+  .checklist td:nth-child(4):empty, .checklist td:nth-child(5):empty { display: none; }
+}
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 @media (max-width: 520px) { body { font-size: 16px; } .card header { flex-direction: column; } }
 
@@ -123,7 +155,7 @@ figure.chart svg text { font-family: var(--font-body); }
 <header class="top">
   <div>
     <h1>Hog-wire arch study</h1>
-    <div class="meta">16 ft panel between beds A and B · feet at the bed centres · generated 2026-11-06 from the Fusion extract</div>
+    <div class="meta">16 ft panel between beds A and B · feet at the bed centres · generated 2026-11-08 from the Fusion extract</div>
   </div>
   <div class="toolbar">
     <a href="bom.html" class="src">Back to the BOM</a>

@@ -1,6 +1,6 @@
 # Raised Bed Design: bill of materials
 
-Generated 2026-11-06 from the Fusion design **Raised Bed Design** (data/model_extract.json). Quantities marked *Model* are counted from model bodies; *Derived* rows are computed from the model geometry; *Estimate* rows are not modeled.
+Generated 2026-11-08 from the Fusion design **Raised Bed Design** (data/model_extract.json). Quantities marked *Model* are counted from model bodies; *Derived* rows are computed from the model geometry; *Estimate* rows are not modeled.
 
 ## Layout
 
@@ -73,53 +73,7 @@ Every joint is a 2x8 board face-screwed to a 2x4 post, 2 screws per board per po
 
 Buy: 3 in, 136 needed, one 5 lb box (about 350); 1 lb boxes hold only about 70; 2.5 in, 144 needed, 2 x 1 lb boxes (about 180), or one 5 lb box (about 450) for plenty of spares; 1.25 in, 20 needed, one 1 lb box. Pre-drill the corner ties and any screw within 2 in of a board end (1/8 in bit for cedar, 3/32 in for SPF). Set the mid-span posts first: chamfer the bottom of each to a point, drive it 9 3/8 in at the marked centerline with its wide face toward the wall, stop when its top is flush with the top of the wall, then screw the side boards to it from outside. Corner posts stay 14.5 in and sit on grade, except the 2 inside corner posts at the near end of beds A and B under the arch, which are uncut 8 ft trellis posts set 20 in deep (see the arch).
 
-## Cut list by bed
-
-### Bed A: 10 ft x 51 in
-
-| Part | Qty | Stock | Cut length | Notes |
-|---|---|---|---|---|
-| Side board | 4 | 2x8 x 10 ft | 120 in (full length) | 2 per course, outside |
-| End board | 4 | 2x8 x 8 ft | 48 in | 2 per 8 ft board, between the side boards |
-| 2x4 corner post | 3 | 2x4 x 8 ft | 14.5 in | inside each corner, edge-on to the side boards |
-| 2x4 mid-span post | 4 | 2x4 x 8 ft | 23 7/8 in | flat against the side boards, centered 41, 79 in from the near end; 9 3/8 in in the ground |
-| 2x4 trellis post | 1 | 2x4 x 8 ft | 96 in (uncut) | east corner at the near end. Same spot and orientation as the corner post it replaces, set 20 in deep, 76 in above grade; holds the arch near its crown |
-| 2x4 arch sill | 1 | 2x4 x 8 ft | 60.5 in | flat on grade along the bed centreline, 3 to 63.5 in from the near end; the arch foot sits on it |
-| 2x4 arch stake | 2 | 2x4 x 8 ft | 23 7/8 in | one at each end of the sill, 10.5 in in the ground, 13.5 in above grade |
-| Screws | 36 x 3 in, 32 x 2.5 in, 10 x 1.25 in + washers | | | see Screw plan |
-
-### Bed B: 12 ft x 51 in
-
-| Part | Qty | Stock | Cut length | Notes |
-|---|---|---|---|---|
-| Side board | 4 | 2x8 x 12 ft | 144 in (full length) | 2 per course, outside |
-| End board | 4 | 2x8 x 8 ft | 48 in | 2 per 8 ft board, between the side boards |
-| 2x4 corner post | 3 | 2x4 x 8 ft | 14.5 in | inside each corner, edge-on to the side boards |
-| 2x4 mid-span post | 4 | 2x4 x 8 ft | 23 7/8 in | flat against the side boards, centered 49, 95 in from the near end; 9 3/8 in in the ground |
-| 2x4 trellis post | 1 | 2x4 x 8 ft | 96 in (uncut) | west corner at the near end. Same spot and orientation as the corner post it replaces, set 20 in deep, 76 in above grade; holds the arch near its crown |
-| 2x4 arch sill | 1 | 2x4 x 8 ft | 60.5 in | flat on grade along the bed centreline, 3 to 63.5 in from the near end; the arch foot sits on it |
-| 2x4 arch stake | 2 | 2x4 x 8 ft | 23 7/8 in | one at each end of the sill, 10.5 in in the ground, 13.5 in above grade |
-| Screws | 36 x 3 in, 32 x 2.5 in, 10 x 1.25 in + washers | | | see Screw plan |
-
-### Bed C: 14 ft x 51 in
-
-| Part | Qty | Stock | Cut length | Notes |
-|---|---|---|---|---|
-| Side board | 4 | 2x8 x 14 ft | 168 in (full length) | 2 per course, outside |
-| End board | 4 | 2x8 x 8 ft | 48 in | 2 per 8 ft board, between the side boards |
-| 2x4 corner post | 4 | 2x4 x 8 ft | 14.5 in | inside each corner, edge-on to the side boards |
-| 2x4 mid-span post | 6 | 2x4 x 8 ft | 23 7/8 in | flat against the side boards, centered 44, 84, 124 in from the near end; 9 3/8 in in the ground |
-| Screws | 32 x 3 in, 40 x 2.5 in | | | see Screw plan |
-
-### Bed D: 16 ft x 24 in
-
-| Part | Qty | Stock | Cut length | Notes |
-|---|---|---|---|---|
-| Side board | 4 | 2x8 x 16 ft | 192 in (full length) | 2 per course, outside |
-| End board | 4 | 2x8 x 8 ft | 21 in | 4 per 8 ft board, between the side boards |
-| 2x4 corner post | 4 | 2x4 x 8 ft | 14.5 in | inside each corner, edge-on to the side boards |
-| 2x4 mid-span post | 6 | 2x4 x 8 ft | 23 7/8 in | flat against the side boards, centered 50, 96, 142 in from the near end; 9 3/8 in in the ground |
-| Screws | 32 x 3 in, 40 x 2.5 in | | | see Screw plan |
+## Cut list
 
 Cutting the short pieces from 8 ft stock:
 
@@ -129,6 +83,176 @@ Cutting the short pieces from 8 ft stock:
 - 2 trellis posts: uncut 8 ft sticks, 2 of them.
 - 2 arch sills x 60.5 in: 1 per 2x4 from 2 sticks; the 35 3/8 in left of each is one arch stake.
 - 20 mid-span posts and 4 arch stakes x 23 7/8 in: 2 from the sill offcuts, then 4 per 2x4 from 6 more sticks; cut 23 7/8 rather than 24 in so 4 clear the saw kerfs, which leaves 9 3/8 in in the ground.
+
+## Materials by bed
+
+Everything that goes to one bed, with its cut lengths, so each bed can be checked on its own. Lumber and fasteners come from the model and the screw plan. The hog-wire panel spans beds A and B and is listed under both (buy one); the 1/2 in drip pipe for every bed is cut from the sticks on the shopping list. The same lists are in BOM-by-bed.csv, and bom.html has tick boxes that are remembered in the browser.
+
+### Bed A: 10 ft x 51 in, 14.5 in tall
+
+Inside 48 x 117 in. 23 lines.
+
+**Lumber**
+
+- [ ] **4 x** Side board. 2x8 x 10 ft, full length (120 in). 2 per course, outside; no cut. *Model (Bed Lumber)*
+- [ ] **4 x** End board. 2x8, cut 48 in from 8 ft stock. 2 per 8 ft board, between the side boards. *Model (Bed Lumber)*
+- [ ] **3 x** 2x4 corner post. 2x4, cut 14.5 in (18.5 in with 2x10 walls). Inside each corner, edge-on to the side boards, standing on grade. *Model (Bed Lumber)*
+- [ ] **4 x** 2x4 mid-span post. 2x4, cut 23 7/8 in. Flat against the side boards, centred 41, 79 in from the near end; 9 3/8 in in the ground. *Model (Bed Lumber)*
+- [ ] **1 x** 2x4 trellis post. 2x4 x 8 ft, uncut. East corner at the near end; in place of a corner post, set 20 in deep, 76 in above grade; holds the arch near its crown. *Model (Bed Lumber)*
+- [ ] **1 x** 2x4 arch sill. 2x4, cut 60.5 in. Flat on grade along the bed centreline, 3 to 63.5 in from the near end; the arch foot sits on it. *Model (Bed Lumber)*
+- [ ] **2 x** 2x4 arch stake. 2x4, cut 23 7/8 in. One at each end of the sill, 10.5 in in the ground, 13.5 in above grade. *Model (Bed Lumber)*
+
+**Fasteners**
+
+- [ ] **36 x** #9 x 3 in exterior structural screws. Star drive; coated for treated lumber, stainless 305/316 for cedar or redwood. 16 side boards into the corner post edges + 16 corner ties into end grain + 4 arch stakes into the sill ends. *Derived from model*
+- [ ] **32 x** #9 x 2.5 in exterior structural screws. Same finish as the 3 in screws. 16 side boards into the mid-span post faces + 16 end boards into the corner post faces. *Derived from model*
+- [ ] **10 x** #9 x 1.25 in exterior screws. Same finish, each through a fender washer. Hog-wire panel to the trellis post (2), the stakes (2 each) and the sill (4). *Derived from model*
+- [ ] **10 x** 1/4 x 1 in galvanized fender washers. One under each panel screw. The washer beside a wire traps it against the wood. *Derived from model*
+
+**Trellis arch**
+
+- [ ] **1 x** Hog-wire / cattle panel, 16 ft, 4 x 4 in mesh (Arch AB). 4-gauge galvanized, 48 to 60 in wide. One panel bent from the centre of this bed to the centre of Bed B; it is listed under both beds, buy one. 37 in straight legs, crown 76 in above grade. *Model (Hogwire Arches)*
+
+**Drip riser**
+
+- [ ] **1 x** 3/4 x 3/4 x 1/2 in PVC reducer tee, slip. Schedule 40. On the 3/4 in main, 8 in beyond the far end board, 6 1/8 in deep. *Model (Drip Irrigation)*
+- [ ] **5 pieces** 1/2 in PVC pipe, schedule 40. Cut 6 1/4, 9, 6, 3 1/2, 4 in (28 3/4 in in all). Ground run, lower riser, upper riser, through the wall, head; cut from the 1 x 10 ft stick on the shopping list, shared by all 4 beds. *Model (Drip Irrigation)*
+- [ ] **3 x** 1/2 in PVC 90 degree elbow, slip. Schedule 40. At the bottom of the riser and on each side of the wall. *Model (Drip Irrigation)*
+- [ ] **1 x** 1/2 in PVC ball valve, slip x slip. Lever handle. 3 7/8 in above grade on the outside of the far end wall, lever west along the wall. *Model (Drip Irrigation)*
+- [ ] **1 x** 1/2 in FPT x 4-port 1/4 in barb drip manifold head. Inside the bed, top 1 7/8 in above the wall top. *Model (Drip Irrigation)*
+- [ ] **1 x** 1/2 in PVC male adapter, slip x MPT. Threads the head onto the riser. Not modelled; a female adapter instead if your head is male. *Derived from model*
+- [ ] **2 x** 1/2 in stand-off pipe clamp. Galvanized or UV-stable plastic. At 1 1/2 and 8 3/4 in above grade, one on each board. *Model (Drip Irrigation)*
+- [ ] **4 x** #8 x 1 in exterior pan-head screws. Same finish as the bed screws. Two per clamp. *Derived from model*
+- [ ] **1 x** 1 in hole through the top far end board. Spade bit, centred 10 7/8 in above grade and 9 in from the bed's west outside face. The through-wall pipe passes it; bore it in place or before the top board goes on. *Model (Drip Irrigation)*
+
+**Soil**
+
+- [ ] **46.5 cu ft** Raised-bed soil mix. 1.72 cu yd at 14.5 in deep. 2x10 walls: 59.5 cu ft (2.20 cu yd). *Derived from model*
+
+**Optional**
+
+- [ ] **11 lin ft** Hardware cloth 1/2 in, 48 in wide (under the bed). Gopher / vole barrier. Not in model; one strip the length of the bed plus a foot. *Estimate*
+
+### Bed B: 12 ft x 51 in, 14.5 in tall
+
+Inside 48 x 141 in. 23 lines.
+
+**Lumber**
+
+- [ ] **4 x** Side board. 2x8 x 12 ft, full length (144 in). 2 per course, outside; no cut. *Model (Bed Lumber)*
+- [ ] **4 x** End board. 2x8, cut 48 in from 8 ft stock. 2 per 8 ft board, between the side boards. *Model (Bed Lumber)*
+- [ ] **3 x** 2x4 corner post. 2x4, cut 14.5 in (18.5 in with 2x10 walls). Inside each corner, edge-on to the side boards, standing on grade. *Model (Bed Lumber)*
+- [ ] **4 x** 2x4 mid-span post. 2x4, cut 23 7/8 in. Flat against the side boards, centred 49, 95 in from the near end; 9 3/8 in in the ground. *Model (Bed Lumber)*
+- [ ] **1 x** 2x4 trellis post. 2x4 x 8 ft, uncut. West corner at the near end; in place of a corner post, set 20 in deep, 76 in above grade; holds the arch near its crown. *Model (Bed Lumber)*
+- [ ] **1 x** 2x4 arch sill. 2x4, cut 60.5 in. Flat on grade along the bed centreline, 3 to 63.5 in from the near end; the arch foot sits on it. *Model (Bed Lumber)*
+- [ ] **2 x** 2x4 arch stake. 2x4, cut 23 7/8 in. One at each end of the sill, 10.5 in in the ground, 13.5 in above grade. *Model (Bed Lumber)*
+
+**Fasteners**
+
+- [ ] **36 x** #9 x 3 in exterior structural screws. Star drive; coated for treated lumber, stainless 305/316 for cedar or redwood. 16 side boards into the corner post edges + 16 corner ties into end grain + 4 arch stakes into the sill ends. *Derived from model*
+- [ ] **32 x** #9 x 2.5 in exterior structural screws. Same finish as the 3 in screws. 16 side boards into the mid-span post faces + 16 end boards into the corner post faces. *Derived from model*
+- [ ] **10 x** #9 x 1.25 in exterior screws. Same finish, each through a fender washer. Hog-wire panel to the trellis post (2), the stakes (2 each) and the sill (4). *Derived from model*
+- [ ] **10 x** 1/4 x 1 in galvanized fender washers. One under each panel screw. The washer beside a wire traps it against the wood. *Derived from model*
+
+**Trellis arch**
+
+- [ ] **1 x** Hog-wire / cattle panel, 16 ft, 4 x 4 in mesh (Arch AB). 4-gauge galvanized, 48 to 60 in wide. One panel bent from the centre of this bed to the centre of Bed A; it is listed under both beds, buy one. 37 in straight legs, crown 76 in above grade. *Model (Hogwire Arches)*
+
+**Drip riser**
+
+- [ ] **1 x** 3/4 x 3/4 x 1/2 in PVC reducer tee, slip. Schedule 40. On the 3/4 in main, 8 in beyond the far end board, 6 1/8 in deep. *Model (Drip Irrigation)*
+- [ ] **5 pieces** 1/2 in PVC pipe, schedule 40. Cut 6 1/4, 9, 6, 3 1/2, 4 in (28 3/4 in in all). Ground run, lower riser, upper riser, through the wall, head; cut from the 1 x 10 ft stick on the shopping list, shared by all 4 beds. *Model (Drip Irrigation)*
+- [ ] **3 x** 1/2 in PVC 90 degree elbow, slip. Schedule 40. At the bottom of the riser and on each side of the wall. *Model (Drip Irrigation)*
+- [ ] **1 x** 1/2 in PVC ball valve, slip x slip. Lever handle. 3 7/8 in above grade on the outside of the far end wall, lever west along the wall. *Model (Drip Irrigation)*
+- [ ] **1 x** 1/2 in FPT x 4-port 1/4 in barb drip manifold head. Inside the bed, top 1 7/8 in above the wall top. *Model (Drip Irrigation)*
+- [ ] **1 x** 1/2 in PVC male adapter, slip x MPT. Threads the head onto the riser. Not modelled; a female adapter instead if your head is male. *Derived from model*
+- [ ] **2 x** 1/2 in stand-off pipe clamp. Galvanized or UV-stable plastic. At 1 1/2 and 8 3/4 in above grade, one on each board. *Model (Drip Irrigation)*
+- [ ] **4 x** #8 x 1 in exterior pan-head screws. Same finish as the bed screws. Two per clamp. *Derived from model*
+- [ ] **1 x** 1 in hole through the top far end board. Spade bit, centred 10 7/8 in above grade and 9 in from the bed's west outside face. The through-wall pipe passes it; bore it in place or before the top board goes on. *Model (Drip Irrigation)*
+
+**Soil**
+
+- [ ] **56.2 cu ft** Raised-bed soil mix. 2.08 cu yd at 14.5 in deep. 2x10 walls: 71.8 cu ft (2.66 cu yd). *Derived from model*
+
+**Optional**
+
+- [ ] **13 lin ft** Hardware cloth 1/2 in, 48 in wide (under the bed). Gopher / vole barrier. Not in model; one strip the length of the bed plus a foot. *Estimate*
+
+### Bed C: 14 ft x 51 in, 14.5 in tall
+
+Inside 48 x 165 in. 18 lines.
+
+**Lumber**
+
+- [ ] **4 x** Side board. 2x8 x 14 ft, full length (168 in). 2 per course, outside; no cut. *Model (Bed Lumber)*
+- [ ] **4 x** End board. 2x8, cut 48 in from 8 ft stock. 2 per 8 ft board, between the side boards. *Model (Bed Lumber)*
+- [ ] **4 x** 2x4 corner post. 2x4, cut 14.5 in (18.5 in with 2x10 walls). Inside each corner, edge-on to the side boards, standing on grade. *Model (Bed Lumber)*
+- [ ] **6 x** 2x4 mid-span post. 2x4, cut 23 7/8 in. Flat against the side boards, centred 44, 84, 124 in from the near end; 9 3/8 in in the ground. *Model (Bed Lumber)*
+
+**Fasteners**
+
+- [ ] **32 x** #9 x 3 in exterior structural screws. Star drive; coated for treated lumber, stainless 305/316 for cedar or redwood. 16 side boards into the corner post edges + 16 corner ties into end grain. *Derived from model*
+- [ ] **40 x** #9 x 2.5 in exterior structural screws. Same finish as the 3 in screws. 24 side boards into the mid-span post faces + 16 end boards into the corner post faces. *Derived from model*
+
+**Hoops**
+
+- [ ] **6 x** Low-tunnel hoop, 1 in tube, 40 in wide x 57 in tall. 136 in of tube each (11.4 ft), 68 ft in all. 31 in pitch, the first and last 5 in inside the end boards; 36 in legs pushed through the soil to grade. *Model (Garden Hoops)*
+
+**Drip riser**
+
+- [ ] **1 x** 3/4 x 3/4 x 1/2 in PVC reducer tee, slip. Schedule 40. On the 3/4 in main, 8 in beyond the far end board, 6 1/8 in deep. *Model (Drip Irrigation)*
+- [ ] **5 pieces** 1/2 in PVC pipe, schedule 40. Cut 6 1/4, 9, 6, 3 1/2, 4 in (28 3/4 in in all). Ground run, lower riser, upper riser, through the wall, head; cut from the 1 x 10 ft stick on the shopping list, shared by all 4 beds. *Model (Drip Irrigation)*
+- [ ] **3 x** 1/2 in PVC 90 degree elbow, slip. Schedule 40. At the bottom of the riser and on each side of the wall. *Model (Drip Irrigation)*
+- [ ] **1 x** 1/2 in PVC ball valve, slip x slip. Lever handle. 3 7/8 in above grade on the outside of the far end wall, lever west along the wall. *Model (Drip Irrigation)*
+- [ ] **1 x** 1/2 in FPT x 4-port 1/4 in barb drip manifold head. Inside the bed, top 1 7/8 in above the wall top. *Model (Drip Irrigation)*
+- [ ] **1 x** 1/2 in PVC male adapter, slip x MPT. Threads the head onto the riser. Not modelled; a female adapter instead if your head is male. *Derived from model*
+- [ ] **2 x** 1/2 in stand-off pipe clamp. Galvanized or UV-stable plastic. At 1 1/2 and 8 3/4 in above grade, one on each board. *Model (Drip Irrigation)*
+- [ ] **4 x** #8 x 1 in exterior pan-head screws. Same finish as the bed screws. Two per clamp. *Derived from model*
+- [ ] **1 x** 1 in hole through the top far end board. Spade bit, centred 10 7/8 in above grade and 9 in from the bed's west outside face. The through-wall pipe passes it; bore it in place or before the top board goes on. *Model (Drip Irrigation)*
+
+**Soil**
+
+- [ ] **66 cu ft** Raised-bed soil mix. 2.45 cu yd at 14.5 in deep. 2x10 walls: 84.4 cu ft (3.12 cu yd). *Derived from model*
+
+**Optional**
+
+- [ ] **15 lin ft** Hardware cloth 1/2 in, 48 in wide (under the bed). Gopher / vole barrier. Not in model; one strip the length of the bed plus a foot. *Estimate*
+
+### Bed D: 16 ft x 24 in, 14.5 in tall
+
+Inside 21 x 189 in. 17 lines.
+
+**Lumber**
+
+- [ ] **4 x** Side board. 2x8 x 16 ft, full length (192 in). 2 per course, outside; no cut. *Model (Bed Lumber)*
+- [ ] **4 x** End board. 2x8, cut 21 in from 8 ft stock. 4 per 8 ft board, between the side boards. *Model (Bed Lumber)*
+- [ ] **4 x** 2x4 corner post. 2x4, cut 14.5 in (18.5 in with 2x10 walls). Inside each corner, edge-on to the side boards, standing on grade. *Model (Bed Lumber)*
+- [ ] **6 x** 2x4 mid-span post. 2x4, cut 23 7/8 in. Flat against the side boards, centred 50, 96, 142 in from the near end; 9 3/8 in in the ground. *Model (Bed Lumber)*
+
+**Fasteners**
+
+- [ ] **32 x** #9 x 3 in exterior structural screws. Star drive; coated for treated lumber, stainless 305/316 for cedar or redwood. 16 side boards into the corner post edges + 16 corner ties into end grain. *Derived from model*
+- [ ] **40 x** #9 x 2.5 in exterior structural screws. Same finish as the 3 in screws. 24 side boards into the mid-span post faces + 16 end boards into the corner post faces. *Derived from model*
+
+**Drip riser**
+
+- [ ] **1 x** 3/4 x 3/4 x 1/2 in PVC reducer tee, slip. Schedule 40. On the 3/4 in main, 8 in beyond the far end board, 6 1/8 in deep. *Model (Drip Irrigation)*
+- [ ] **5 pieces** 1/2 in PVC pipe, schedule 40. Cut 6 1/4, 9, 6, 3 1/2, 4 in (28 3/4 in in all). Ground run, lower riser, upper riser, through the wall, head; cut from the 1 x 10 ft stick on the shopping list, shared by all 4 beds. *Model (Drip Irrigation)*
+- [ ] **3 x** 1/2 in PVC 90 degree elbow, slip. Schedule 40. At the bottom of the riser and on each side of the wall. *Model (Drip Irrigation)*
+- [ ] **1 x** 1/2 in PVC ball valve, slip x slip. Lever handle. 3 7/8 in above grade on the outside of the far end wall, lever west along the wall. *Model (Drip Irrigation)*
+- [ ] **1 x** 1/2 in FPT x 4-port 1/4 in barb drip manifold head. Inside the bed, top 1 7/8 in above the wall top. *Model (Drip Irrigation)*
+- [ ] **1 x** 1/2 in PVC male adapter, slip x MPT. Threads the head onto the riser. Not modelled; a female adapter instead if your head is male. *Derived from model*
+- [ ] **2 x** 1/2 in stand-off pipe clamp. Galvanized or UV-stable plastic. At 1 1/2 and 8 3/4 in above grade, one on each board. *Model (Drip Irrigation)*
+- [ ] **4 x** #8 x 1 in exterior pan-head screws. Same finish as the bed screws. Two per clamp. *Derived from model*
+- [ ] **1 x** 1 in hole through the top far end board. Spade bit, centred 10 7/8 in above grade and 9 in from the bed's west outside face. The through-wall pipe passes it; bore it in place or before the top board goes on. *Model (Drip Irrigation)*
+
+**Soil**
+
+- [ ] **32.9 cu ft** Raised-bed soil mix. 1.22 cu yd at 14.5 in deep. 2x10 walls: 42.1 cu ft (1.56 cu yd). *Derived from model*
+
+**Optional**
+
+- [ ] **17 lin ft** Hardware cloth 1/2 in, 48 in wide (under the bed). Gopher / vole barrier. Not in model; one strip the length of the bed plus a foot, trimmed to 21 in wide. *Estimate*
 
 ## Pavers and paths
 

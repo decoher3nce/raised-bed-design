@@ -1,0 +1,82 @@
+Bed,Group,Item,Qty,Unit,Spec,Source,Notes
+A,Lumber,Side board,4,ea,"2x8 x 10 ft, full length (120 in)",Model (Bed Lumber),"2 per course, outside; no cut"
+A,Lumber,End board,4,ea,"2x8, cut 48 in from 8 ft stock",Model (Bed Lumber),"2 per 8 ft board, between the side boards"
+A,Lumber,2x4 corner post,3,ea,"2x4, cut 14.5 in (18.5 in with 2x10 walls)",Model (Bed Lumber),"Inside each corner, edge-on to the side boards, standing on grade"
+A,Lumber,2x4 mid-span post,4,ea,"2x4, cut 23 7/8 in",Model (Bed Lumber),"Flat against the side boards, centred 41, 79 in from the near end; 9 3/8 in in the ground"
+A,Lumber,2x4 trellis post,1,ea,"2x4 x 8 ft, uncut",Model (Bed Lumber),"East corner at the near end; in place of a corner post, set 20 in deep, 76 in above grade; holds the arch near its crown"
+A,Lumber,2x4 arch sill,1,ea,"2x4, cut 60.5 in",Model (Bed Lumber),"Flat on grade along the bed centreline, 3 to 63.5 in from the near end; the arch foot sits on it"
+A,Lumber,2x4 arch stake,2,ea,"2x4, cut 23 7/8 in",Model (Bed Lumber),"One at each end of the sill, 10.5 in in the ground, 13.5 in above grade"
+A,Fasteners,#9 x 3 in exterior structural screws,36,ea,"Star drive; coated for treated lumber, stainless 305/316 for cedar or redwood",Derived from model,16 side boards into the corner post edges + 16 corner ties into end grain + 4 arch stakes into the sill ends
+A,Fasteners,#9 x 2.5 in exterior structural screws,32,ea,Same finish as the 3 in screws,Derived from model,16 side boards into the mid-span post faces + 16 end boards into the corner post faces
+A,Fasteners,#9 x 1.25 in exterior screws,10,ea,"Same finish, each through a fender washer",Derived from model,"Hog-wire panel to the trellis post (2), the stakes (2 each) and the sill (4)"
+A,Fasteners,1/4 x 1 in galvanized fender washers,10,ea,One under each panel screw,Derived from model,The washer beside a wire traps it against the wood
+A,Trellis arch,"Hog-wire / cattle panel, 16 ft, 4 x 4 in mesh (Arch AB)",1,ea,"4-gauge galvanized, 48 to 60 in wide",Model (Hogwire Arches),"One panel bent from the centre of this bed to the centre of Bed B; it is listed under both beds, buy one. 37 in straight legs, crown 76 in above grade"
+A,Drip riser,"3/4 x 3/4 x 1/2 in PVC reducer tee, slip",1,ea,Schedule 40,Model (Drip Irrigation),"On the 3/4 in main, 8 in beyond the far end board, 6 1/8 in deep"
+A,Drip riser,"1/2 in PVC pipe, schedule 40",5,pieces,"Cut 6 1/4, 9, 6, 3 1/2, 4 in (28 3/4 in in all)",Model (Drip Irrigation),"Ground run, lower riser, upper riser, through the wall, head; cut from the 1 x 10 ft stick on the shopping list, shared by all 4 beds"
+A,Drip riser,"1/2 in PVC 90 degree elbow, slip",3,ea,Schedule 40,Model (Drip Irrigation),At the bottom of the riser and on each side of the wall
+A,Drip riser,"1/2 in PVC ball valve, slip x slip",1,ea,Lever handle,Model (Drip Irrigation),"3 7/8 in above grade on the outside of the far end wall, lever west along the wall"
+A,Drip riser,1/2 in FPT x 4-port 1/4 in barb drip manifold head,1,ea,,Model (Drip Irrigation),"Inside the bed, top 1 7/8 in above the wall top"
+A,Drip riser,"1/2 in PVC male adapter, slip x MPT",1,ea,Threads the head onto the riser,Derived from model,Not modelled; a female adapter instead if your head is male
+A,Drip riser,1/2 in stand-off pipe clamp,2,ea,Galvanized or UV-stable plastic,Model (Drip Irrigation),"At 1 1/2 and 8 3/4 in above grade, one on each board"
+A,Drip riser,#8 x 1 in exterior pan-head screws,4,ea,Same finish as the bed screws,Derived from model,Two per clamp
+A,Drip riser,1 in hole through the top far end board,1,ea,"Spade bit, centred 10 7/8 in above grade and 9 in from the bed's west outside face",Model (Drip Irrigation),The through-wall pipe passes it; bore it in place or before the top board goes on
+A,Soil,Raised-bed soil mix,46.5,cu ft,1.72 cu yd at 14.5 in deep,Derived from model,2x10 walls: 59.5 cu ft (2.20 cu yd)
+A,Optional,"Hardware cloth 1/2 in, 48 in wide (under the bed)",11,lin ft,Gopher / vole barrier,Estimate,Not in model; one strip the length of the bed plus a foot
+B,Lumber,Side board,4,ea,"2x8 x 12 ft, full length (144 in)",Model (Bed Lumber),"2 per course, outside; no cut"
+B,Lumber,End board,4,ea,"2x8, cut 48 in from 8 ft stock",Model (Bed Lumber),"2 per 8 ft board, between the side boards"
+B,Lumber,2x4 corner post,3,ea,"2x4, cut 14.5 in (18.5 in with 2x10 walls)",Model (Bed Lumber),"Inside each corner, edge-on to the side boards, standing on grade"
+B,Lumber,2x4 mid-span post,4,ea,"2x4, cut 23 7/8 in",Model (Bed Lumber),"Flat against the side boards, centred 49, 95 in from the near end; 9 3/8 in in the ground"
+B,Lumber,2x4 trellis post,1,ea,"2x4 x 8 ft, uncut",Model (Bed Lumber),"West corner at the near end; in place of a corner post, set 20 in deep, 76 in above grade; holds the arch near its crown"
+B,Lumber,2x4 arch sill,1,ea,"2x4, cut 60.5 in",Model (Bed Lumber),"Flat on grade along the bed centreline, 3 to 63.5 in from the near end; the arch foot sits on it"
+B,Lumber,2x4 arch stake,2,ea,"2x4, cut 23 7/8 in",Model (Bed Lumber),"One at each end of the sill, 10.5 in in the ground, 13.5 in above grade"
+B,Fasteners,#9 x 3 in exterior structural screws,36,ea,"Star drive; coated for treated lumber, stainless 305/316 for cedar or redwood",Derived from model,16 side boards into the corner post edges + 16 corner ties into end grain + 4 arch stakes into the sill ends
+B,Fasteners,#9 x 2.5 in exterior structural screws,32,ea,Same finish as the 3 in screws,Derived from model,16 side boards into the mid-span post faces + 16 end boards into the corner post faces
+B,Fasteners,#9 x 1.25 in exterior screws,10,ea,"Same finish, each through a fender washer",Derived from model,"Hog-wire panel to the trellis post (2), the stakes (2 each) and the sill (4)"
+B,Fasteners,1/4 x 1 in galvanized fender washers,10,ea,One under each panel screw,Derived from model,The washer beside a wire traps it against the wood
+B,Trellis arch,"Hog-wire / cattle panel, 16 ft, 4 x 4 in mesh (Arch AB)",1,ea,"4-gauge galvanized, 48 to 60 in wide",Model (Hogwire Arches),"One panel bent from the centre of this bed to the centre of Bed A; it is listed under both beds, buy one. 37 in straight legs, crown 76 in above grade"
+B,Drip riser,"3/4 x 3/4 x 1/2 in PVC reducer tee, slip",1,ea,Schedule 40,Model (Drip Irrigation),"On the 3/4 in main, 8 in beyond the far end board, 6 1/8 in deep"
+B,Drip riser,"1/2 in PVC pipe, schedule 40",5,pieces,"Cut 6 1/4, 9, 6, 3 1/2, 4 in (28 3/4 in in all)",Model (Drip Irrigation),"Ground run, lower riser, upper riser, through the wall, head; cut from the 1 x 10 ft stick on the shopping list, shared by all 4 beds"
+B,Drip riser,"1/2 in PVC 90 degree elbow, slip",3,ea,Schedule 40,Model (Drip Irrigation),At the bottom of the riser and on each side of the wall
+B,Drip riser,"1/2 in PVC ball valve, slip x slip",1,ea,Lever handle,Model (Drip Irrigation),"3 7/8 in above grade on the outside of the far end wall, lever west along the wall"
+B,Drip riser,1/2 in FPT x 4-port 1/4 in barb drip manifold head,1,ea,,Model (Drip Irrigation),"Inside the bed, top 1 7/8 in above the wall top"
+B,Drip riser,"1/2 in PVC male adapter, slip x MPT",1,ea,Threads the head onto the riser,Derived from model,Not modelled; a female adapter instead if your head is male
+B,Drip riser,1/2 in stand-off pipe clamp,2,ea,Galvanized or UV-stable plastic,Model (Drip Irrigation),"At 1 1/2 and 8 3/4 in above grade, one on each board"
+B,Drip riser,#8 x 1 in exterior pan-head screws,4,ea,Same finish as the bed screws,Derived from model,Two per clamp
+B,Drip riser,1 in hole through the top far end board,1,ea,"Spade bit, centred 10 7/8 in above grade and 9 in from the bed's west outside face",Model (Drip Irrigation),The through-wall pipe passes it; bore it in place or before the top board goes on
+B,Soil,Raised-bed soil mix,56.2,cu ft,2.08 cu yd at 14.5 in deep,Derived from model,2x10 walls: 71.8 cu ft (2.66 cu yd)
+B,Optional,"Hardware cloth 1/2 in, 48 in wide (under the bed)",13,lin ft,Gopher / vole barrier,Estimate,Not in model; one strip the length of the bed plus a foot
+C,Lumber,Side board,4,ea,"2x8 x 14 ft, full length (168 in)",Model (Bed Lumber),"2 per course, outside; no cut"
+C,Lumber,End board,4,ea,"2x8, cut 48 in from 8 ft stock",Model (Bed Lumber),"2 per 8 ft board, between the side boards"
+C,Lumber,2x4 corner post,4,ea,"2x4, cut 14.5 in (18.5 in with 2x10 walls)",Model (Bed Lumber),"Inside each corner, edge-on to the side boards, standing on grade"
+C,Lumber,2x4 mid-span post,6,ea,"2x4, cut 23 7/8 in",Model (Bed Lumber),"Flat against the side boards, centred 44, 84, 124 in from the near end; 9 3/8 in in the ground"
+C,Fasteners,#9 x 3 in exterior structural screws,32,ea,"Star drive; coated for treated lumber, stainless 305/316 for cedar or redwood",Derived from model,16 side boards into the corner post edges + 16 corner ties into end grain
+C,Fasteners,#9 x 2.5 in exterior structural screws,40,ea,Same finish as the 3 in screws,Derived from model,24 side boards into the mid-span post faces + 16 end boards into the corner post faces
+C,Hoops,"Low-tunnel hoop, 1 in tube, 40 in wide x 57 in tall",6,ea,"136 in of tube each (11.4 ft), 68 ft in all",Model (Garden Hoops),"31 in pitch, the first and last 5 in inside the end boards; 36 in legs pushed through the soil to grade"
+C,Drip riser,"3/4 x 3/4 x 1/2 in PVC reducer tee, slip",1,ea,Schedule 40,Model (Drip Irrigation),"On the 3/4 in main, 8 in beyond the far end board, 6 1/8 in deep"
+C,Drip riser,"1/2 in PVC pipe, schedule 40",5,pieces,"Cut 6 1/4, 9, 6, 3 1/2, 4 in (28 3/4 in in all)",Model (Drip Irrigation),"Ground run, lower riser, upper riser, through the wall, head; cut from the 1 x 10 ft stick on the shopping list, shared by all 4 beds"
+C,Drip riser,"1/2 in PVC 90 degree elbow, slip",3,ea,Schedule 40,Model (Drip Irrigation),At the bottom of the riser and on each side of the wall
+C,Drip riser,"1/2 in PVC ball valve, slip x slip",1,ea,Lever handle,Model (Drip Irrigation),"3 7/8 in above grade on the outside of the far end wall, lever west along the wall"
+C,Drip riser,1/2 in FPT x 4-port 1/4 in barb drip manifold head,1,ea,,Model (Drip Irrigation),"Inside the bed, top 1 7/8 in above the wall top"
+C,Drip riser,"1/2 in PVC male adapter, slip x MPT",1,ea,Threads the head onto the riser,Derived from model,Not modelled; a female adapter instead if your head is male
+C,Drip riser,1/2 in stand-off pipe clamp,2,ea,Galvanized or UV-stable plastic,Model (Drip Irrigation),"At 1 1/2 and 8 3/4 in above grade, one on each board"
+C,Drip riser,#8 x 1 in exterior pan-head screws,4,ea,Same finish as the bed screws,Derived from model,Two per clamp
+C,Drip riser,1 in hole through the top far end board,1,ea,"Spade bit, centred 10 7/8 in above grade and 9 in from the bed's west outside face",Model (Drip Irrigation),The through-wall pipe passes it; bore it in place or before the top board goes on
+C,Soil,Raised-bed soil mix,66.0,cu ft,2.45 cu yd at 14.5 in deep,Derived from model,2x10 walls: 84.4 cu ft (3.12 cu yd)
+C,Optional,"Hardware cloth 1/2 in, 48 in wide (under the bed)",15,lin ft,Gopher / vole barrier,Estimate,Not in model; one strip the length of the bed plus a foot
+D,Lumber,Side board,4,ea,"2x8 x 16 ft, full length (192 in)",Model (Bed Lumber),"2 per course, outside; no cut"
+D,Lumber,End board,4,ea,"2x8, cut 21 in from 8 ft stock",Model (Bed Lumber),"4 per 8 ft board, between the side boards"
+D,Lumber,2x4 corner post,4,ea,"2x4, cut 14.5 in (18.5 in with 2x10 walls)",Model (Bed Lumber),"Inside each corner, edge-on to the side boards, standing on grade"
+D,Lumber,2x4 mid-span post,6,ea,"2x4, cut 23 7/8 in",Model (Bed Lumber),"Flat against the side boards, centred 50, 96, 142 in from the near end; 9 3/8 in in the ground"
+D,Fasteners,#9 x 3 in exterior structural screws,32,ea,"Star drive; coated for treated lumber, stainless 305/316 for cedar or redwood",Derived from model,16 side boards into the corner post edges + 16 corner ties into end grain
+D,Fasteners,#9 x 2.5 in exterior structural screws,40,ea,Same finish as the 3 in screws,Derived from model,24 side boards into the mid-span post faces + 16 end boards into the corner post faces
+D,Drip riser,"3/4 x 3/4 x 1/2 in PVC reducer tee, slip",1,ea,Schedule 40,Model (Drip Irrigation),"On the 3/4 in main, 8 in beyond the far end board, 6 1/8 in deep"
+D,Drip riser,"1/2 in PVC pipe, schedule 40",5,pieces,"Cut 6 1/4, 9, 6, 3 1/2, 4 in (28 3/4 in in all)",Model (Drip Irrigation),"Ground run, lower riser, upper riser, through the wall, head; cut from the 1 x 10 ft stick on the shopping list, shared by all 4 beds"
+D,Drip riser,"1/2 in PVC 90 degree elbow, slip",3,ea,Schedule 40,Model (Drip Irrigation),At the bottom of the riser and on each side of the wall
+D,Drip riser,"1/2 in PVC ball valve, slip x slip",1,ea,Lever handle,Model (Drip Irrigation),"3 7/8 in above grade on the outside of the far end wall, lever west along the wall"
+D,Drip riser,1/2 in FPT x 4-port 1/4 in barb drip manifold head,1,ea,,Model (Drip Irrigation),"Inside the bed, top 1 7/8 in above the wall top"
+D,Drip riser,"1/2 in PVC male adapter, slip x MPT",1,ea,Threads the head onto the riser,Derived from model,Not modelled; a female adapter instead if your head is male
+D,Drip riser,1/2 in stand-off pipe clamp,2,ea,Galvanized or UV-stable plastic,Model (Drip Irrigation),"At 1 1/2 and 8 3/4 in above grade, one on each board"
+D,Drip riser,#8 x 1 in exterior pan-head screws,4,ea,Same finish as the bed screws,Derived from model,Two per clamp
+D,Drip riser,1 in hole through the top far end board,1,ea,"Spade bit, centred 10 7/8 in above grade and 9 in from the bed's west outside face",Model (Drip Irrigation),The through-wall pipe passes it; bore it in place or before the top board goes on
+D,Soil,Raised-bed soil mix,32.9,cu ft,1.22 cu yd at 14.5 in deep,Derived from model,2x10 walls: 42.1 cu ft (1.56 cu yd)
+D,Optional,"Hardware cloth 1/2 in, 48 in wide (under the bed)",17,lin ft,Gopher / vole barrier,Estimate,"Not in model; one strip the length of the bed plus a foot, trimmed to 21 in wide"
