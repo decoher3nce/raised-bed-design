@@ -26,7 +26,14 @@ ROOT = Path(__file__).resolve().parent.parent
 DATA = ROOT / 'data' / 'model_extract.json'
 TODAY = datetime.date.today().isoformat()
 
+import planned_layout  # noqa: E402  (scripts/planned_layout.py: the 2026-11-15 layout, until the Fusion model has it)
+
 d = json.load(open(DATA))
+# PLANNED lists what the overlay had to change, bed by bed; it is empty once the extract comes from a model that
+# already has 8 ft boards in Bed B and the stakes on their grid, and the "planned" notes then drop out by themselves.
+d, _planned = planned_layout.apply(d)
+PLANNED = _planned['lumber']          # the lumber part of the overlay
+PLANNED_DRIP = _planned['drip']       # the drip-riser part
 bodies = [b for b in d['bodies'] if b['visible']]
 params = d['params']
 BOARD_W = params['Board_Width']['value_in']
@@ -67,6 +74,11 @@ STOCK_PRICES = {            # nominal -> {length ft: $ each}. No 14 ft 2x8 or 2x
     '2x10': {8: 21.08, 10: 26.88, 12: 32.78, 16: 43.08},
 }
 STOCK_IN_PRICES = {nom: {ft * 12.0: price for ft, price in d.items()} for nom, d in STOCK_PRICES.items()}
+# The owner's choice of 2026-11-15: every bed but A is built from 8 ft boards only (side pieces, end boards and joint
+# posts alike), so the short side pieces' offcuts become end boards and joint posts. Bed A keeps whole 10 ft sides.
+BOARD_STOCK_FT = {'B': (8,), 'C': (8,), 'D': (8,)}
+POST_STOCK_MAX_FT = 8              # and no 2x4 longer than 8 ft either: four 24 in stakes come out of one, a kerf short
+SPLIT_2026_11_08 = ('C', 'D')   # the beds whose two-board sides were modelled and saved on 2026-11-08
 END_TOL = 0.25              # an end board may run this much short so two clear the kerf on one 8 ft board
 CORNER_TOL = 0.5            # a corner post may run this much short of the wall height
 POST_TOL = 1.0              # a mid-span post or arch stake may run this much short (it comes out of the ground, not the wall)
@@ -292,6 +304,9 @@ trellis_uncut = TRELLIS_LEN in STOCK_IN_PRICES[POST_NOM]      # the trellis post
 mid_embed_cut = MID_LEN - COURSES * BOARD_W                    # 9.5 in of a full-length mid-span post below grade
 
 
+POST_STOCK = {L for L in STOCK_IN_PRICES['2x4'] if L <= POST_STOCK_MAX_FT * 12.0} if POST_STOCK_MAX_FT else None
+
+
 def board_pieces(r):
     """The 2x8 pieces of one bed: side pieces by length (whole sticks where a stock length fits), end boards, and the joint posts,
     which are offcuts of the same stock and may run POST_TOL short like a mid-span post."""
@@ -329,9 +344,10 @@ def priced_as(plan, nom):
 
 for r in bed_rows:
     bp, pp = board_pieces(r), post_pieces_of(r)
-    r['plan_boards'] = cutstock.solve(bp, STOCK_IN_PRICES[NOM])
-    r['plan_boards_alt'] = cutstock.solve(bp, STOCK_IN_PRICES[ALT_NOM])
-    r['plan_posts'] = cutstock.solve(pp, STOCK_IN_PRICES[POST_NOM])
+    r['board_stock'] = {ft * 12.0 for ft in BOARD_STOCK_FT[r['letter']]} if r['letter'] in BOARD_STOCK_FT else None
+    r['plan_boards'] = cutstock.solve(bp, STOCK_IN_PRICES[NOM], r['board_stock'])
+    r['plan_boards_alt'] = cutstock.solve(bp, STOCK_IN_PRICES[ALT_NOM], r['board_stock'])
+    r['plan_posts'] = cutstock.solve(pp, STOCK_IN_PRICES[POST_NOM], POST_STOCK)
     r['opts_boards'] = options_for(bp, NOM)
     r['opts_posts'] = options_for(pp, POST_NOM)
     r['board_cost_alt'] = priced_as(r['plan_boards'], ALT_NOM)        # the same cutting at the 2x10 prices
@@ -358,8 +374,10 @@ _posts_all = [cutstock.Piece('corner', 'corner post', POST_H, corner_pieces, min
               cutstock.Piece('sill', 'arch sill', SILL_LEN, sill_pieces, short='sill')]
 if abs(STAKE_LEN - MID_LEN) >= 1e-6:
     _posts_all.append(cutstock.Piece('stake', 'arch stake', STAKE_LEN, stake_pieces, min_len=STAKE_LEN - POST_TOL, short='stake'))
-combined_boards = cutstock.solve(sorted(_boards_all.values(), key=lambda p: -p.length), STOCK_IN_PRICES[NOM])
-combined_posts = cutstock.solve(_posts_all, STOCK_IN_PRICES[POST_NOM])
+# the one-pile plan keeps to the board lengths the per-bed plans buy (8 ft, and 10 ft for Bed A's sides)
+_board_lengths = {g['stock'] for r in bed_rows for g in r['plan_boards']['sticks']} if BOARD_STOCK_FT else None
+combined_boards = cutstock.solve(sorted(_boards_all.values(), key=lambda p: -p.length), STOCK_IN_PRICES[NOM], _board_lengths)
+combined_posts = cutstock.solve(_posts_all, STOCK_IN_PRICES[POST_NOM], POST_STOCK)
 per_bed_board_cost = round(sum(r['plan_boards']['cost'] for r in bed_rows), 2)
 per_bed_post_cost = round(sum(r['plan_posts']['cost'] for r in bed_rows), 2)
 combined_cost = round(combined_boards['cost'] + combined_posts['cost'], 2)
@@ -406,9 +424,23 @@ staggered_beds = [r['letter'] for r in bed_rows if len({tuple(v) for v in r['sid
 short_sides = sorted({Lp for r in bed_rows for Lp in r['side_pieces'] if Lp not in STOCK_IN_PRICES[NOM]})
 side_stock_ft = sorted({g['stock'] / 12 for r in bed_rows if r['side_seams'] for g in r['plan_boards']['sticks'] for c in g['cuts'] if c['key'].startswith('side')})
 side_stock_txt = ' and '.join(f'{x:g} ft' for x in side_stock_ft)
-# does the stick that yields a short side piece also yield a joint post, as intended?
-offcut_joints = any(any(c['key'] == 'joint' for c in g['cuts']) for r in bed_rows for g in r['plan_boards']['sticks']
-                    if any(c['key'].startswith('side') and c['len'] not in STOCK_IN_PRICES[NOM] for c in g['cuts']))
+# what else the stick that yields each short side piece yields: {(bed letter, piece length): [piece labels]}
+offcut_uses = OrderedDict()
+for r in bed_rows:
+    for g in r['plan_boards']['sticks']:
+        for c in g['cuts']:
+            if c['key'].startswith('side') and c['len'] not in STOCK_IN_PRICES[NOM]:
+                uses = offcut_uses.setdefault((r['letter'], c['len']), [])
+                uses += [x['label'] for x in g['cuts'] if x is not c and x['label'] not in uses]
+offcut_joints = any('joint post' in v for v in offcut_uses.values())
+offcut_txt = '; '.join(f"Bed {letter}'s {Lp:g} in side pieces are cut from boards whose offcut is "
+                       + ' and '.join(('an ' if x[0] in 'aeiou' else 'a ') + x for x in uses)
+                       for (letter, Lp), uses in offcut_uses.items() if uses)
+eight_only = [r['letter'] for r in bed_rows if r['board_stock']]     # beds held to 8 ft boards (BOARD_STOCK_FT)
+# the stakes and joint posts along each long wall: one pitch when every gap, ends included, is the same in every bed
+_gaps = {round(b - a, 2) for r in bed_rows
+         for a, b in zip([0.0] + sorted(r['mid_centers'] + r['joint_centers']), sorted(r['mid_centers'] + r['joint_centers']) + [r['L']])}
+STAKE_PITCH = _gaps.pop() if len(_gaps) == 1 else None
 
 
 def layout_txt(r):
@@ -423,18 +455,25 @@ def sticks_txt(n):
 short_side_beds = [r['letter'] for r in bed_rows if any(Lp not in STOCK_IN_PRICES[NOM] for Lp in r['side_pieces'])]
 
 
-side_scheme_txt = ((f'{beds_text(whole_beds, True)} use one board per course. ' if whole_beds else '')
+side_scheme_txt = ((f"{beds_text(whole_beds, True)} use{'s' if len(whole_beds) == 1 else ''} one board per course. " if whole_beds else '')
                    + (f'{beds_text(split_beds, True)} use two boards per course from {side_stock_txt} stock ('
                       + '; '.join(f"Bed {r['letter']} {layout_txt(r)}" for r in bed_rows if r['side_seams'])
                       + f'), meeting over {JOINT_NOM} joint posts: {JOINT_LEN:g} in pieces of {JOINT_NOM} lying flat with the {frac(JOINT_W)} in face against the inside of the wall, '
                       + f'{JOINT_EMBED:g} in in the ground like a mid-span post.'
-                      + (f" {beds_text(short_side_beds, True)}'s joint posts are the offcuts of {'its' if len(short_side_beds) == 1 else 'their'} "
-                         f"{' and '.join(f'{x:g} in' for x in short_sides)} side pieces." if offcut_joints and short_side_beds else '') if split_beds else '')
+                      + (f' {offcut_txt}.' if offcut_txt else '') if split_beds else '')
                    + (f" {beds_text(staggered_beds, True)} stagger{'s' if len(staggered_beds) == 1 else ''} the seams course to course, so no joint runs the full height of the wall." if staggered_beds else ''))
-side_stock_note = (f'no 14 ft, so {beds_text(split_beds)} use two boards per course from {side_stock_txt} stock, joined over {JOINT_NOM} joint posts' if split_beds else 'no 14 ft')
-cut_rule_txt = ('Side boards are whole sticks'
-                + (f"; the {' and '.join(f'{x:g} in' for x in short_sides)} side pieces are cut from {side_stock_txt} boards and the offcut becomes a {JOINT_NOM} joint post, "
-                   f"cut up to {POST_TOL:g} in short so both clear the kerf" if short_sides and offcut_joints else
+side_stock_note = ((f"{beds_text(eight_only)} are built from {side_stock_txt} boards only, two per course, joined over {JOINT_NOM} joint posts"
+                    + (f"; {beds_text(whole_beds, True)} keep{'s' if len(whole_beds) == 1 else ''} whole side boards" if whole_beds else '')) if eight_only else
+                   f'no 14 ft, so {beds_text(split_beds)} use two boards per course from {side_stock_txt} stock, joined over {JOINT_NOM} joint posts' if split_beds else 'no 14 ft')
+stock_limit_txt = ((' from the lengths the owner buys ('
+                    + ', '.join(x for x in ((f"{side_stock_txt} boards for {beds_text(eight_only)}" if eight_only else ''),
+                                            (f'no {POST_NOM} over {POST_STOCK_MAX_FT} ft' if POST_STOCK_MAX_FT else '')) if x) + ')')
+                   if eight_only or POST_STOCK_MAX_FT else '')
+mid_place_txt = ((f'against the long walls every {STAKE_PITCH:g} in, measured from the near end'
+                  + (f' (where two side boards meet, a {JOINT_NOM} joint post stands in for the stake)' if split_beds else ''))
+                 if STAKE_PITCH else 'against the long walls at mid-span')
+cut_rule_txt = ('Full-length side boards are whole sticks'
+                + (f"; {offcut_txt}, the second piece cut a little short so both clear the kerf" if offcut_txt else
                    f"; the {' and '.join(f'{x:g} in' for x in short_sides)} side pieces are cut from {side_stock_txt} boards" if short_sides else '')
                 + f'. End boards may be cut up to {frac(END_TOL)} in short so two 48 in pieces clear the saw kerf on one 8 ft board; '
                 f'corner posts may run up to {frac(CORNER_TOL)} in short of the wall height and mid-span posts, joint posts and arch stakes up to {POST_TOL:g} in short, '
@@ -619,109 +658,205 @@ SPLIT_SAVED = True                   # the two-board sides of beds C and D were 
 saved_note = ('The Fusion document was saved on 2026-11-06 with the bed-centre arch, sills, stakes, the hoop assembly over Bed C and the drip risers in place.' if HOOPS_SAVED and DRIP_SAVED else
               'The Fusion document was saved on 2026-11-06 with the bed-centre arch, sills, stakes and the hoop assembly over Bed C in place; the drip risers, the 3/4 in main and the holes in the end boards came after that save and are not saved yet.' if HOOPS_SAVED else
               'The Fusion document was saved on 2026-11-06 with the bed-centre arch, sills and stakes in place; the hoop assembly and the drip risers came after that save and are not saved yet.')
-if split_beds and SPLIT_SAVED:
+split_0811 = [b for b in split_beds if b in SPLIT_2026_11_08]
+if split_0811 and SPLIT_SAVED:
     saved_note = (f'The Fusion document was saved on 2026-11-08 with the bed-centre arch, sills, stakes, the hoop assembly over Bed C, the drip risers '
-                  f'and the two-board side walls of {beds_text(split_beds)} with their {JOINT_NOM} joint posts in place.')
-elif split_beds:
-    saved_note += f' The two-board side walls of {beds_text(split_beds)} with their {JOINT_NOM} joint posts (2026-11-08) came after that save and are not saved yet.'
-split_model_note = ((f'- 2026-11-08, two-board sides: the side walls of {beds_text(split_beds)} are now two boards per course ('
-                     + '; '.join(f"Bed {r['letter']} {layout_txt(r)}" for r in bed_rows if r['side_seams'])
+                  f'and the two-board side walls of {beds_text(split_0811)} with their {JOINT_NOM} joint posts in place.')
+elif split_0811:
+    saved_note += f' The two-board side walls of {beds_text(split_0811)} with their {JOINT_NOM} joint posts (2026-11-08) came after that save and are not saved yet.'
+# 2026-11-15: 8 ft boards in every bed but A and the stakes on a grid. Planned (the overlay made the change) or modelled.
+GRID_SAVED = False                   # set True once the Fusion document has been saved with the 2026-11-15 layout in it
+split_1115 = [b for b in split_beds if b not in SPLIT_2026_11_08]
+grid_model_note = None
+if PLANNED or split_1115 or STAKE_PITCH:
+    grid_model_note = ('- 2026-11-15, 8 ft boards and a stake grid: '
+                       + (f"{beds_text(split_1115, True)} now {'has' if len(split_1115) == 1 else 'have'} two side boards per course like {beds_text(split_0811)} ("
+                          + '; '.join(f"Bed {r['letter']} {layout_txt(r)}" for r in bed_rows if r['letter'] in split_1115)
+                          + f') over {JOINT_NOM} joint posts, so every bed but {beds_text(whole_beds)} is built from 8 ft boards. ' if split_1115 else '')
+                       + (f'The {POST_NOM} mid-span stakes stand every {STAKE_PITCH:g} in from the near end on both long walls, with a joint post in place of the stake at a seam. ' if STAKE_PITCH else '')
+                       + ('This layout is planned and is not in the Fusion model yet: scripts/planned_layout.py applies it to the extract of the saved model, so the lumber, cut lists, '
+                          'screw counts and drawings here already use it. scripts/fusion_stake_grid.py makes the same change in the live model (not run yet) and '
+                          'scripts/fusion_build_bed_lumber.py builds it from scratch.' if PLANNED else
+                          'Done in place in the live model by scripts/fusion_stake_grid.py; scripts/fusion_build_bed_lumber.py builds the same layout from scratch.'))
+    if PLANNED:
+        saved_note += ' The 2026-11-15 layout (8 ft boards in every bed but A, stakes on a grid) is planned and is not in that saved model yet.'
+    elif not GRID_SAVED:
+        saved_note += ' The 2026-11-15 layout (8 ft boards in every bed but A, stakes on a grid) came after that save and is not saved yet.'
+split_model_note = ((f'- 2026-11-08, two-board sides: the side walls of {beds_text(split_0811)} are now two boards per course ('
+                     + '; '.join(f"Bed {r['letter']} {layout_txt(r)}" for r in bed_rows if r['letter'] in split_0811)
                      + f') with a {JOINT_NOM} joint post behind every seam, done in place by scripts/fusion_split_sides.py: a hidden construction plane and a Split Body at each seam, '
                      f'a "Joint posts" sketch with a two-sided `Joint post extrude` (bodies "2x8 joint post", Courses x Board_Width up and the rest of Mid_Post_Length down), '
                      f'the 2x4 mid posts a joint post replaces removed and the rest moved so the gaps between posts are even, all in the timeline group "Two-board sides". '
-                     f'scripts/fusion_build_bed_lumber.py builds the same layout from scratch (SIDE_SPLITS).') if split_beds else '- All side boards are single sticks.')
+                     f'scripts/fusion_build_bed_lumber.py builds the same layout from scratch (SIDE_SPLITS).') if split_0811 else '- All side boards are single sticks.')
 hoop_mass_note = (f' The model hoops are solid 1 in rod of wrought iron, about {hoop_bodies[0]["mass_kg"] * KG2LB:.0f} lb each; real 1 in EMT weighs about {hoop_len/12*0.67:.0f} lb per hoop.'
                   if n_hoops and hoop_bodies[0]['mass_kg'] else '')
 
-# ------------------------------------------------------------------ drip irrigation (assembly Drip Irrigation, 2026-11-06)
+# ------------------------------------------------------------------ drip irrigation (assembly Drip Irrigation, 2026-11-06; threaded risers 2026-11-15)
 HOLE_DIA = 1.0                 # the "Drip hole cut" through each top far end board (a feature, so not in the extract)
-DRIP_STICK = 120.0             # 1/2 in PVC comes in 10 ft sticks
+HOLE_EDGE = 1.25               # keep the hole's centre at least this far from the top board's edges
+VALVE_CLEAR = 0.5              # keep the valve's bottom face at least this far above grade
+THREAD_IN = 0.5                # a threaded riser end goes about this far into a fitting
+LOWER_RISER_OPTIONS = (8.0, 12.0)   # lower-riser lengths the buying table works out a main depth for
+DRIP_THREADED_SAVED = False    # set True once the Fusion document has been saved with the threaded risers of 2026-11-15 in it
 WALL_TOP = COURSES * BOARD_W
 riser_paths = sorted({b['path'] for b in bodies if b['component'] == 'Drip riser'})
 n_risers = len(riser_paths)
 main_bodies = [b for b in bodies if b['component'].startswith('3/4 in main')]
-PIPE_ORDER = ['ground', 'lower riser', 'upper riser', 'through wall', 'head']
+RISER_ORDER = ['lower', 'upper', 'through wall', 'head']
+RISER_USE = {'lower': 'reducing elbow up to the valve', 'upper': 'valve up to the outside elbow', 'through wall': 'through the hole in the top end board',
+             'head': 'inside the bed, elbow up to the head'}
+
+
+def a_len(x):
+    """'an 8' / 'a 12': a length with its article."""
+    t = frac(x)
+    return ('an ' if t.split()[0] in ('8', '11', '18') else 'a ') + t
+
+
 risers = []
 for p in riser_paths:
     parts = {b['body']: b for b in bodies if b['path'] == p}
-    tee = parts['3/4 x 1/2 in reducer tee']
+    if '3/4 in tee' not in parts:
+        sys.exit(f'{p}: no body "3/4 in tee". make_bom.py reads the threaded riser parts of 2026-11-15; scripts/planned_layout.py '
+                 f'turns the older glued riser into them, so a riser with other body names needs a look in the model.')
+    tee = parts['3/4 in tee']
     tx, ty, tz = [(tee['min'][i] + tee['max'][i]) / 2 for i in range(3)]
     bed = next((r for r in bed_rows if r['xmin'] - 1 <= tx <= r['xmax'] + 1), None)
-    up = parts['1/2 in pipe, upper riser']
-    wall = parts['1/2 in pipe, through wall']
+    wall_y = bed['ymin'] if bed else 0.0                             # the far end board's outside face; the bed is toward +y
+    rs = {k[len('1/2 in riser, '):]: v for k, v in parts.items() if k.startswith('1/2 in riser, ')}
+    up, thru, stub = rs['upper'], rs['through wall'], parts['3/4 in pipe, stub']
     valve = parts['1/2 in ball valve']
     head = parts['1/2 in NPT x 4-port 1/4 in drip head']
     run = next((b for b in main_bodies if 'elbow' not in b['body'] and b['min'][0] - 1 <= tx <= b['max'][0] + 1
                 and abs((b['min'][1] + b['max'][1]) / 2 - ty) < 2), None)
     main_y = (run['min'][1] + run['max'][1]) / 2 if run else ty      # the main's axis (the tee's box is pulled toward the bed by its branch hub)
+    standoff = wall_y - (up['min'][1] + up['max'][1]) / 2
     risers.append({
         'path': p, 'bed': bed['letter'] if bed else '?', 'bed_row': bed,
         'x_off': tx - bed['xmin'] if bed else 0.0,                 # riser axis from the bed's west outside face
-        'main_offset': (bed['ymin'] - main_y) if bed else 0.0,     # main axis beyond the far end board's outside face
+        'main_offset': wall_y - main_y,                            # main axis beyond the far end board's outside face
         'main_depth': -tz,
-        'standoff': (bed['ymin'] - (up['min'][1] + up['max'][1]) / 2) if bed else 0.0,
-        'through_z': (wall['min'][2] + wall['max'][2]) / 2,
-        'valve_z': (valve['min'][2] + valve['max'][2]) / 2,
+        'standoff': standoff,                                      # riser axis off the wall's outside face
+        'inside_off': (rs['head']['min'][1] + rs['head']['max'][1]) / 2 - (wall_y + T),   # inside riser axis from the wall's inner face
+        'through_z': (thru['min'][2] + thru['max'][2]) / 2,
+        'valve_z': (valve['min'][2] + valve['max'][2]) / 2, 'valve_bottom': valve['min'][2], 'valve_top': valve['max'][2],
         'head_top': head['max'][2], 'head_bottom': head['min'][2],
         'clamps': sorted((v['min'][2] + v['max'][2]) / 2 for k, v in parts.items() if 'clamp' in k),
-        'pipes': {k[len('1/2 in pipe, '):]: v['dims_in'][2] for k, v in parts.items() if k.startswith('1/2 in pipe')},
+        'risers': {k: v['dims_in'][2] for k, v in rs.items()},                            # bought lengths
+        'span': {k: ((v['min'][1] - wall_y, v['max'][1] - wall_y) if k == 'through wall' else (v['min'][2], v['max'][2])) for k, v in rs.items()},
+        'stub': stub['dims_in'][2], 'stub_span': (stub['min'][1] - wall_y, stub['max'][1] - wall_y),
         'n_elbows': sum(1 for k in parts if k.startswith('1/2 in elbow')),
+        'n_reducers': sum(1 for k in parts if 'reducing elbow' in k),
         'n_clamps': sum(1 for k in parts if 'clamp' in k),
     })
 risers.sort(key=lambda r: r['bed'])
+drip_buy_head, drip_buy_table, drip_1115_note = [], [], None
 if risers:
     r0 = risers[0]
-    drip_pipe_per = sum(r0['pipes'].values())
-    drip_pipe_total = sum(sum(r['pipes'].values()) for r in risers)
-    drip_pieces = sum(len(r['pipes']) for r in risers)
-    drip_sticks = math.ceil((drip_pipe_total + (drip_pieces - 1) * KERF) / DRIP_STICK)
-    drip_spare = drip_sticks * DRIP_STICK - drip_pipe_total - (drip_pieces - 1) * KERF
+    RL = r0['risers']
+    drip_riser_count = sum(len(r['risers']) for r in risers)
+    drip_lengths = ', '.join(frac(RL[k]) for k in RISER_ORDER[:-1]) + f' and {frac(RL[RISER_ORDER[-1]])}'
+    drip_stub_total = sum(r['stub'] for r in risers)
+    drip_stub_ft = math.ceil((drip_stub_total + (n_risers - 1) * KERF) / 12.0)       # 3/4 in pipe to buy for the stubs, ft
     drip_elbows = sum(r['n_elbows'] for r in risers)
+    drip_reducers = sum(r['n_reducers'] for r in risers)
     drip_clamps = sum(r['n_clamps'] for r in risers)
+    SLIP_PER, THREADED_PER = 4, 2 * len(RL)        # tee run x 2, tee branch, stub into the reducing elbow; both ends of every riser
     main_len = sum(b['dims_in'][2] for b in main_bodies if 'elbow' not in b['body'])
     main_elbows = sum(1 for b in main_bodies if 'elbow' in b['body'])
-    drip_cuts = ' + '.join(frac(r0['pipes'][k]) for k in PIPE_ORDER if k in r0['pipes'])
     drip_beds = ', '.join(r['bed'] for r in risers)
     drip_hole_up = r0['through_z'] - (COURSES - 1) * BOARD_W      # hole centre above the top board's lower edge
+    drip_barbs_up = round((r0['head_top'] - 0.45 - WALL_TOP) * 4) / 4
+    # The buying rule. Everything between the main and the hole is bought parts, so the hole's height follows from the
+    # main's depth: hole = lower riser + upper riser + RULE_K - depth, where RULE_K is what the reducing elbow, the valve
+    # and the top elbow add once the threads are made up. The hole has to stay inside the top board and the valve above grade.
+    RULE_K = r0['through_z'] + r0['main_depth'] - RL['lower'] - RL['upper']
+    hole_lo = max((COURSES - 1) * BOARD_W + HOLE_EDGE, VALVE_CLEAR + r0['through_z'] - r0['valve_bottom'])
+    hole_hi = WALL_TOP - HOLE_EDGE
+    lower_extra = r0['through_z'] - RL['upper'] - RULE_K          # lower riser = main depth + this, for a hole where it is drawn
+
+    def depth_range(lower):
+        tot = lower + RL['upper'] + RULE_K
+        return tot - hole_hi, tot - hole_lo, tot - r0['through_z'], tot
+
+    drip_buy_head = ["Main's centre below grade", 'Lower riser to buy', 'Where the hole lands, above grade']
+    for lower in LOWER_RISER_OPTIONS:
+        dmin, dmax, dmid, tot = depth_range(lower)
+        drip_buy_table.append((f'{frac(dmin)} to {frac(dmax)} in', f'1/2 x {lower:g} in',
+                               f'{frac(tot)} in minus the depth; mid-board ({frac(r0["through_z"])} in) with the main {frac(dmid)} in deep'
+                               + (', as drawn' if abs(lower - RL['lower']) < 1e-6 else '')))
+    drip_ranges = ' and '.join(f"{a_len(lower)} in lower riser " + ("suits a main whose centre is" if i == 0 else "one") + f" about {frac(depth_range(lower)[0])} to {frac(depth_range(lower)[1])} in deep"
+                               for i, lower in enumerate(LOWER_RISER_OPTIONS))
     drip_paras = [
         f"Every bed gets the same riser on the outside of its far end wall, {frac(r0['x_off'])} in from the bed's west outside face (beds {drip_beds}): "
-        f"that keeps the hole clear of the edge-on corner post, which reaches {T + PW:g} in in from the side board, and in Bed C keeps the pipe inside the bed clear of the hoop legs. "
-        f"From the 3/4 in main, {frac(r0['main_offset'])} in beyond the end board and {frac(r0['main_depth'])} in below grade, a 3/4 x 3/4 x 1/2 reducer tee feeds "
-        f"{frac(r0['pipes']['ground'])} in of 1/2 in pipe along the ground, an elbow turning up, {frac(r0['pipes']['lower riser'])} in of pipe up the outside of the wall, the ball valve, "
-        f"{frac(r0['pipes']['upper riser'])} in more pipe, an elbow turning into the bed, {frac(r0['pipes']['through wall'])} in of pipe through a {HOLE_DIA:g} in hole, "
-        f"an elbow turning up inside the bed, and {frac(r0['pipes']['head'])} in of pipe to the 4-port 1/4 in drip head.",
-        f"The hole is centred {frac(r0['through_z'])} in above grade, {frac(drip_hole_up)} in up the top board, so it sits in the middle of that board and the elbows on either side "
-        f"of the wall stop 1/4 in short of it; the riser stands {frac(r0['standoff'])} in off the wall. The valve is {frac(r0['valve_z'])} in above grade with its lever pointing west along the wall. "
-        f"Two stand-off clamps at {frac(r0['clamps'][0])} and {frac(r0['clamps'][1])} in, each screwed into a single board with two screws, hold the riser and so the valve. "
-        f"Inside the bed the head stands on {frac(r0['pipes']['head'])} in of pipe: its base is at {frac(r0['head_bottom'])} in, just under the {frac(WALL_TOP)} in wall top, "
-        f"and its four 1/4 in barbs are about {frac(round((r0['head_top'] - 0.45 - WALL_TOP) * 4) / 4)} in above the soil line, where the 1/4 in drip lines start.",
-        f"Per bed: one reducer tee, {r0['n_elbows']} elbows, one valve, one head with a 1/2 in male adapter to thread it on (not modelled; the head sits straight on the pipe in the model), "
-        f"two clamps with four screws, and {frac(drip_pipe_per)} in of 1/2 in pipe cut {drip_cuts}. All {n_risers} risers need {frac(drip_pipe_total)} in of pipe: "
-        f"{drip_sticks} x 10 ft stick{'s' if drip_sticks > 1 else ''} with {frac(round(drip_spare * 8) / 8)} in to spare after the kerfs. "
-        f"Prime and cement the slip joints, tape the head's thread, and bore the holes with a {HOLE_DIA:g} in spade bit, in place or before the top boards go on.",
+        f"that keeps the hole clear of the edge-on corner post, which reaches {T + PW:g} in in from the side board, and in Bed C keeps the riser inside the bed clear of the hoop legs. "
+        f"No 1/2 in pipe is cut or glued: the stack is threaded 1/2 in PVC risers (pre-threaded nipples, male thread both ends, sold in fixed lengths) screwed into threaded fittings. "
+        f"From the 3/4 in main, {frac(r0['main_offset'])} in beyond the end board and drawn {frac(r0['main_depth'])} in below grade, a 3/4 x 3/4 x 3/4 in slip tee feeds a {frac(r0['stub'])} in stub "
+        f"of 3/4 in pipe (the only cut pipe) into a 3/4 in slip x 1/2 in FPT reducing elbow turned up, {frac(r0['main_offset'] - r0['standoff'])} in from the main. Then come "
+        f"{a_len(RL['lower'])} in riser up the outside of the wall, the FPT x FPT ball valve, {a_len(RL['upper'])} in riser, an FPT elbow turning into the bed, "
+        f"{a_len(RL['through wall'])} in riser through a {HOLE_DIA:g} in hole, an FPT elbow turning up inside the bed, and {a_len(RL['head'])} in riser with the 4-port 1/4 in drip head threaded straight onto it.",
+        f"The hole is centred {frac(r0['through_z'])} in above grade, {frac(drip_hole_up)} in up the top board, so it sits in the middle of that board and the elbow hubs on either side "
+        f"of the wall stop 1/4 in short of it; the riser stands {frac(r0['standoff'])} in off the wall outside and {frac(r0['inside_off'])} in inside the wall's inner face "
+        f"({frac(r0['standoff'] + T + r0['inside_off'])} in centre to centre). A riser end threads about {frac(THREAD_IN)} in into its fitting, so the {frac(RL['upper'])} in riser spans "
+        f"{frac(r0['span']['upper'][0])} to {frac(r0['span']['upper'][1])} in above grade and the {frac(RL['lower'])} in riser runs from {frac(r0['span']['lower'][1])} in above grade to {frac(-r0['span']['lower'][0])} in below. "
+        f"The valve is centred {frac(r0['valve_z'])} in above grade (faces at {frac(r0['valve_bottom'])} and {frac(r0['valve_top'])} in) with its lever pointing west along the wall. "
+        f"Two stand-off clamps at {frac(r0['clamps'][0])} and {frac(r0['clamps'][1])} in, both on the {frac(RL['upper'])} in riser above the valve and one on each board, each with two screws, hold the stack. "
+        f"Inside the bed the {frac(RL['head'])} in riser spans {frac(r0['span']['head'][0])} to {frac(r0['span']['head'][1])} in: the head's base is at {frac(r0['head_bottom'])} in, "
+        f"{frac(r0['head_bottom'] - WALL_TOP)} in above the {frac(WALL_TOP)} in wall top, its top at {frac(r0['head_top'])} in, "
+        f"and its four 1/4 in barbs are about {frac(drip_barbs_up)} in above the soil line, where the 1/4 in drip lines start.",
+        f"Per bed: one 3/4 in tee, a {frac(r0['stub'])} in stub of 3/4 in pipe, one reducing elbow, {len(RL)} threaded risers ({drip_lengths} in), {r0['n_elbows']} FPT elbows, "
+        f"one FPT x FPT ball valve, one head, and two clamps with four screws. All {n_risers} beds: {n_risers} of each riser length, {drip_elbows} elbows, and {frac(drip_stub_total)} in of 3/4 in pipe "
+        f"for the stubs, so about {drip_stub_ft} ft. Prime and cement only the {SLIP_PER} slip joints per bed (the tee's two run sockets on the main, its branch, and the stub into the reducing elbow: "
+        f"{SLIP_PER * n_risers} in all). Wrap PTFE tape on the {THREADED_PER} threaded joints per bed (both ends of every riser: {THREADED_PER * n_risers} in all) and stop at hand tight plus a turn or two, "
+        f"because a female PVC thread splits if it is forced. Bore the holes with a {HOLE_DIA:g} in spade bit, in place or before the top boards go on.",
+    ]
+    drip_rule_paras = [
+        f"Measure the main's depth at each bed before buying the lower risers. The real depth of the existing main is not known: the {frac(r0['main_depth'])} in drawn here is only what "
+        f"{a_len(RL['lower'])} in lower riser gives. The rule: hole centre above grade = lower riser + upper riser + {frac(RULE_K)} in "
+        f"minus the depth of the main's centre below grade. The {frac(RULE_K)} in is what the reducing elbow, the valve and the top elbow add once the threads are made up. "
+        f"With the {frac(RL['upper'])} in upper riser, a lower riser {frac(lower_extra)} in longer than the main is deep puts the hole in the middle of the top board.",
+        f"The hole may sit anywhere from {frac(hole_lo)} to {frac(hole_hi)} in above grade: any lower and the valve's bottom face is less than {frac(VALVE_CLEAR)} in above grade, "
+        f"any higher and the hole's centre is less than {frac(HOLE_EDGE)} in from the top board's upper edge. So {drip_ranges}. "
+        f"A depth outside those ranges needs another riser length: work it out with the rule. The valve, the clamps and the head all move up or down with the hole, "
+        f"and fittings differ a little from maker to maker, so dry-fit the stack at each bed before boring the hole.",
     ]
     drip_note = (f"The 3/4 in main is drawn only to place the tees: a stair-step {frac(r0['main_offset'])} in beyond each far end board, {frac(r0['main_depth'])} in deep, "
                  f"stepping to the next bed at the gap centres under the paver paths ({main_len / 12:.0f} ft and {main_elbows} elbows as drawn). "
                  f"The plot's angled edge passes only 2 to 4 in beyond the inner step corners, so the real route may have to cut those corners. "
-                 f"Change the main's offset or depth, the pipe lengths or the riser position in scripts/fusion_build_irrigation.py and run it again; the risers and holes follow.")
+                 f"Change the main's offset, the riser lengths or the riser position in scripts/fusion_build_irrigation.py and run it again; the risers, the main's depth and the holes follow.")
     drip_model_note = (f'- 2026-11-06, drip risers: new root component **Drip Irrigation** holds one **Drip riser** component placed at each bed\'s far end wall and the reference '
                        f'**3/4 in main (existing)**. Their bodies are temporary-BRep solids in one base feature per component (not parametric: scripts/fusion_build_irrigation.py holds '
                        f'the numbers and rebuilds everything on re-run). Each bed\'s lumber component got a "Drip hole" sketch on the outer face of its top far end board and a through-all '
                        f'`Drip hole cut` ({HOLE_DIA:g} in). Materials PVC-Piping, clamps Steel, Galvanized; all of it in the timeline group "Drip irrigation". '
-                       f'fusion_build_bed_lumber.py does not know about the holes, so run the irrigation script again after rebuilding the lumber.')
+                       f'fusion_build_bed_lumber.py does not know about the holes, so run the irrigation script again after rebuilding the lumber. '
+                       f'As built that day each riser was a 3/4 x 3/4 x 1/2 in tee with cut 1/2 in pipe glued into slip fittings; the 2026-11-15 note below replaces that.')
+    # 2026-11-15: threaded risers. Planned (the overlay made the change) or modelled, in the same way as the lumber layout above.
+    drip_1115_note = (f"- 2026-11-15, threaded drip risers: each riser is now a 3/4 x 3/4 x 3/4 in slip tee, a {frac(r0['stub'])} in stub of 3/4 in pipe, a 3/4 in slip x 1/2 in FPT reducing elbow "
+                      f"and threaded 1/2 in risers ({drip_lengths} in) through an FPT x FPT ball valve and two FPT elbows, in place of the tee with a 1/2 in branch and the cut 1/2 in pipe "
+                      f"(bodies \"3/4 in tee\", \"3/4 in pipe, stub\", \"3/4 x 1/2 in reducing elbow\" and \"1/2 in riser, ...\"). The riser stands {frac(r0['standoff'])} in off the wall (was 1 1/4 in), "
+                      f"the valve is {frac(r0['valve_z'])} in above grade (was 3 7/8 in), the clamps are at {frac(r0['clamps'][0])} and {frac(r0['clamps'][1])} in (were 1 1/2 and 8 3/4 in), "
+                      f"the head's top is at {frac(r0['head_top'])} in (was 16 3/8 in) and the main is drawn {frac(r0['main_depth'])} in deep (was 6 1/8 in); the holes stay where they are. "
+                      + ('This change is planned and is not in the Fusion model yet: scripts/planned_layout.py applies it to the extract of the saved model, so the drip lists, heights '
+                         'and drawings here already use it, and scripts/fusion_build_irrigation.py (updated, not run yet) rebuilds it in Fusion.' if PLANNED_DRIP else
+                         'Rebuilt in the live model by scripts/fusion_build_irrigation.py.'))
+    if PLANNED_DRIP:
+        saved_note += ' The threaded drip risers of 2026-11-15 are planned and are not in that saved model yet.'
+    elif not DRIP_THREADED_SAVED:
+        saved_note += ' The threaded drip risers of 2026-11-15 came after that save and are not saved yet.'
     drip_table = [
         ('Risers', f'{n_risers}, one per bed, on the outside of each far end wall'),
         ('Riser position', f"{frac(r0['x_off'])} in from the bed's west outside face, {frac(r0['standoff'])} in off the wall"),
         ('Hole', f"{HOLE_DIA:g} in, centred {frac(r0['through_z'])} in above grade (the middle of the top board)"),
-        ('Ball valve', f"{frac(r0['valve_z'])} in above grade, lever west along the wall"),
-        ('Clamps', f"{frac(r0['clamps'][0])} and {frac(r0['clamps'][1])} in above grade, one per board"),
+        ('Ball valve', f"centre {frac(r0['valve_z'])} in above grade (faces {frac(r0['valve_bottom'])} and {frac(r0['valve_top'])} in), lever west along the wall"),
+        ('Clamps', f"{frac(r0['clamps'][0])} and {frac(r0['clamps'][1])} in above grade, both on the {frac(RL['upper'])} in riser, one per board"),
         ('Head', f"base {frac(r0['head_bottom'])} in, top {frac(r0['head_top'])} in ({frac(r0['head_top'] - WALL_TOP)} in above the wall)"),
-        ('Main', f"{frac(r0['main_offset'])} in beyond the end board, {frac(r0['main_depth'])} in deep; reducer tee at each riser"),
-        ('1/2 in pipe per bed', f"{frac(drip_pipe_per)} in: {drip_cuts}"),
-        ('1/2 in pipe in all', f"{frac(drip_pipe_total)} in = {drip_sticks} x 10 ft stick{'s' if drip_sticks > 1 else ''}"),
+        ('Main', f"{frac(r0['main_offset'])} in beyond the end board, drawn {frac(r0['main_depth'])} in deep; 3/4 in tee at each riser, {frac(r0['main_offset'] - r0['standoff'])} in from the riser axis"),
+        ('Threaded 1/2 in risers per bed', ', '.join(f"{frac(RL[k])} in ({k if k != 'head' else 'to the head'})" for k in RISER_ORDER if k in RL)),
+        ('3/4 in pipe', f"{frac(r0['stub'])} in stub per bed, {frac(drip_stub_total)} in in all: about {drip_stub_ft} ft"),
+        ('Joints', f"{SLIP_PER} slip (primer and cement) and {THREADED_PER} threaded (PTFE tape) per bed: {SLIP_PER * n_risers} and {THREADED_PER * n_risers} in all"),
     ]
 else:
-    drip_paras, drip_note, drip_table = [], '', []
+    drip_paras, drip_rule_paras, drip_note, drip_table = [], [], '', []
     drip_model_note = '- No drip risers in the model.'
 
 # ------------------------------------------------------------------ hidden / optional
@@ -739,7 +874,7 @@ MASSING = {'A': '4th Bed', 'B': '3rd Bed', 'C': '2nd Bed', 'D': '1st Bed'}
 
 # ------------------------------------------------------------------ materials by bed
 # One list per bed with everything that goes to that bed, built from the same counts as the shopping list.
-# A part shared by two beds (the arch panel) is listed under both; the 1/2 in drip pipe is cut from the sticks on the shopping list.
+# A part shared by two beds (the arch panel) is listed under both; the drip riser's parts are bought lengths, only the 3/4 in stub is cut.
 BED_GROUPS = ['Lumber', 'Cuts', 'Fasteners', 'Trellis arch', 'Hoops', 'Drip riser', 'Soil', 'Optional']
 
 
@@ -799,14 +934,20 @@ def bed_items(r):
     for Lp, n in sorted(r['side_pieces'].items(), reverse=True):
         key = f'side{Lp:g}'
         s_stock, s_off = stock_of(pb, key)
-        mate = next((g for g in pb['sticks'] if any(c['key'] == key for c in g['cuts']) and any(c['key'] == 'joint' for c in g['cuts'])), None)
+        # the stick this piece is cut from, and what the rest of that stick becomes (a joint post, an end board, ...)
+        mate = next((g for g in pb['sticks'] if any(c['key'] == key for c in g['cuts']) and any(c['key'] != key for c in g['cuts'])), None)
+        a_stock = f"a{'n' if s_stock and f'{s_stock/12:g}' in ('8', '11', '18') else ''} {s_stock/12:g} ft board" if s_stock else 'a board'
         if s_stock and abs(s_stock - Lp) < 1e-6:
             side_spec = f'{NOM} x {ft_in(Lp)}, whole board'
         elif mate:
-            jl = next(c['len'] for c in mate['cuts'] if c['key'] == 'joint')
-            side_spec = f'{NOM}, cut {Lp:g} in from a {s_stock/12:g} ft board; the {frac(jl)} in offcut is a joint post'
+            rest = [c for c in mate['cuts'] if c['key'] != key]
+            if len(rest) == 1 and rest[0]['n'] == 1:
+                lab = rest[0]['label']
+                side_spec = f"{NOM}, cut {Lp:g} in from {a_stock}; the {frac(rest[0]['len'])} in offcut is {'an' if lab[0] in 'aeiou' else 'a'} {lab}"
+            else:
+                side_spec = f"{NOM}, cut {Lp:g} in from {a_stock}; the rest of the board is {' + '.join(cutstock.cut_phrase(c) for c in rest)}"
         else:
-            side_spec = f'{NOM}, cut {Lp:g} in from a {s_stock/12:g} ft board ({frac(s_off)} in left)'
+            side_spec = f'{NOM}, cut {Lp:g} in from {a_stock} ({frac(s_off)} in left)'
         if r['side_seams']:
             by_course = {}
             for c, ls in r['side_layout'].items():
@@ -861,23 +1002,29 @@ def bed_items(r):
             f'{hoop_pitch:g} in pitch, the first and last {hoop_near_gap:g} in inside the end boards; {HOOP_LEG:g} in legs pushed through the soil to grade')
     rb = next((x for x in risers if x['bed'] == L), None)
     if rb:
-        cuts = ', '.join(frac(rb['pipes'][k]) for k in PIPE_ORDER if k in rb['pipes'])
-        add('Drip riser', 'tee', '3/4 x 3/4 x 1/2 in PVC reducer tee, slip', 1, 'ea', 'schedule 40', 'Model (Drip Irrigation)',
-            f"on the 3/4 in main, {frac(rb['main_offset'])} in beyond the far end board, {frac(rb['main_depth'])} in deep")
-        add('Drip riser', 'pipe', '1/2 in PVC pipe, schedule 40', len(rb['pipes']), 'pieces', f'cut {cuts} in ({frac(sum(rb["pipes"].values()))} in in all)', 'Model (Drip Irrigation)',
-            f"ground run, lower riser, upper riser, through the wall, head; cut from the {drip_sticks} x 10 ft stick{'s' if drip_sticks > 1 else ''} on the shopping list, shared by all {n_risers} beds")
-        add('Drip riser', 'elbow', '1/2 in PVC 90 degree elbow, slip', rb['n_elbows'], 'ea', 'schedule 40', 'Model (Drip Irrigation)', 'at the bottom of the riser and on each side of the wall')
-        add('Drip riser', 'valve', '1/2 in PVC ball valve, slip x slip', 1, 'ea', 'lever handle', 'Model (Drip Irrigation)',
-            f"{frac(rb['valve_z'])} in above grade on the outside of the far end wall, lever west along the wall")
-        add('Drip riser', 'head', '1/2 in FPT x 4-port 1/4 in barb drip manifold head', 1, 'ea', '', 'Model (Drip Irrigation)',
+        add('Drip riser', 'tee', '3/4 x 3/4 x 3/4 in PVC tee, slip', 1, 'ea', 'all three sockets 3/4 in slip', 'Model (Drip Irrigation)',
+            f"on the 3/4 in main, {frac(rb['main_offset'])} in beyond the far end board; the main is drawn {frac(rb['main_depth'])} in deep")
+        add('Drip riser', 'stub', '3/4 in PVC pipe', 1, 'piece', f"cut {frac(rb['stub'])} in", 'Model (Drip Irrigation)',
+            f"tee branch to the reducing elbow; the only cut pipe, from the {drip_stub_ft} ft on the shopping list")
+        add('Drip riser', 'reducer', '3/4 in slip x 1/2 in FPT PVC 90 degree reducing elbow', rb['n_reducers'], 'ea', 'slip socket to the stub, female thread up', 'Model (Drip Irrigation)',
+            f"{frac(rb['main_offset'] - rb['standoff'])} in from the main, turned up under the riser")
+        for k in RISER_ORDER:
+            if k not in rb['risers']:
+                continue
+            add('Drip riser', 'riser-' + k.replace(' ', '-'), f"1/2 in threaded PVC riser, {frac(rb['risers'][k])} in", 1, 'ea', 'male thread both ends', 'Model (Drip Irrigation)',
+                RISER_USE[k] + (f": right for a main {frac(rb['main_depth'])} in deep, so measure the main here before buying" if k == 'lower' else
+                                '; both clamps go on it' if k == 'upper' else ''))
+        add('Drip riser', 'elbow', '1/2 in PVC 90 degree elbow, FPT x FPT', rb['n_elbows'], 'ea', 'female thread both ends', 'Model (Drip Irrigation)', 'one on each side of the wall')
+        add('Drip riser', 'valve', '1/2 in PVC ball valve, FPT x FPT', 1, 'ea', 'lever handle, about 3 in long', 'Model (Drip Irrigation)',
+            f"centre {frac(rb['valve_z'])} in above grade on the outside of the far end wall, lever west along the wall")
+        add('Drip riser', 'head', '1/2 in FPT x 4-port 1/4 in barb drip manifold head', 1, 'ea', f"threads straight onto the {frac(rb['risers']['head'])} in riser", 'Model (Drip Irrigation)',
             f"inside the bed, top {frac(rb['head_top'] - WALL_TOP)} in above the wall top")
-        add('Drip riser', 'adapter', '1/2 in PVC male adapter, slip x MPT', 1, 'ea', 'threads the head onto the riser', 'Derived from model', 'not modelled; a female adapter instead if your head is male')
         add('Drip riser', 'clamp', '1/2 in stand-off pipe clamp', rb['n_clamps'], 'ea', 'galvanized or UV-stable plastic', 'Model (Drip Irrigation)',
-            f"at {frac(rb['clamps'][0])} and {frac(rb['clamps'][1])} in above grade, one on each board")
+            f"at {frac(rb['clamps'][0])} and {frac(rb['clamps'][1])} in above grade, both on the {frac(rb['risers']['upper'])} in riser, one on each board")
         add('Drip riser', 'clamp-screw', '#8 x 1 in exterior pan-head screws', 2 * rb['n_clamps'], 'ea', 'same finish as the bed screws', 'Derived from model', 'two per clamp')
         add('Drip riser', 'hole', f'{HOLE_DIA:g} in hole through the top far end board', 1, 'ea',
             f"spade bit, centred {frac(rb['through_z'])} in above grade and {frac(rb['x_off'])} in from the bed's west outside face", 'Model (Drip Irrigation)',
-            'the through-wall pipe passes it; bore it in place or before the top board goes on')
+            f"the {frac(rb['risers']['through wall'])} in riser passes it; dry-fit the stack first, the height follows the main's depth")
     add('Soil', 'soil', 'Raised-bed soil mix', round(r['soil_ft3'], 1), 'cu ft', f"{r['soil_ft3']/27:.2f} cu yd at {r['H']:g} in deep", 'Derived from model',
         f"{ALT_NOM} walls: {r['soil_alt_ft3']:.1f} cu ft ({r['soil_alt_ft3']/27:.2f} cu yd)", qty_alt=round(r['soil_alt_ft3'], 1))
     add('Optional', 'cloth', 'Hardware cloth 1/2 in, 48 in wide (under the bed)', round(r['L'] / 12 + 1), 'lin ft', 'gopher / vole barrier', 'Estimate',
@@ -925,21 +1072,32 @@ rows.append(('Arches', f'Hog-wire / cattle panel, {HOGWIRE_LEN/12:g} ft long, 4 
              f'crown {first_arch["crown"]:.0f} in above grade, held near the top by the two {ft_in(TRELLIS_LEN)} inside corner posts, no T-posts. '
              f'Model wires are 60 in wide at 4 in pitch. Arch BC is parked (hidden) in the model'))
 if risers:
-    rows.append(('Drip', '3/4 x 3/4 x 1/2 in PVC reducer tee, slip', n_risers, 'ea', 'Schedule 40', 'Model (Drip Irrigation)',
-                 f"One per bed on the 3/4 in main, {frac(r0['main_offset'])} in beyond the far end board and {frac(r0['main_depth'])} in deep"))
-    rows.append(('Drip', '1/2 in PVC pipe, schedule 40, 10 ft', drip_sticks, 'ea', f'{frac(drip_pipe_total)} in needed in {drip_pieces} pieces', 'Model (Drip Irrigation)',
-                 f'Per bed {drip_cuts} in; {frac(round(drip_spare * 8) / 8)} in spare after the kerfs'))
-    rows.append(('Drip', '1/2 in PVC 90 degree elbow, slip', drip_elbows, 'ea', 'Schedule 40', 'Model (Drip Irrigation)', f"{r0['n_elbows']} per bed: at the bottom of the riser and on each side of the wall"))
-    rows.append(('Drip', '1/2 in PVC ball valve, slip x slip', n_risers, 'ea', 'Lever handle', 'Model (Drip Irrigation)', f"{frac(r0['valve_z'])} in above grade on the outside of the far end wall, between the two clamps"))
-    rows.append(('Drip', '1/2 in FPT x 4-port 1/4 in barb drip manifold head', n_risers, 'ea', '', 'Model (Drip Irrigation)', f"Top at {frac(r0['head_top'])} in, {frac(r0['head_top'] - WALL_TOP)} in above the wall top, inside the bed"))
-    rows.append(('Drip', '1/2 in PVC male adapter, slip x MPT', n_risers, 'ea', 'Threads the head onto the riser', 'Derived from model', 'Not modelled; use a female adapter instead if your head is male'))
+    rows.append(('Drip', '3/4 x 3/4 x 3/4 in PVC tee, slip', n_risers, 'ea', 'All three sockets 3/4 in slip', 'Model (Drip Irrigation)',
+                 f"One per bed on the 3/4 in main, {frac(r0['main_offset'])} in beyond the far end board; the main is drawn {frac(r0['main_depth'])} in deep"))
+    rows.append(('Drip', '3/4 in PVC pipe', drip_stub_ft, 'ft', f"{frac(drip_stub_total)} in needed in {n_risers} stubs of {frac(r0['stub'])} in", 'Model (Drip Irrigation)',
+                 'The only cut pipe: tee branch to the reducing elbow at each bed; a short length or an offcut does it'))
+    rows.append(('Drip', '3/4 in slip x 1/2 in FPT PVC 90 degree reducing elbow', drip_reducers, 'ea', 'Slip socket to the stub, female thread up', 'Model (Drip Irrigation)',
+                 f"One per bed, {frac(r0['main_offset'] - r0['standoff'])} in from the main, turned up under the riser"))
+    for k in RISER_ORDER:
+        n_k = sum(1 for r in risers if k in r['risers'])
+        if not n_k:
+            continue
+        rows.append(('Drip', f"1/2 in threaded PVC riser, {frac(RL[k])} in", n_k, 'ea', 'Male thread both ends', 'Model (Drip Irrigation)',
+                     cap(RISER_USE[k]) + (f": right for a main {frac(r0['main_depth'])} in deep. Measure the main's depth at each bed before buying (see Drip risers)" if k == 'lower' else
+                                          '; both clamps go on it' if k == 'upper' else '')))
+    rows.append(('Drip', '1/2 in PVC 90 degree elbow, FPT x FPT', drip_elbows, 'ea', 'Female thread both ends', 'Model (Drip Irrigation)', f"{r0['n_elbows']} per bed: one on each side of the wall"))
+    rows.append(('Drip', '1/2 in PVC ball valve, FPT x FPT', n_risers, 'ea', 'Lever handle, about 3 in long', 'Model (Drip Irrigation)',
+                 f"Centre {frac(r0['valve_z'])} in above grade on the outside of the far end wall, below the two clamps"))
+    rows.append(('Drip', '1/2 in FPT x 4-port 1/4 in barb drip manifold head', n_risers, 'ea', f"Threads straight onto the {frac(RL['head'])} in riser", 'Model (Drip Irrigation)',
+                 f"Top at {frac(r0['head_top'])} in, {frac(r0['head_top'] - WALL_TOP)} in above the wall top, inside the bed"))
     rows.append(('Drip', '1/2 in stand-off pipe clamp', drip_clamps, 'ea', 'Galvanized or UV-stable plastic', 'Model (Drip Irrigation)',
-                 f"Two per bed at {frac(r0['clamps'][0])} and {frac(r0['clamps'][1])} in, each on one board"))
+                 f"Two per bed at {frac(r0['clamps'][0])} and {frac(r0['clamps'][1])} in, both on the {frac(RL['upper'])} in riser above the valve, each on one board"))
     rows.append(('Drip', '#8 x 1 in exterior pan-head screws', 2 * drip_clamps, 'ea', 'Same finish as the bed screws', 'Derived from model', 'Two per clamp'))
-    rows.append(('Drip', 'PVC primer and cement, small cans', 1, 'set', '', 'Estimate', f'{n_risers * (r0["n_elbows"] * 2 + 3 + 1)} slip joints in all'))
-    rows.append(('Drip', 'PTFE thread tape', 1, 'roll', '', 'Estimate', 'Head onto the male adapter'))
+    rows.append(('Drip', 'PVC primer and cement, small cans', 1, 'set', 'Slip joints only', 'Estimate',
+                 f"{SLIP_PER * n_risers} slip joints in all, {SLIP_PER} per bed: the tee onto the main (2), its branch, and the stub into the reducing elbow"))
+    rows.append(('Drip', 'PTFE thread tape', 1, 'roll', 'Threaded joints', 'Estimate', f"{THREADED_PER * n_risers} threaded joints in all, {THREADED_PER} per bed: both ends of every riser"))
     rows.append(('Drip (reference)', '3/4 in sprinkler main, existing', round(main_len / 12, 1), 'ft', f'{main_elbows} elbows if routed as drawn', 'Model (3/4 in main (existing))',
-                 f"Stair-step {frac(r0['main_offset'])} in beyond the far end boards, {frac(r0['main_depth'])} in deep; drawn only to place the tees"))
+                 f"Stair-step {frac(r0['main_offset'])} in beyond the far end boards, drawn {frac(r0['main_depth'])} in deep (its real depth is not known); drawn only to place the tees"))
 rows.append(('Soil', 'Raised-bed soil mix', round(soil_ft3 / 27, 2), 'cu yd', f'{soil_ft3:.0f} cu ft at {bed_rows[0]["H"]:g} in deep',
              'Derived from model', f'{ALT_NOM} alternative: {soil_alt_ft3/27:.2f} cu yd'))
 rows.append(('Optional', 'Hardware cloth 1/2 in, 48 in wide (under beds)', cloth_ft, 'lin ft', 'Gopher / vole barrier', 'Estimate',
@@ -974,10 +1132,13 @@ def option_label(o, nom):
 
 
 def option_mark(o, plan):
+    if same_cutting(o, plan):
+        return 'chosen'
     diff = round(o['cost'] - plan['cost'], 2)
     if abs(diff) < 0.005:
-        return 'chosen' if same_cutting(o, plan) else 'same cost'
-    return f'+${diff:.2f}'
+        return 'same cost'
+    # a bed held to 8 ft boards can have a cheaper way to buy it in longer ones
+    return f'+${diff:.2f}' if diff > 0 else f'${-diff:.2f} less'
 
 
 def options_text(r, nom, opts, plan):
@@ -1007,7 +1168,7 @@ for r in bed_rows:
 md.append('')
 md.append(f'Bed walls are {NOM} on edge, {COURSES} courses, {bed_rows[0]["H"]:g} in tall. Side boards run outside the end boards, which sit between them. '
           f'{side_scheme_txt} {POST_NOM} corner posts stand inside every corner, edge-on, so side-board screws there get {PW:g} in of post to bite into; '
-          f'{POST_NOM} mid-span posts lie flat against the long walls and run {MID_LEN:g} in long, {EMBED_IN:g} in of it driven into the ground. '
+          f'{POST_NOM} mid-span posts lie flat {mid_place_txt} and run {MID_LEN:g} in long, {EMBED_IN:g} in of it driven into the ground. '
           f'Under the arch, the inside corner post at the near end of beds A and B is an uncut {ft_in(TRELLIS_LEN)} {POST_NOM} (trellis post) set {TRELLIS_EMBED:g} in deep, '
           f'{TRELLIS_ABOVE:g} in above grade, and a {SILL_LEN:g} in {POST_NOM} sill with a {STAKE_LEN:g} in stake at each end lies on the ground along each of those beds\' centrelines to anchor the arch foot. '
           f'Switching the Fusion parameter `Board_Width` to 9.25 in gives {ALT_NOM} walls {bed_rows[0]["H_alt"]:g} in tall with the same cut list.\n')
@@ -1053,7 +1214,7 @@ md.append(f'Buy: 3 in, {screws_3} needed, {buy_3}; 2.5 in, {screws_25} needed, {
 
 md.append('## Cut list\n')
 md.append(f'Stock lengths and prices: {PRICE_SOURCE}. {NOM} and {ALT_NOM} come in {board_lengths_txt} ({side_stock_note}); '
-          f'{POST_NOM} comes in {post_lengths_txt}. Each bed\'s plan is the cheapest set of sticks for that bed on its own, so the four plans add up to the shopping list. '
+          f'{POST_NOM} comes in {post_lengths_txt}. Each bed\'s plan is the cheapest set of sticks for that bed on its own{stock_limit_txt}, so the four plans add up to the shopping list. '
           f'{cut_rule_txt}\n')
 md.append('| Buy | Qty | Each | Total | For |')
 md.append('|---|---|---|---|---|')
@@ -1073,7 +1234,7 @@ md.append('')
 md.append('## Materials by bed\n')
 md.append('Everything that goes to one bed, so each bed can be checked on its own. The lumber lines are the sticks to buy, in store lengths with store prices, '
           'and the cut lines beneath them say what every stick becomes; fasteners come from the screw plan. '
-          'The hog-wire panel spans beds A and B and is listed under both (buy one); the 1/2 in drip pipe for every bed is cut from the sticks on the shopping list. '
+          'The hog-wire panel spans beds A and B and is listed under both (buy one); the drip riser lines are bought parts, and only the 3/4 in stub is cut. '
           'The same lists are in BOM-by-bed.csv, and bom.html has tick boxes that are remembered in the browser.\n')
 for r, items in bed_lists:
     md.append(f"### Bed {r['letter']}: {ft_in(r['L'])} x {r['W']:g} in, {r['H']:g} in tall\n")
@@ -1135,6 +1296,15 @@ if risers:
     md.append('')
     for para in drip_paras:
         md.append(para + '\n')
+    md.append('### Which lower riser to buy\n')
+    md.append(drip_rule_paras[0] + '\n')
+    md.append('| ' + ' | '.join(drip_buy_head) + ' |')
+    md.append('|' + '---|' * len(drip_buy_head))
+    for row in drip_buy_table:
+        md.append('| ' + ' | '.join(row) + ' |')
+    md.append('')
+    for para in drip_rule_paras[1:]:
+        md.append(para + '\n')
     md.append(drip_note + '\n')
 
 md.append('## Soil\n')
@@ -1159,6 +1329,10 @@ md.append(f'- 2026-11-06, trellis arch: Arch AB now runs from the centre of Bed 
 md.append(hoops_model_note)
 md.append(drip_model_note)
 md.append(split_model_note)
+if grid_model_note:
+    md.append(grid_model_note)
+if drip_1115_note:
+    md.append(drip_1115_note)
 md.append('- ' + saved_note)
 md.append('')
 md.append('Model mass by material (visible bodies): ' + ', '.join(f'{k} {v:,.0f} lb' for k, v in mass_by_mat.items()) + '.' + hoop_mass_note)
@@ -1255,8 +1429,8 @@ if n_hoops:
     svg.append(f'<text x="{lx:.1f}" y="{ly+4:.1f}" text-anchor="middle" font-size="11" font-weight="600" fill="var(--arch)" paint-order="stroke" stroke="var(--panel)" stroke-width="3" stroke-linejoin="round">{n_hoops} hoops, {hoop_pitch:g} in</text>')
     svg.append('</g>')
 if risers:
-    tip = (f"Drip: 3/4 in main (existing, drawn as a stair-step {frac(r0['main_offset'])} in beyond the far end boards, {frac(r0['main_depth'])} in deep) "
-           f"with a 1/2 in riser and ball valve on the outside of every far end wall, {frac(r0['x_off'])} in from the west face, and a 4-port 1/4 in head inside")
+    tip = (f"Drip: 3/4 in main (existing, drawn as a stair-step {frac(r0['main_offset'])} in beyond the far end boards, {frac(r0['main_depth'])} in deep; measure its real depth) "
+           f"with a stack of threaded 1/2 in risers and a ball valve on the outside of every far end wall, {frac(r0['x_off'])} in from the west face, and a 4-port 1/4 in head inside")
     svg.append(f'<g class="drip" data-tip="{esc(tip)}">')
     for b in main_bodies:
         if 'elbow' in b['body']:
@@ -1687,13 +1861,18 @@ if risers:
     DR_K = 12
     dr_so, dr_zt_, dr_zv, dr_zm = r0['standoff'], r0['through_z'], r0['valve_z'], -r0['main_depth']
     dr_mo, dr_cl, dr_zh, dr_zhb = r0['main_offset'], r0['clamps'], r0['head_top'], r0['head_bottom']
+    dr_yi_ax = T + r0['inside_off']     # the riser axis inside the bed, from the wall's outside face
+    dr_vb, dr_vt = r0['valve_bottom'], r0['valve_top']
+    dr_sp = r0['span']                  # each riser end to end, as modelled (the ends sit inside the fittings)
     dr_yo = dr_mo + 2.5                 # inches shown beyond the wall (outside, drawn to the left)
     dr_yi = 5.5                         # inches of the bed inside shown
     dr_zb = r0['main_depth'] + 2.0      # below grade shown
     dr_zt = dr_zh + 1.6
-    dr_x0, dr_y0 = 212, 14
-    HUB, PR, HR, SOCK = 1.0, 0.42, 0.585, 0.75   # 1/2 in fittings as modelled: hub length from the centre, pipe and hub radii, socket depth
-    P34R, H34R = 0.525, 0.70
+    dr_x0, dr_y0 = 222, 14
+    # fittings as modelled: FPT elbow hub length from its centre, riser and threaded hub radii; 3/4 in pipe and hub radii;
+    # hub length of the tee and of the reducing elbow
+    HUB, PR, HR = 1.125, 0.42, 0.65
+    P34R, H34R, HUB34 = 0.525, 0.70, 1.25
 
     def drx(y):
         return dr_x0 + (y + dr_yo) * DR_K
@@ -1709,44 +1888,44 @@ if risers:
         return (f'<rect x="{drx(min(y0, y1)):.1f}" y="{drz(max(z0, z1)):.1f}" width="{abs(y1 - y0) * DR_K:.1f}" '
                 f'height="{abs(z1 - z0) * DR_K:.1f}" rx="{rx}" {style}/>')
 
-    def velbow(yc, zc, dy, dz):
+    def velbow(yc, zc, dy, dz, hub=HUB, r=HR):
         out = []
         if dy:
-            out.append(vrect(yc, yc + dy * HUB, zc - HR, zc + HR, PS, 2))
+            out.append(vrect(yc, yc + dy * hub, zc - r, zc + r, PS, 2))
         if dz:
-            out.append(vrect(yc - HR, yc + HR, zc, zc + dz * HUB, PS, 2))
-        out.append(f'<circle cx="{drx(yc):.1f}" cy="{drz(zc):.1f}" r="{HR * DR_K:.1f}" {PS}/>')
+            out.append(vrect(yc - r, yc + r, zc, zc + dz * hub, PS, 2))
+        out.append(f'<circle cx="{drx(yc):.1f}" cy="{drz(zc):.1f}" r="{r * DR_K:.1f}" {PS}/>')
         return '\n'.join(out)
 
     dv = []
-    dv.append(f'<svg viewBox="0 0 {DRW} {DRH}" role="img" aria-label="Side view of a drip riser at the far end wall of a bed: the buried 3/4 in main and reducer tee outside, 1/2 in pipe up the outside of the wall through a ball valve held by two clamps, an elbow through a hole in the top board, and a 4-port drip head standing inside the bed" xmlns="http://www.w3.org/2000/svg">')
+    dv.append(f'<svg viewBox="0 0 {DRW} {DRH}" role="img" aria-label="Side view of a drip riser at the far end wall of a bed: the buried 3/4 in main with a tee, a stub of 3/4 in pipe and a reducing elbow outside, threaded 1/2 in risers up the outside of the wall through a ball valve with two clamps above it, an elbow and a riser through a hole in the top board, and a 4-port drip head standing on a riser inside the bed" xmlns="http://www.w3.org/2000/svg">')
     dv.append(vrect(-dr_yo, T + dr_yi, -dr_zb, 0, 'fill="currentColor" opacity="0.06"'))
     dv.append(vrect(T, T + dr_yi, 0, WALL_TOP - 1.0, 'fill="var(--lumber)" opacity="0.12"'))
     dv.append(f'<line x1="{drx(-dr_yo):.1f}" y1="{drz(0):.1f}" x2="{drx(T + dr_yi):.1f}" y2="{drz(0):.1f}" stroke="currentColor" stroke-width="1" stroke-dasharray="5 3" opacity="0.7"/>')
     for c in range(COURSES):
         dv.append(vrect(0, T, c * BOARD_W, (c + 1) * BOARD_W, 'fill="var(--lumber)" opacity="0.55" stroke="var(--lumber)" stroke-width="1.2"'))
     dv.append(vrect(-0.15, T + 0.15, dr_zt_ - HOLE_DIA / 2, dr_zt_ + HOLE_DIA / 2, 'fill="var(--panel)" stroke="var(--arch)" stroke-width="1.3" stroke-dasharray="3 2"'))
-    # pipes, then fittings on top of their ends
-    dv.append(vrect(-dr_mo + HUB - SOCK, -dr_so - (HUB - SOCK), dr_zm - PR, dr_zm + PR, PS))
-    dv.append(vrect(-dr_so - PR, -dr_so + PR, dr_zm + HUB - SOCK, dr_zv - 1.5 + SOCK, PS))
-    dv.append(vrect(-dr_so - PR, -dr_so + PR, dr_zv + 1.5 - SOCK, dr_zt_ - (HUB - SOCK), PS))
-    dv.append(vrect(-dr_so + HUB - SOCK, T + dr_so - (HUB - SOCK), dr_zt_ - PR, dr_zt_ + PR, PS))
-    dv.append(vrect(T + dr_so - PR, T + dr_so + PR, dr_zt_ + HUB - SOCK, dr_zhb + SOCK, PS))
-    dv.append(vrect(-dr_mo, -dr_mo + HUB, dr_zm - HR, dr_zm + HR, PS, 2))
+    # the stub and the risers, then the fittings on top of their ends
+    dv.append(vrect(r0['stub_span'][0], r0['stub_span'][1], dr_zm - P34R, dr_zm + P34R, PS))
+    dv.append(vrect(-dr_so - PR, -dr_so + PR, dr_sp['lower'][0], dr_sp['lower'][1], PS))
+    dv.append(vrect(-dr_so - PR, -dr_so + PR, dr_sp['upper'][0], dr_sp['upper'][1], PS))
+    dv.append(vrect(dr_sp['through wall'][0], dr_sp['through wall'][1], dr_zt_ - PR, dr_zt_ + PR, PS))
+    dv.append(vrect(dr_yi_ax - PR, dr_yi_ax + PR, dr_sp['head'][0], dr_sp['head'][1], PS))
+    dv.append(vrect(-dr_mo, -dr_mo + HUB34, dr_zm - H34R, dr_zm + H34R, PS, 2))
     dv.append(f'<circle cx="{drx(-dr_mo):.1f}" cy="{drz(dr_zm):.1f}" r="{H34R * DR_K:.1f}" {PS}/>')
     dv.append(f'<circle cx="{drx(-dr_mo):.1f}" cy="{drz(dr_zm):.1f}" r="{P34R * DR_K:.1f}" fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.6"/>')
-    dv.append(velbow(-dr_so, dr_zm, -1, 1))
+    dv.append(velbow(-dr_so, dr_zm, -1, 1, HUB34, H34R))
     dv.append(velbow(-dr_so, dr_zt_, 1, -1))
-    dv.append(velbow(T + dr_so, dr_zt_, -1, 1))
-    dv.append(vrect(-dr_so - HR, -dr_so + HR, dr_zv - 1.5, dr_zv + 1.5, PS, 2))
+    dv.append(velbow(dr_yi_ax, dr_zt_, -1, 1))
+    dv.append(vrect(-dr_so - HR, -dr_so + HR, dr_vb, dr_vt, PS, 2))
     dv.append(vrect(-dr_so - 0.8, -dr_so + 0.8, dr_zv - 1.0, dr_zv + 1.0, PS, 3))
     dv.append(f'<line x1="{drx(-dr_so - 0.8):.1f}" y1="{drz(dr_zv):.1f}" x2="{drx(-dr_so - 1.3):.1f}" y2="{drz(dr_zv):.1f}" stroke="currentColor" stroke-width="2.5"/>')
     dv.append(f'<circle cx="{drx(-dr_so - 1.52):.1f}" cy="{drz(dr_zv):.1f}" r="{0.23 * DR_K:.1f}" {PS}/>')
     for cz in dr_cl:
         dv.append(vrect(-(dr_so + PR + 0.2), 0, cz - 0.5, cz + 0.5, 'fill="currentColor" opacity="0.5" stroke="currentColor" stroke-width="1"'))
-    dv.append(vrect(T + dr_so - 0.625, T + dr_so + 0.625, dr_zhb, dr_zh, PS, 2))
+    dv.append(vrect(dr_yi_ax - 0.625, dr_yi_ax + 0.625, dr_zhb, dr_zh, PS, 2))
     for sgn_ in (-1, 1):
-        y_a = T + dr_so + sgn_ * 0.6
+        y_a = dr_yi_ax + sgn_ * 0.6
         dv.append(vrect(y_a, y_a + sgn_ * 0.6, dr_zh - 0.58, dr_zh - 0.32, PS))
     # labels: outside features at the left (right-aligned, leader to the feature), inside features at the right
     LX = dr_x0 - 10
@@ -1763,25 +1942,32 @@ if risers:
         return (f'<line x1="{RX - 4:.1f}" y1="{drz(z):.1f}" x2="{drx(y_to):.1f}" y2="{drz(zz):.1f}" stroke="{color}" stroke-width="0.9" opacity="0.8"/>'
                 f'<text x="{RX:.1f}" y="{drz(z) + 4:.1f}" font-size="12" fill="{color}" {HALO}>{text}</text>')
 
-    dv.append(llabel(dr_zt_ + 1.45, '1/2 in elbows each side of the wall', -dr_so - HR, dr_zt_ + 0.4))
+    dr_up_mid = (dr_cl[0] + dr_cl[1]) / 2 if len(dr_cl) > 1 else (dr_sp['upper'][0] + dr_sp['upper'][1]) / 2
+    dv.append(llabel(dr_zt_ + 2.95, f'riser axis {frac(dr_so)} in off the wall', -dr_so, dr_zt_ + HR))
+    dv.append(llabel(dr_zt_ + 1.45, '1/2 in FPT elbows each side of the wall', -dr_so - HR, dr_zt_ + 0.4))
     dv.append(llabel(dr_zt_ - 0.05, f'{HOLE_DIA:g} in hole, {frac(dr_zt_)} in up', -0.15, color='var(--arch)'))
-    dv.append(llabel(dr_cl[1], f'clamp {frac(dr_cl[1])} in up, {frac(r0["pipes"]["upper riser"])} in pipe above', -(dr_so + PR + 0.2)))
-    dv.append(llabel(dr_zv, f'ball valve {frac(dr_zv)} in up', -dr_so - 1.52 - 0.23))
-    dv.append(llabel(dr_cl[0], f'clamp {frac(dr_cl[0])} in up, {frac(r0["pipes"]["lower riser"])} in pipe', -(dr_so + PR + 0.2)))
+    dv.append(llabel(dr_cl[1], f'clamp {frac(dr_cl[1])} in up', -(dr_so + PR + 0.2)))
+    dv.append(llabel(dr_up_mid, f'{frac(RL["upper"])} in riser, {frac(dr_sp["upper"][0])} to {frac(dr_sp["upper"][1])} in up', -dr_so - PR))
+    dv.append(llabel(dr_cl[0], f'clamp {frac(dr_cl[0])} in up', -(dr_so + PR + 0.2)))
+    dv.append(llabel(dr_zv, f'FPT ball valve, centre {frac(dr_zv)} in up', -dr_so - 1.52 - 0.23))
     dv.append(f'<text x="{LX:.1f}" y="{drz(0) + 4:.1f}" font-size="12" fill="currentColor" text-anchor="end" opacity="0.8">grade</text>')
-    dv.append(llabel(dr_zm + 1.35, f'{frac(r0["pipes"]["ground"])} in pipe on the main', -(dr_mo + dr_so) / 2, dr_zm + PR))
-    dv.append(llabel(dr_zm - 0.1, f'3/4 x 1/2 tee, {frac(dr_mo)} in out, {frac(-dr_zm)} in deep', -dr_mo - H34R))
-    dv.append(rlabel(dr_zh - 0.2, f'4-port 1/4 in head, top {frac(dr_zh)} in', T + dr_so + 1.2, dr_zh - 0.45))
+    dv.append(llabel(-1.7, f'{frac(RL["lower"])} in riser: length to suit the main', -dr_so - PR))
+    dv.append(llabel(dr_zm + 3.3, '3/4 slip x 1/2 FPT reducing elbow', -dr_so - H34R, dr_zm + 0.9))
+    dv.append(llabel(dr_zm + 1.75, f'{frac(r0["stub"])} in stub of 3/4 in pipe', -(dr_mo + dr_so) / 2 - 0.6, dr_zm + P34R))
+    dv.append(llabel(dr_zm + 0.2, f'3/4 in tee, {frac(dr_mo)} in out, drawn {frac(-dr_zm)} in deep', -dr_mo - H34R, dr_zm))
+    dv.append(rlabel(dr_zh - 0.2, f'4-port 1/4 in head, {frac(dr_zhb)} to {frac(dr_zh)} in up', dr_yi_ax + 1.2, dr_zh - 0.45))
     dv.append(rlabel(WALL_TOP - 0.2, f'wall top {frac(WALL_TOP)} in, soil about 1 in below', T, WALL_TOP))
-    dv.append(rlabel(dr_zt_ + 1.65, f'{frac(r0["pipes"]["head"])} in pipe inside the bed', T + dr_so + PR, dr_zt_ + 2.2))
-    dv.append(rlabel(dr_zt_ + 0.25, 'elbow hub 1/4 in clear of the board', T + dr_so + HR, dr_zt_ + 0.5))
+    dv.append(rlabel(dr_zt_ + 1.85, f'{frac(RL["head"])} in riser, the head threads onto it', dr_yi_ax + PR, dr_zt_ + 2.4))
+    dv.append(rlabel(dr_zt_ + 0.25, 'elbow hub 1/4 in clear of the board', dr_yi_ax + HR, dr_zt_ + 0.5))
+    dv.append(rlabel(dr_zt_ - 1.6, f'{frac(RL["through wall"])} in riser through the hole', T + 0.55, dr_zt_ - PR))
     dv.append(f'<text x="{drx(T + dr_yi / 2 + 0.75):.1f}" y="{drz(3.5):.1f}" font-size="12" fill="currentColor" text-anchor="middle" opacity="0.7">bed soil</text>')
     dv.append(f'<text x="{drx(-dr_yo + 0.3):.1f}" y="{drz(-dr_zb) - 6:.1f}" font-size="11" fill="currentColor" opacity="0.7">outside the bed at the left, inside at the right</text>')
     dv.append('</svg>')
     DRIP_SIDE_SVG = '\n'.join(dv)
-    drip_side_caption = (f"Side view at a far end wall, outside at the left: the reducer tee on the buried main, {frac(r0['pipes']['ground'])} in of pipe to the elbow, the riser up the "
-                         f"outside of the wall through the ball valve between its two clamps, the elbow through the {HOLE_DIA:g} in hole in the top board, and the head on "
-                         f"{frac(r0['pipes']['head'])} in of pipe inside the bed. The dashed outline is the hole.")
+    drip_side_caption = (f"Side view at a far end wall, outside at the left: the 3/4 in tee on the buried main, the {frac(r0['stub'])} in stub to the reducing elbow, "
+                         f"the {frac(RL['lower'])} in riser up to the ball valve, the {frac(RL['upper'])} in riser with both clamps on it, the elbow and the {frac(RL['through wall'])} in riser "
+                         f"through the {HOLE_DIA:g} in hole in the top board, and the head on {a_len(RL['head'])} in riser inside the bed. The dashed outline is the hole. "
+                         f"Only the lower riser's length depends on how deep the main really is.")
 
     # ---- back view: the far end wall seen from outside the bed (looking toward the walkway), west at the left ----
     BK = 8.5
@@ -1804,7 +1990,7 @@ if risers:
                 f'height="{abs(z1 - z0) * BK:.1f}" rx="{rx}" {style}/>')
 
     bv = []
-    bv.append(f'<svg viewBox="0 0 {BKW} {BKH}" role="img" aria-label="Back view of a bed\'s far end wall from outside: the side board ends, the two end boards with the corner posts dashed behind them, the riser {frac(xr)} in from the west face with its clamps and ball valve, the hole behind the upper elbow, the head showing above the wall, and the buried main dashed below grade" xmlns="http://www.w3.org/2000/svg">')
+    bv.append(f'<svg viewBox="0 0 {BKW} {BKH}" role="img" aria-label="Back view of a bed\'s far end wall from outside: the side board ends, the two end boards with the corner posts dashed behind them, the riser {frac(xr)} in from the west face with its ball valve and the two clamps above it, the hole behind the upper elbow, the head showing above the wall, and the buried main dashed below grade" xmlns="http://www.w3.org/2000/svg">')
     bv.append('<defs><marker id="bdim" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1 L8 5 L2 9" fill="none" stroke="currentColor" stroke-width="1.4"/></marker></defs>')
     bv.append(brect(-2, bk_W + 2, -bk_zb, 0, 'fill="currentColor" opacity="0.06"'))
     bv.append(f'<line x1="{bkx(-2):.1f}" y1="{bkz(0):.1f}" x2="{bkx(bk_W + 2):.1f}" y2="{bkz(0):.1f}" stroke="currentColor" stroke-width="1" stroke-dasharray="5 3" opacity="0.7"/>')
@@ -1815,17 +2001,20 @@ if risers:
             bv.append(brect(xa, xa + T, c * BOARD_W, (c + 1) * BOARD_W, 'fill="var(--lumber)" opacity="0.85" stroke="var(--lumber)" stroke-width="1.2"'))
     for xa in (T, bk_W - T - PW):
         bv.append(brect(xa, xa + PW, 0, WALL_TOP, 'fill="none" stroke="currentColor" stroke-width="1.1" stroke-dasharray="4 3" opacity="0.8"'))
-    # the head above the wall, the riser and its fittings
-    bv.append(brect(xr - 0.625, xr + 0.625, WALL_TOP, dr_zh, PS, 2))
+    # what shows above the wall (the head and the top of its riser), then the risers outside and their fittings
+    if dr_zhb > WALL_TOP:
+        bv.append(brect(xr - PR, xr + PR, WALL_TOP, dr_zhb, PS))
+    bv.append(brect(xr - 0.625, xr + 0.625, max(WALL_TOP, dr_zhb), dr_zh, PS, 2))
     for sgn_ in (-1, 1):
         bv.append(brect(xr + sgn_ * 0.6, xr + sgn_ * 1.2, dr_zh - 0.58, dr_zh - 0.32, PS))
-    bv.append(brect(xr - PR, xr + PR, dr_zm + HUB - SOCK, dr_zt_ - (HUB - SOCK), PS))
-    bv.append(brect(xr - HR, xr + HR, dr_zm - HR, dr_zm + HUB, PS, 2))
-    bv.append(f'<circle cx="{bkx(xr):.1f}" cy="{bkz(dr_zm):.1f}" r="{HR * BK:.1f}" {PS}/>')
+    bv.append(brect(xr - PR, xr + PR, dr_sp['lower'][0], dr_sp['lower'][1], PS))
+    bv.append(brect(xr - PR, xr + PR, dr_sp['upper'][0], dr_sp['upper'][1], PS))
+    bv.append(brect(xr - HR, xr + HR, dr_zm - H34R, dr_zm + HUB34, PS, 2))
+    bv.append(f'<circle cx="{bkx(xr):.1f}" cy="{bkz(dr_zm):.1f}" r="{H34R * BK:.1f}" {PS}/>')
     bv.append(brect(xr - HR, xr + HR, dr_zt_ - HUB, dr_zt_ + HR, PS, 2))
     bv.append(f'<circle cx="{bkx(xr):.1f}" cy="{bkz(dr_zt_):.1f}" r="{HR * BK:.1f}" {PS}/>')
     bv.append(f'<circle cx="{bkx(xr):.1f}" cy="{bkz(dr_zt_):.1f}" r="{HOLE_DIA / 2 * BK:.1f}" fill="none" stroke="var(--arch)" stroke-width="1.3" stroke-dasharray="3 2"/>')
-    bv.append(brect(xr - HR, xr + HR, dr_zv - 1.5, dr_zv + 1.5, PS, 2))
+    bv.append(brect(xr - HR, xr + HR, dr_vb, dr_vt, PS, 2))
     bv.append(brect(xr - 0.8, xr + 0.8, dr_zv - 1.0, dr_zv + 1.0, PS, 3))
     bv.append(f'<circle cx="{bkx(xr):.1f}" cy="{bkz(dr_zv):.1f}" r="{0.2 * BK:.1f}" {PS}/>')
     bv.append(brect(xr - 0.2 - 2.4, xr - 0.2, dr_zv - 0.15, dr_zv + 0.15, PS))
@@ -1844,18 +2033,19 @@ if risers:
         return (f'<line x1="{LXB - 4:.1f}" y1="{bkz(z):.1f}" x2="{bkx(x_to):.1f}" y2="{bkz(zz):.1f}" stroke="{color}" stroke-width="0.9" opacity="0.8"/>'
                 f'<text x="{LXB:.1f}" y="{bkz(z) + 4:.1f}" font-size="12" fill="{color}" {HALO}>{text}</text>')
 
-    bv.append(blabel(dr_zh - 0.3, f'head above the soil, barbs {frac(round((dr_zh - 0.45 - WALL_TOP) * 4) / 4)} in up', xr + 1.2, dr_zh - 0.45))
+    bv.append(blabel(dr_zh - 0.3, f'head above the soil, barbs {frac(drip_barbs_up)} in up', xr + 1.2, dr_zh - 0.45))
     bv.append(blabel(dr_zt_ + 0.1, f'{HOLE_DIA:g} in hole behind the elbow (dashed)', xr + HR, color='var(--arch)'))
-    bv.append(blabel(dr_cl[1], 'stand-off clamp, 2 screws into one board', xr + 1.25))
-    bv.append(blabel(dr_zv, 'ball valve, lever west along the wall', xr + 0.8))
-    bv.append(blabel(dr_cl[0], 'second clamp on the bottom board', xr + 1.25))
-    bv.append(blabel(dr_zm - 1.6, f'3/4 in main {frac(-dr_zm)} in down (dashed); its branch comes toward you', xr + HR, dr_zm - 0.4))
+    bv.append(blabel(dr_cl[1], 'clamp on the top board, 2 screws', xr + 1.25))
+    bv.append(blabel(dr_cl[0], 'clamp on the bottom board, 2 screws', xr + 1.25))
+    bv.append(blabel(dr_zv, f'ball valve {frac(dr_zv)} in up, lever west along the wall', xr + 0.8))
+    bv.append(blabel(-3.4, f'{frac(RL["lower"])} in riser: length to suit the main', xr + PR))
+    bv.append(blabel(dr_zm - 1.6, f'3/4 in main drawn {frac(-dr_zm)} in down (dashed); the tee faces you', xr + HR, dr_zm - 0.4))
     bv.append(f'<text x="{bkx(bk_W - T - PW / 2):.1f}" y="{bkz(WALL_TOP / 2):.1f}" font-size="11" fill="currentColor" text-anchor="middle" transform="rotate(-90 {bkx(bk_W - T - PW / 2):.1f} {bkz(WALL_TOP / 2):.1f})" opacity="0.8">corner post behind</text>')
     bv.append(f'<text x="{bkx(bk_W + 2) - 2:.1f}" y="{bkz(0) + 13:.1f}" font-size="11" fill="currentColor" text-anchor="end" opacity="0.7">grade</text>')
     bv.append('</svg>')
     DRIP_BACK_SVG = '\n'.join(bv)
     drip_back_caption = (f"Back view of a far end wall from outside the bed (west at the left): side board ends, the two end boards with the corner posts dashed behind them, "
-                         f"the riser {frac(xr)} in from the west face with its clamps and valve, the {HOLE_DIA:g} in hole behind the upper elbow, the head above the wall, "
+                         f"the riser {frac(xr)} in from the west face with its valve and the two clamps above it, the {HOLE_DIA:g} in hole behind the upper elbow, the head above the wall, "
                          f"and the main dashed {frac(-dr_zm)} in below grade. Bed D's wall is 24 in wide; its riser sits at the same {frac(xr)} in.")
 
 
@@ -1966,6 +2156,16 @@ _n = re.sub(r'`([^`]+)`', r'<code>\1</code>', esc(_n).replace('&lt;b&gt;', '<b>'
 hoops_model_note_html = f'<li>{_n}</li>'
 drip_html_paras = ''.join(f'<p>{esc(x)}</p>' for x in drip_paras)
 drip_rows = ''.join(tr([esc(k), esc(v)]) for k, v in drip_table) if risers else tr(['none in the model', ''])
+drip_rule_html = ''
+if risers:
+    drip_rule_html = (f'<h3 class="sub">Which lower riser to buy</h3>\n  <p>{esc(drip_rule_paras[0])}</p>\n'
+                      f'  <div class="card tablewrap"><table>\n    <thead>{tr([esc(h) for h in drip_buy_head], True)}</thead>\n'
+                      f"    <tbody>{''.join(tr([esc(c) for c in row]) for row in drip_buy_table)}</tbody>\n  </table></div>\n  "
+                      + ''.join(f'<p>{esc(x)}</p>' for x in drip_rule_paras[1:]))
+drip_1115_note_html = ('<li>' + re.sub(r'`([^`]+)`', r'<code>\1</code>', esc(drip_1115_note[2:])) + '</li>') if drip_1115_note else ''
+_planned_bits = (['8 ft boards in every bed but A, stakes on a grid'] if PLANNED else []) + (['threaded drip risers'] if PLANNED_DRIP else [])
+meta_when = (f"generated {TODAY} from the saved model with the 2026-11-15 layout applied on top ({', '.join(_planned_bits)}; planned, not in the model yet)"
+             if _planned_bits else 'extracted ' + TODAY)
 _n = drip_model_note[2:]
 for _k in ('Drip Irrigation', 'Drip riser', '3/4 in main (existing)'):
     _n = _n.replace(f'**{_k}**', f'<b>{_k}</b>')
@@ -1973,6 +2173,7 @@ _n = re.sub(r'`([^`]+)`', r'<code>\1</code>', esc(_n).replace('&lt;b&gt;', '<b>'
 drip_model_note_html = f'<li>{_n}</li>'
 _n = re.sub(r'`([^`]+)`', r'<code>\1</code>', esc(split_model_note[2:]))
 split_model_note_html = f'<li>{_n}</li>'
+grid_model_note_html = ('<li>' + re.sub(r'`([^`]+)`', r'<code>\1</code>', esc(grid_model_note[2:])) + '</li>') if grid_model_note else ''
 joint_fig_html = (f'<figure>\n      {JOINT_ELEV_SVG}\n      <figcaption>{esc(joint_elev_caption)}</figcaption>\n    </figure>' if split_beds else '')
 soil_rows = ''.join(tr([f"Bed {r['letter']}", f"{r['E']:g} x {r['inner_L']:g} in", num(r['H'], r['H_alt'], '{:g}', ' in'), num(r['soil_ft3'], r['soil_alt_ft3'], '{:.1f}', ' cu ft')]) for r in bed_rows)
 lumber_rows = ''.join(tr([(f'<span class="nom">{esc(x["nom"])}</span>' if x['nom'] == NOM else esc(x['nom'])) + f" x {x['ft']} ft", f"<b>{x['qty']}</b>",
@@ -2038,6 +2239,7 @@ h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; margin: 0; le
 h1 { font-size: clamp(1.9rem, 4vw, 2.6rem); line-height: 1.1; }
 h2 { font-size: 1.35rem; margin-bottom: 0.6rem; }
 h3 { font-size: 1.1rem; }
+h3.sub { margin: 1.3rem 0 0.45rem; }
 h3 small { font-weight: 500; color: var(--muted); font-family: var(--font-body); font-size: 0.95rem; margin-left: 0.4rem; }
 p { margin: 0 0 0.8rem; max-width: 68ch; }
 .muted { color: var(--muted); }
@@ -2282,7 +2484,7 @@ HTML = f'''<!DOCTYPE html>
 <header class="top">
   <div>
     <h1>Raised Bed Design: bill of materials</h1>
-    <div class="meta">From the Fusion design "{esc(d['document'])}", extracted {TODAY}. Counts come from model bodies; derived and estimated rows are marked.</div>
+    <div class="meta">From the Fusion design "{esc(d['document'])}", {meta_when}. Counts come from model bodies; derived and estimated rows are marked.</div>
   </div>
   <div class="toolbar">
     <div class="seg" role="group" aria-label="Wall lumber"><button type="button" data-l="8" aria-pressed="true">2x8 walls</button><button type="button" data-l="10" aria-pressed="false">2x10 walls</button></div>
@@ -2299,13 +2501,13 @@ HTML = f'''<!DOCTYPE html>
   <div class="tile"><div class="n">{paver_n}</div><div class="l">12 x 12 in pavers, {paver_total_lb:,.0f} lb</div></div>
   <div class="tile"><div class="n">{n_arches}</div><div class="l">{HOGWIRE_LEN/12:g} ft hog-wire arch: {trellis_pieces} x {ft_in(TRELLIS_LEN)} posts, {sill_pieces} sills, {stake_pieces} stakes</div></div>
   <div class="tile"><div class="n">{n_hoops}</div><div class="l">low-tunnel hoops over Bed {hoop_bed_letter}, {hoop_pitch:g} in pitch, {hoop_tube_ft:.0f} ft of 1 in tube</div></div>
-  <div class="tile"><div class="n">{n_risers}</div><div class="l">drip risers: {n_risers} tees, {drip_elbows} elbows, {n_risers} valves, {drip_sticks} x 10 ft of 1/2 in pipe</div></div>
+  <div class="tile"><div class="n">{n_risers}</div><div class="l">drip risers: {n_risers} tees, {drip_reducers if risers else 0} reducing elbows, {drip_riser_count if risers else 0} threaded 1/2 in risers, {drip_elbows if risers else 0} elbows, {n_risers} valves</div></div>
   <div class="tile"><div class="n">{num(soil_ft3/27, soil_alt_ft3/27, '{:.1f}')}</div><div class="l">cu yd of soil</div></div>
 </div>
 
 <section id="plan">
   <h2>Plan</h2>
-  <p>Four beds in a 24 ft x 18 ft plot. Side boards run outside the end boards, which are 48 in (21 in for Bed D). {esc(side_scheme_txt)} {POST_NOM} posts stand inside each corner, edge-on to the side boards, and lie flat against the long walls at mid-span, where they run {MID_LEN:g} in long and are driven {EMBED_IN:g} in into the ground. The hog-wire arch between beds A and B stands on {POST_NOM} sills at the bed centrelines and is held near its crown by the two inside corner posts at the near end, uncut {ft_in(TRELLIS_LEN)} {POST_NOM}s set {TRELLIS_EMBED:g} in deep. Letters follow the arch names in the model: Arch AB spans beds A and B; Arch BC is modeled but parked. {f'{n_hoops} low-tunnel hoops of 1 in tube (the blue bars) cover Bed {hoop_bed_letter} at {hoop_pitch:g} in pitch, the first and last {hoop_near_gap:g} in inside the end boards.' if n_hoops else ''}</p>
+  <p>Four beds in a 24 ft x 18 ft plot. Side boards run outside the end boards, which are 48 in (21 in for Bed D). {esc(side_scheme_txt)} {POST_NOM} posts stand inside each corner, edge-on to the side boards, and lie flat {esc(mid_place_txt)}, where they run {MID_LEN:g} in long and are driven {EMBED_IN:g} in into the ground. The hog-wire arch between beds A and B stands on {POST_NOM} sills at the bed centrelines and is held near its crown by the two inside corner posts at the near end, uncut {ft_in(TRELLIS_LEN)} {POST_NOM}s set {TRELLIS_EMBED:g} in deep. Letters follow the arch names in the model: Arch AB spans beds A and B; Arch BC is modeled but parked. {f'{n_hoops} low-tunnel hoops of 1 in tube (the blue bars) cover Bed {hoop_bed_letter} at {hoop_pitch:g} in pitch, the first and last {hoop_near_gap:g} in inside the end boards.' if n_hoops else ''}</p>
   <div class="legend"><span><i class="sw-lumber"></i><span>bed walls and posts (<span class="nom">{NOM}</span>, {POST_NOM})</span></span><span><i class="sw-arch"></i><span>hog-wire arch footprint</span></span>{'<span><i class="sw-hoop"></i><span>low-tunnel hoops (solid bars, a dot at each leg)</span></span>' if n_hoops else ''}{'<span><i class="sw-drip"></i><span>drip main (dash-dot, buried) and risers (circles)</span></span>' if risers else ''}<span><i class="sw-paver"></i><span>12 x 12 pavers</span></span></div>
   <figure class="plan">
     <div class="scroll">{SVG}</div>
@@ -2356,7 +2558,7 @@ HTML = f'''<!DOCTYPE html>
 
 <section id="cuts">
   <h2>Cut list</h2>
-  <p>Stock lengths and prices: {esc(PRICE_SOURCE)}. <span class="nom">{NOM}</span> comes in {board_lengths_txt} ({esc(side_stock_note)}) and {POST_NOM} in {post_lengths_txt}. Each bed's plan under <a href="#beds">Materials by bed</a> is the cheapest set of sticks for that bed on its own, so the four plans add up to this table. {esc(cut_rule_txt)}</p>
+  <p>Stock lengths and prices: {esc(PRICE_SOURCE)}. <span class="nom">{NOM}</span> comes in {board_lengths_txt} ({esc(side_stock_note)}) and {POST_NOM} in {post_lengths_txt}. Each bed's plan under <a href="#beds">Materials by bed</a> is the cheapest set of sticks for that bed on its own{stock_limit_txt}, so the four plans add up to this table. {esc(cut_rule_txt)}</p>
   <div class="card tablewrap"><table>
     <thead>{tr(['Buy', 'Qty', 'Each', 'Total', 'Used for'], True)}</thead>
     <tbody>{lumber_rows}</tbody>
@@ -2368,7 +2570,7 @@ HTML = f'''<!DOCTYPE html>
 
 <section id="beds">
   <h2>Materials by bed</h2>
-  <p>Everything that goes to one bed, so each bed can be checked on its own. The lumber lines are the sticks to buy, in store lengths with store prices (checked {PRICE_DATE}), and the bars beneath them show how each stick is cut; then the cuts themselves, screws and washers, the arch panel, the hoops, the drip riser and the soil. Tick a line as you check or buy it; the ticks are kept in this browser. The hog-wire panel spans beds A and B and is listed under both (buy one). The 1/2 in drip pipe for every bed is cut from the {drip_sticks} x 10 ft stick{'s' if drip_sticks > 1 else ''} on the shopping list.</p>
+  <p>Everything that goes to one bed, so each bed can be checked on its own. The lumber lines are the sticks to buy, in store lengths with store prices (checked {PRICE_DATE}), and the bars beneath them show how each stick is cut; then the cuts themselves, screws and washers, the arch panel, the hoops, the drip riser and the soil. Tick a line as you check or buy it; the ticks are kept in this browser. The hog-wire panel spans beds A and B and is listed under both (buy one). The drip riser lines are bought parts; only the 3/4 in stub is cut.</p>
   <div class="toolbar"><span class="muted" id="checkTotal" aria-live="polite">0 of {bed_lines_total} lines ticked</span><button type="button" id="clearAll">Clear all ticks</button></div>
   {''.join(bed_cards)}
 </section>
@@ -2422,6 +2624,7 @@ HTML = f'''<!DOCTYPE html>
     <tbody>{drip_rows}</tbody>
   </table></div>
   {drip_html_paras}
+  {drip_rule_html}
   <div class="two">
     <figure class="detail">
       {DRIP_SIDE_SVG}
@@ -2464,6 +2667,8 @@ HTML = f'''<!DOCTYPE html>
     {hoops_model_note_html}
     {drip_model_note_html}
     {split_model_note_html}
+    {grid_model_note_html}
+    {drip_1115_note_html}
     <li>{esc(saved_note)}</li>
   </ul>
   <p class="muted">Model mass by material (visible bodies): {', '.join(f'{esc(k)} {v:,.0f} lb' for k, v in mass_by_mat.items())}.{esc(hoop_mass_note)}</p>
@@ -2475,8 +2680,11 @@ HTML = f'''<!DOCTYPE html>
 '''
 (ROOT / 'bom.html').write_text(HTML)
 print('wrote', ROOT / 'BOM.md', ROOT / 'BOM.csv', ROOT / 'BOM-by-bed.csv', ROOT / 'bom.html', f'({bed_lines_total} per-bed lines)')
+for _part, _lines in _planned.items():
+    for _line in _lines:
+        print(f'planned, not in the model yet ({_part}): {_line}')
 print(f'beds={len(bed_rows)} {NOM} boards={total_2x_boards} {POST_NOM} sticks={post_sticks} lumber=${lumber_cost:.2f} (alt ${lumber_cost_alt:.2f}; all beds from one pile {combined_sticks} sticks ${combined_cost:.2f}, saving ${combined_saving:.2f}) '
-      f'screws 3in={screws_3} 2.5in={screws_25} 1.25in={screws_125} total={screws_total} pavers={paver_n} arches={n_arches} hoops={n_hoops} risers={n_risers} pipe={drip_pipe_total if risers else 0:g}in sticks={drip_sticks if risers else 0} '
+      f'screws 3in={screws_3} 2.5in={screws_25} 1.25in={screws_125} total={screws_total} pavers={paver_n} arches={n_arches} hoops={n_hoops} risers={n_risers} threaded={drip_riser_count if risers else 0} stub={drip_stub_total if risers else 0:g}in '
       f'soil={soil_ft3:.1f} ft3 ({soil_ft3/27:.2f} yd3) alt={soil_alt_ft3/27:.2f} yd3')
 for r in bed_rows:
     print(f"  Bed {r['letter']}: posts/side={r['posts_per_side']} corner={r['corner_side_screws']} mid={r['mid_side_screws']} joint={r['joint_screws']} ties={r['tie_screws']} end={r['end_screws']} "

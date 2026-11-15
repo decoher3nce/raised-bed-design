@@ -6,18 +6,22 @@ It was used once on 2026-11-05 to add the "Bed Lumber" component (then with
 became 2x4s by editing each bed's "Posts" sketch, and the mid-span posts were
 rotated flat and split into their own two-sided extrude. On 2026-11-08 the
 side walls of beds C and D were reworked in place again (scripts/
-fusion_split_sides.py) into two 8 ft boards per course over 2x8 joint posts.
+fusion_split_sides.py) into two 8 ft boards per course over 2x8 joint posts,
+and on 2026-11-15 the layout changed once more (scripts/fusion_stake_grid.py):
+Bed B got the same two-board sides, so every bed but A is built from 8 ft
+boards, and the mid-span stakes went onto a 24 in grid.
 This script builds that final version directly. Re-running it on a design that
 already has "Bed Lumber" would add a second copy.
 
 What it builds, per bed, inside a new "Bed Lumber" component:
   - 2 side boards (outside) and 2 end boards (between them), extruded
     Board_Width tall and stacked with a rectangular pattern whose quantity is
-    the user parameter Courses. Beds A and B have one side board per course,
-    the full outer length. Beds in SIDE_SPLITS (C and D) have two boards per
-    course from 8 ft stock, meeting over a joint post: Bed D 96 + 96 in every
-    course; Bed C 96 + 72 in course 1 and 72 + 96 in course 2, so its seams
-    are staggered. Pieces are named "Side board 96 in" / "Side board 72 in".
+    the user parameter Courses. Bed A has one side board per course, the
+    full outer length (a 10 ft board). Beds in SIDE_SPLITS (B, C and D) have
+    two boards per course from 8 ft stock, meeting over a joint post: Bed D
+    96 + 96 in every course; Bed C 96 + 72 in course 1 and 72 + 96 in course
+    2; Bed B 96 + 48 in course 1 and 48 + 96 in course 2, so the seams of B
+    and C are staggered. Pieces are named "Side board 96 in" and so on.
     A bed whose courses all split alike stacks like the others. A staggered
     bed gets "Course 1 sides" and "Course 2 sides" (the second extruded from
     an offset of Board_Width), each stacked every 2 * Board_Width with
@@ -34,10 +38,10 @@ What it builds, per bed, inside a new "Bed Lumber" component:
                          the 3.5 in face against the side board. They run
                          Courses * Board_Width up from grade and the rest of
                          Mid_Post_Length down, so they are stakes driven into
-                         the ground. They divide each run of wall between its
-                         fixed points (a point MIDREF inside each end board,
-                         the 4x4 centrelines the beds were first built with,
-                         and every seam) evenly, so no run exceeds MAXSP.
+                         the ground. They stand every STAKE_PITCH (24 in)
+                         from the near end. Every bed is a whole number of
+                         pitches long and every seam falls on the grid, where
+                         the joint post stands in for the stake.
       "Trellis post extrude" (beds A and B) the inside corner post at the
                          near end (ARCH_POSTS), same footprint and orientation
                          but Trellis_Post_Length long with Trellis_Post_Embed of
@@ -48,7 +52,9 @@ What it builds, per bed, inside a new "Bed Lumber" component:
     2x8 offcut (1.5 x JW in) lying flat against the inside of the wall, centred
     on each seam, Courses * Board_Width up from grade and the rest of
     Mid_Post_Length down, like a mid-span post. Bodies "2x8 joint post". Bed
-    C's four are the 24 in offcuts of its 72 in side pieces.
+    C's four are the 24 in offcuts of its 72 in side pieces; the offcuts of
+    Bed B's 48 in side pieces are its end boards, and its joint posts come
+    from one more 8 ft board.
   - "Arch anchors" sketch (beds A and B) with "Sill extrude" and "Stake
     extrude": a flat 2x4 sill lying on grade along the bed centreline between
     the panel edges (ARCH_FEET), and a Mid_Post_Length stake at each end of
@@ -90,10 +96,10 @@ T = 1.5       # 2x lumber actual thickness (in)
 PT = 1.5      # 2x4 thickness (in)
 PW = 3.5      # 2x4 width (in)
 JW = 7.25     # a 2x8 joint post lying flat: its 7.25 in face against the wall (drawn at 2x8 width)
-MIDREF = 1.75 # mid-post runs start this far inside the end boards (the 4x4 centrelines of the first build)
-MAXSP = 48.0  # longest run of wall between posts along a long wall (in)
+STAKE_PITCH = 24.0  # mid-span stakes stand this far apart along each long wall, measured from the near end (in)
 # beds whose side boards are two pieces per course: letter -> {course: [seam positions, inches from the near end]}
 SIDE_SPLITS = {
+    'B': {1: [96.0], 2: [48.0]},   # 12 ft: 96 + 48 in course 1, 48 + 96 in course 2; the 48 in pieces' offcuts are the end boards
     'C': {1: [96.0], 2: [72.0]},   # 14 ft: 96 + 72 in course 1, 72 + 96 in course 2, from 8 ft stock
     'D': {1: [96.0], 2: [96.0]},   # 16 ft: 96 + 96 in every course
 }
@@ -168,8 +174,8 @@ def run(_context):
     parent.partNumber = 'ASM-BED-LUMBER'
     parent.description = ('Buildable lumber for all four beds: 2x boards (Courses x Board_Width tall) with 2x4 posts inside: '
                           'corner posts edge-on to the side boards, mid-span posts flat against them and Mid_Post_Length long '
-                          'so they drive into the ground. Beds C and D have two side boards per course from 8 ft stock, joined '
-                          'over 2x8 joint posts.')
+                          'and standing every 24 in, so they drive into the ground. Beds B, C and D have two side boards per course '
+                          'from 8 ft stock, joined over 2x8 joint posts.')
 
     for (name, letter, xmax, W, L, massing) in BEDS:
         occ = parent.occurrences.addNewComponent(adsk.core.Matrix3D.create())
@@ -183,19 +189,21 @@ def run(_context):
         splits = SIDE_SPLITS.get(letter, {})
         seams = sorted({s for ss in splits.values() for s in ss})
 
-        # mid-span post centrelines (world y): each run between fixed points split evenly, no run over MAXSP
-        fixed = sorted([iy1 - MIDREF] + [-s for s in seams] + [iy0 + MIDREF], reverse=True)
+        # mid-span stake centrelines (world y): every STAKE_PITCH from the near end, clear of the far corner post,
+        # except where a joint post stands behind a seam
         mid_cy = []
-        for a, b in zip(fixed, fixed[1:]):
-            n = int(math.ceil((a - b) / MAXSP)) - 1
-            mid_cy += [a - (a - b) * k / (n + 1) for k in range(1, n + 1)]
+        k = 1
+        while k * STAKE_PITCH < L - (T + PT + PW / 2.0) + 1e-6:
+            if not any(abs(k * STAKE_PITCH - s) < (JW + PW) / 2.0 for s in seams):
+                mid_cy.append(-k * STAKE_PITCH)
+            k += 1
         n_mid = len(mid_cy)
 
         if splits:
             layout = ' / '.join(f"course {c}: {' + '.join(f'{x:g}' for x in run_lengths(ss, L))} in" for c, ss in sorted(splits.items()))
             comp.description = (f'Bed {letter}: {W:g} x {L:g} in outside ({L/12:g} ft), inside {W-2*T:g} x {L-2*T:g} in. '
                                 f'Side walls are two 8 ft boards per course ({layout}) joined over 2x8 joint posts; end boards {W-2*T:g} in between them. '
-                                f'4 corner 2x4 posts + {2*n_mid} mid-span 2x4 posts (3.5 in face flat against the side boards, Mid_Post_Length long, '
+                                f'4 corner 2x4 posts + {2*n_mid} mid-span 2x4 posts every {STAKE_PITCH:g} in (3.5 in face flat against the side boards, Mid_Post_Length long, '
                                 f'driven into the ground) + {2*len(seams)} 2x8 joint posts ({JW:g} in face flat against the inside of the wall behind each seam, '
                                 f'same length as a mid-span post). '
                                 + ('The joint posts are the 24 in offcuts of the 72 in side pieces. ' if any(abs(x - 72.0) < 1e-6 for ss in splits.values() for x in run_lengths(ss, L)) else '')
@@ -203,7 +211,7 @@ def run(_context):
         else:
             comp.description = (f'Bed {letter}: {W:g} x {L:g} in outside ({L/12:g} ft), inside {W-2*T:g} x {L-2*T:g} in. '
                                 f'Side boards full length outside, end boards {W-2*T:g} in between them, '
-                                f'4 corner 2x4 posts + {2*n_mid} mid-span 2x4 posts (3.5 in face flat against the side boards, '
+                                f'4 corner 2x4 posts + {2*n_mid} mid-span 2x4 posts every {STAKE_PITCH:g} in (3.5 in face flat against the side boards, '
                                 f'Mid_Post_Length long, driven into the ground). Replaces massing body "{massing}".')
 
         ext = comp.features.extrudeFeatures

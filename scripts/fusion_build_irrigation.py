@@ -1,30 +1,37 @@
 """Fusion script: a drip riser on the far end wall of every raised bed, tapped off the 3/4 in sprinkler main.
 
-The owner's request of 2026-11-06 (hand sketch, back and side views): the 3/4 in main runs along the stair-step far ends of
-the beds, buried. At each bed a 3/4 x 3/4 x 1/2 reducer tee feeds, in order: 1/2 in pipe along the ground toward the bed,
-a 1/2 in elbow turning up, 1/2 in pipe up the OUTSIDE of the far end wall, a 1/2 in ball valve, more 1/2 in pipe, a 1/2 in
-elbow turning into the bed, 1/2 in pipe through a hole in the top board, a 1/2 in elbow turning up inside the bed, 1/2 in
-pipe, and a 1/2 in NPT x 4-port 1/4 in drip manifold head. Two stand-off clamps hold the riser (and so the valve) to the
-outside of the wall, one above and one below the valve, each screwed into a single board.
+The owner's request of 2026-11-06 (hand sketch, back and side views), changed on 2026-11-15 from cut 1/2 in pipe glued into
+slip fittings to a stack of threaded 1/2 in PVC risers (pre-threaded nipples, male thread both ends, sold in fixed lengths):
+the 3/4 in main runs along the stair-step far ends of the beds, buried. At each bed a 3/4 x 3/4 x 3/4 slip tee feeds, in
+order: a stub of 3/4 in pipe toward the bed (the only cut pipe), a 3/4 in slip x 1/2 in FPT reducing elbow turned up, a
+1/2 in riser up the OUTSIDE of the far end wall, a 1/2 in FPT x FPT ball valve, another riser, a 1/2 in FPT elbow turning
+into the bed, a riser through a hole in the top board, a 1/2 in FPT elbow turning up inside the bed, a riser, and a
+1/2 in FPT x 4-port 1/4 in drip manifold head threaded straight onto it. Two stand-off clamps hold the upper riser to the
+outside of the wall, both above the valve, each screwed into a single board.
 
 Layout (inches, world frame of the Raised Bed Design document: origin at the walkway corner of Bed D, beds run toward -y):
 - The riser stands RISER_X in from each bed's west outside face, so the hole misses the edge-on corner post (3.5 in from the
-  side board) and the pipe inside the bed misses the hoop legs over Bed C.
-- The through-wall pipe is centred in the top board: z = Courses * Board_Width - Board_Width / 2 = 10.875 in.
-- The pipe lengths PIPE_UPPER (6) and PIPE_LOWER (9) set the valve height and the main's depth: valve centre 3.875 in above
-  grade, main axis 6.125 in below grade. PIPE_HEAD (4) puts the head 1.9 in above the wall top. The through-wall and ground
-  pipes are derived from the standoff and MAIN_OFFSET.
+  side board) and the riser inside the bed misses the hoop legs over Bed C.
+- The through-wall riser is centred in the top board: z = Courses * Board_Width - Board_Width / 2 = 10.875 in.
+- The bought riser lengths RISER_UPPER (6) and RISER_LOWER (8) set the valve height and the main's depth: valve centre
+  3.25 in above grade, main axis 6.5 in below grade. RISER_HEAD (4) puts the head's base 0.5 in and its top 2.5 in above the
+  wall top. RISER_WALL (3) puts the inside riser 4.25 in from the outside one; the 3/4 in stub is derived from STANDOFF and
+  MAIN_OFFSET.
 - The main is modelled as a reference ("3/4 in main (existing)"): a stair-step MAIN_OFFSET in beyond each far end board,
   stepping at the gap centres between beds. The plot's angled boundary is only 2 to 4 in beyond the inner step corners.
+  Its real depth is not known. Hole centre above grade = RISER_LOWER + RISER_UPPER + 3.375 - depth of the main's centre,
+  so measure the main at each bed and set RISER_LOWER to suit before trusting the depth drawn here.
 
-Fittings are schedule 40 PVC sizes: 1/2 in pipe 0.84 OD, hubs 1.17 OD, 3/4 in pipe 1.05 OD, hubs 1.40 OD, 3/4 in socket
-depth. A pipe body runs from socket bottom to socket bottom, so its length is the cut length.
+Fittings: 1/2 in riser 0.84 OD, threaded hubs about 1.30 OD, a riser end goes THREAD (0.5) into a fitting; 3/4 in pipe
+1.05 OD, slip hubs 1.40 OD, 3/4 in socket depth. A riser body runs from thread end to thread end, so its length is the
+bought length; the stub runs from socket bottom to socket bottom, so its length is the cut length.
 
 Structure: root occurrence "Drip Irrigation" > "Drip riser" x 4 (one component, placed per bed) + "3/4 in main (existing)".
 Bodies are made with the temporary BRep manager inside one base feature per component (not parametric; this file is the
 source of the numbers). The holes are real "Drip hole cut" extrudes in the Bed Lumber bed components, so
 fusion_build_bed_lumber.py does not know about them: run this script again after rebuilding the lumber.
 Re-running deletes and rebuilds everything it made. Read-only for the rest of the design; nothing is saved.
+scripts/planned_layout.py applies the same stack to an extract of a model that still has the glued risers.
 """
 import adsk.core, adsk.fusion, math
 
@@ -33,19 +40,23 @@ IN = 2.54
 # ---- layout, inches ----
 MAIN_OFFSET = 8.0      # 3/4 in main axis beyond the far end board's outside face
 RISER_X = 9.0          # riser axis from the bed's west outside face
-HOLE_DIA = 1.0         # through the top board for the 0.84 OD pipe
-PIPE_HEAD = 4.0        # inside the bed, elbow to head
-PIPE_UPPER = 6.0       # outside, elbow to valve
-PIPE_LOWER = 9.0       # outside, valve to bottom elbow (sets the main's depth)
-CLAMP_LOWER_Z = 1.5    # clamp centres above grade, each on one board
+HOLE_DIA = 1.0         # through the top board for the 0.84 OD riser
+RISER_HEAD = 4.0       # threaded 1/2 in risers, bought lengths: inside the bed, elbow to head
+RISER_WALL = 3.0       # through the top board, elbow to elbow
+RISER_UPPER = 6.0      # outside, valve to the top elbow
+RISER_LOWER = 8.0      # outside, reducing elbow to valve (sets the main's depth)
+CLAMP_LOWER_Z = 5.5    # clamp centres above grade: both on the upper riser, each on one board
 CLAMP_UPPER_Z = 8.75
 
 # ---- parts, inches ----
-PIPE_R12, HUB_R12 = 0.84 / 2, 1.17 / 2
+PIPE_R12, HUB_R12 = 0.84 / 2, 1.30 / 2   # threaded riser, FPT hub
 PIPE_R34, HUB_R34 = 1.05 / 2, 1.40 / 2
-HUB_12 = 1.0           # elbow / tee branch: centre to hub end
-HUB_34 = 1.25          # 3/4 in tee run: centre to hub end
-SOCKET = 0.75          # a pipe end sits this far inside a hub
+THREAD = 0.5           # a riser end screws this far into a fitting
+HUB_12 = 1.125         # 1/2 in FPT elbow: centre to hub end
+HUB_RED = 1.25         # 3/4 in slip x 1/2 in FPT reducing elbow: centre to hub end, both ways
+HUB_34 = 1.25          # 3/4 in tee and elbow: centre to hub end
+SOCKET = 0.75          # a 3/4 in pipe end sits this far inside a slip hub
+GRIP = HUB_12 - THREAD     # FPT elbow centre to the end of the riser screwed into it
 STANDOFF = HUB_12 + 0.25   # riser axis off the wall face: the elbow hub stops 1/4 in short of the board
 VALVE_HALF, VALVE_BODY_R, VALVE_BODY_HALF = 1.5, 0.8, 1.0
 HEAD_R, HEAD_H, BARB_R, BARB_LEN = 0.625, 2.0, 0.125, 0.6
@@ -145,37 +156,37 @@ def run(_context):
 
     # ---- riser chain, local frame: wall outside face at y = 0, bed inside toward +y, riser axis at x = 0 ----
     E2 = (0.0, -STANDOFF, THROUGH_Z)                 # outside elbow
-    E3 = (0.0, T + STANDOFF, THROUGH_Z)              # inside elbow
-    VZ = THROUGH_Z - (PIPE_UPPER - 2 * SOCKET + HUB_12 + VALVE_HALF)   # valve centre
-    E1Z = VZ - (PIPE_LOWER - 2 * SOCKET + VALVE_HALF + HUB_12)        # bottom elbow = main depth
+    E3 = (0.0, -STANDOFF + RISER_WALL + 2 * GRIP, THROUGH_Z)   # inside elbow (STANDOFF inside a 1.5 in board's inner face)
+    VZ = THROUGH_Z - (RISER_UPPER - 2 * THREAD + HUB_12 + VALVE_HALF)   # valve centre
+    E1Z = VZ - (RISER_LOWER - 2 * THREAD + VALVE_HALF + HUB_RED)       # reducing elbow = main depth
     MAIN_Z = E1Z
     E1 = (0.0, -STANDOFF, E1Z)
     TEE = (0.0, -MAIN_OFFSET, MAIN_Z)
-    pipe_wall = (E3[1] - E2[1]) - 2 * (HUB_12 - SOCKET)
-    pipe_ground = (MAIN_OFFSET - STANDOFF) - 2 * (HUB_12 - SOCKET)
-    head_base = THROUGH_Z + (HUB_12 - SOCKET) + PIPE_HEAD - SOCKET
-    print(f'through-wall z {THROUGH_Z:.3f}, valve z {VZ:.3f}, main z {MAIN_Z:.3f}, pipes: ground {pipe_ground:.3f}, lower {PIPE_LOWER}, upper {PIPE_UPPER}, wall {pipe_wall:.3f}, head {PIPE_HEAD}; head top {head_base + HEAD_H:.3f} (wall top {WALL_TOP})')
+    stub = (MAIN_OFFSET - STANDOFF) - (HUB_34 - SOCKET) - (HUB_RED - SOCKET)
+    head_base = THROUGH_Z + GRIP + RISER_HEAD - THREAD
+    print(f'through-wall z {THROUGH_Z:.3f}, valve z {VZ:.3f}, main z {MAIN_Z:.3f}, 3/4 in stub {stub:.3f}, risers: lower {RISER_LOWER}, upper {RISER_UPPER}, wall {RISER_WALL}, head {RISER_HEAD}; '
+          f'inside elbow hub {E3[1] - HUB_12 - T:.3f} clear of the board; head {head_base:.3f} to {head_base + HEAD_H:.3f} (wall top {WALL_TOP})')
 
     def riser_pieces():
         y0 = -STANDOFF
         pieces = []
         tee = cyl((-HUB_34, -MAIN_OFFSET, MAIN_Z), (HUB_34, -MAIN_OFFSET, MAIN_Z), HUB_R34)
-        union(tee, cyl(TEE, (0.0, -MAIN_OFFSET + HUB_12, MAIN_Z), HUB_R12))
-        pieces.append(('3/4 x 1/2 in reducer tee', tee))
-        pieces.append(('1/2 in pipe, ground', cyl((0, -MAIN_OFFSET + HUB_12 - SOCKET, MAIN_Z), (0, y0 - (HUB_12 - SOCKET), MAIN_Z), PIPE_R12)))
-        pieces.append(('1/2 in elbow, bottom', elbow(E1, (0, -1, 0), (0, 0, 1), HUB_12, HUB_R12)))
-        pieces.append(('1/2 in pipe, lower riser', cyl((0, y0, E1Z + HUB_12 - SOCKET), (0, y0, VZ - VALVE_HALF + SOCKET), PIPE_R12)))
+        union(tee, cyl(TEE, (0.0, -MAIN_OFFSET + HUB_34, MAIN_Z), HUB_R34))
+        pieces.append(('3/4 in tee', tee))
+        pieces.append(('3/4 in pipe, stub', cyl((0, -MAIN_OFFSET + HUB_34 - SOCKET, MAIN_Z), (0, y0 - (HUB_RED - SOCKET), MAIN_Z), PIPE_R34)))
+        pieces.append(('3/4 x 1/2 in reducing elbow', elbow(E1, (0, -1, 0), (0, 0, 1), HUB_RED, HUB_R34)))
+        pieces.append(('1/2 in riser, lower', cyl((0, y0, E1Z + HUB_RED - THREAD), (0, y0, VZ - VALVE_HALF + THREAD), PIPE_R12)))
         valve = cyl((0, y0, VZ - VALVE_HALF), (0, y0, VZ + VALVE_HALF), HUB_R12)
         union(valve, cyl((0, y0, VZ - VALVE_BODY_HALF), (0, y0, VZ + VALVE_BODY_HALF), VALVE_BODY_R))
         stem0, stem1 = y0 - VALVE_BODY_R, y0 - VALVE_BODY_R - 0.5
         union(valve, cyl((0, stem0, VZ), (0, stem1, VZ), 0.2))
         union(valve, box((-1.0, stem1 - 0.225, VZ), 2.4, 0.45, 0.3))      # lever, pointing west along the wall
         pieces.append(('1/2 in ball valve', valve))
-        pieces.append(('1/2 in pipe, upper riser', cyl((0, y0, VZ + VALVE_HALF - SOCKET), (0, y0, THROUGH_Z - (HUB_12 - SOCKET)), PIPE_R12)))
+        pieces.append(('1/2 in riser, upper', cyl((0, y0, VZ + VALVE_HALF - THREAD), (0, y0, THROUGH_Z - GRIP), PIPE_R12)))
         pieces.append(('1/2 in elbow, outside', elbow(E2, (0, 0, -1), (0, 1, 0), HUB_12, HUB_R12)))
-        pieces.append(('1/2 in pipe, through wall', cyl((0, E2[1] + HUB_12 - SOCKET, THROUGH_Z), (0, E3[1] - (HUB_12 - SOCKET), THROUGH_Z), PIPE_R12)))
+        pieces.append(('1/2 in riser, through wall', cyl((0, E2[1] + GRIP, THROUGH_Z), (0, E3[1] - GRIP, THROUGH_Z), PIPE_R12)))
         pieces.append(('1/2 in elbow, inside', elbow(E3, (0, -1, 0), (0, 0, 1), HUB_12, HUB_R12)))
-        pieces.append(('1/2 in pipe, head', cyl((0, E3[1], THROUGH_Z + HUB_12 - SOCKET), (0, E3[1], THROUGH_Z + HUB_12 - SOCKET + PIPE_HEAD), PIPE_R12)))
+        pieces.append(('1/2 in riser, head', cyl((0, E3[1], THROUGH_Z + GRIP), (0, E3[1], THROUGH_Z + GRIP + RISER_HEAD), PIPE_R12)))
         head = cyl((0, E3[1], head_base), (0, E3[1], head_base + HEAD_H), HEAD_R)
         bz = head_base + HEAD_H - 0.45
         for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
@@ -194,7 +205,7 @@ def run(_context):
     irr.name = 'Drip Irrigation'
     irr.partNumber = 'IRR-DRIP'
     irr.description = ('Drip risers on the far end wall of each bed, tapped off the 3/4 in main that runs along the stair-step far ends. '
-                       'One "Drip riser" component placed per bed; the main is a reference. Built by scripts/fusion_build_irrigation.py on 2026-11-06.')
+                       'One "Drip riser" component placed per bed; the main is a reference. Built by scripts/fusion_build_irrigation.py (threaded riser stack of 2026-11-15).')
     riser_comp = None
     riser_occs = []
     for d in beds:
@@ -205,9 +216,10 @@ def run(_context):
             riser_comp = occ.component
             riser_comp.name = 'Drip riser'
             riser_comp.partNumber = 'IRR-RISER'
-            riser_comp.description = (f'One bed\'s drip riser: 3/4 x 1/2 reducer tee on the main ({MAIN_OFFSET:g} in beyond the end board, {-MAIN_Z:g} in deep), '
-                                      f'{pipe_ground:g} in ground pipe, elbow, {PIPE_LOWER:g} in riser, ball valve {VZ:g} in above grade, {PIPE_UPPER:g} in riser, elbow, '
-                                      f'{pipe_wall:g} in through the top board ({HOLE_DIA:g} in hole centred {THROUGH_Z:g} in up), elbow, {PIPE_HEAD:g} in to a 4-port 1/4 in head. '
+            riser_comp.description = (f'One bed\'s drip riser: 3/4 in slip tee on the main ({MAIN_OFFSET:g} in beyond the end board, {-MAIN_Z:g} in deep), '
+                                      f'{stub:g} in stub of 3/4 in pipe, 3/4 in slip x 1/2 in FPT reducing elbow, {RISER_LOWER:g} in threaded riser, FPT ball valve {VZ:g} in above grade, '
+                                      f'{RISER_UPPER:g} in riser, FPT elbow, {RISER_WALL:g} in riser through the top board ({HOLE_DIA:g} in hole centred {THROUGH_Z:g} in up), FPT elbow, '
+                                      f'{RISER_HEAD:g} in riser to a 4-port 1/4 in head. '
                                       f'Two stand-off clamps at {CLAMP_LOWER_Z:g} and {CLAMP_UPPER_Z:g} in. Local frame: wall outside face at y = 0, bed toward +y, riser at x = 0.')
             bf = riser_comp.features.baseFeatures.add()
             bf.name = 'Drip riser bodies'
@@ -326,7 +338,7 @@ def run(_context):
         n = 0
         for b in occ.bRepBodies:
             n += 1
-            if 'head' in b.name and 'pipe' not in b.name:
+            if 'drip head' in b.name:
                 bb = b.boundingBox
                 print(f'   riser {letter}: {n} bodies so far; head x {bb.minPoint.x/IN:.2f}..{bb.maxPoint.x/IN:.2f} y {bb.minPoint.y/IN:.2f}..{bb.maxPoint.y/IN:.2f} z {bb.minPoint.z/IN:.2f}..{bb.maxPoint.z/IN:.2f}')
         if n != 13:

@@ -119,24 +119,30 @@ def solve(pieces, stock_prices, allow=None):
     # keeps the number of demand states small even when a dozen piece types are cut together.
     pats_by_type = [[pat for pat in pats if pat[2][i]] for i in range(len(pieces))]
 
-    @lru_cache(maxsize=None)
-    def f(demand):
-        if not any(demand):
-            return (0.0, 0, 0, 0, 0.0, ())
-        best = None
-        i0 = next(i for i, d in enumerate(demand) if d)
-        for L, price, counts, off in pats_by_type[i0]:
-            nd = tuple(max(0, d - c) for d, c in zip(demand, counts))
-            spare = sum(max(0, c - d) for d, c in zip(demand, counts))
-            sub = f(nd)
-            chosen = ((L, counts),) + sub[5]
-            # cheapest first, then fewer sticks, fewer spare pieces, fewer distinct cut patterns, less offcut
-            cand = (round(price + sub[0], 2), 1 + sub[1], spare + sub[2], len(set(chosen)), off + sub[4], chosen)
-            if best is None or cand[:5] < best[:5]:
-                best = cand
-        return best
+    def search(order):
+        @lru_cache(maxsize=None)
+        def f(demand):
+            if not any(demand):
+                return (0.0, 0, 0, 0, 0.0, ())
+            best = None
+            i0 = next(i for i in order if demand[i])
+            for L, price, counts, off in pats_by_type[i0]:
+                nd = tuple(max(0, d - c) for d, c in zip(demand, counts))
+                spare = sum(max(0, c - d) for d, c in zip(demand, counts))
+                sub = f(nd)
+                chosen = ((L, counts),) + sub[5]
+                # cheapest first, then fewer sticks, fewer spare pieces, fewer distinct cut patterns, less offcut
+                cand = (round(price + sub[0], 2), 1 + sub[1], spare + sub[2], len(set(chosen)), off + sub[4], chosen)
+                if best is None or cand[:5] < best[:5]:
+                    best = cand
+            return best
+        return f(demand0)
 
-    cost, n, spare, _distinct, off, chosen = f(demand0)
+    # Cost, sticks and spares come out the same whichever piece type the search works through first; the number of
+    # distinct cut patterns does not (it is not additive over sub-problems), so search in both orders and keep the
+    # tidier answer.
+    idx = tuple(range(len(pieces)))
+    cost, n, spare, _distinct, off, chosen = min((search(idx), search(idx[::-1])), key=lambda c: c[:5])
     # replay the chosen patterns against the demand so each stick shows what is really cut from it
     remaining = list(demand0)
     sticks = []
