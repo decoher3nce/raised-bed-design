@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Raised Bed Shopping List</title>
+<style>
+/* a sheet of paper: black on white, no backgrounds to print, nothing told by colour */
+@page { size: letter; margin: 0.5in; }
+* { box-sizing: border-box; }
+html { background: #e6e5e0; }
+body { margin: 16px auto; padding: 0.5in; max-width: 8.5in; background: #fff; color: #000; font: 10.5pt/1.35 "Helvetica Neue", Helvetica, Arial, sans-serif; box-shadow: 0 2px 14px rgba(0,0,0,0.18); }
+h1 { font-size: 18pt; line-height: 1.15; margin: 0 0 3pt; }
+.meta { font-size: 9pt; color: #333; margin: 0; }
+h2 { font-size: 10.5pt; text-transform: uppercase; letter-spacing: 0.06em; margin: 13pt 0 0; padding-bottom: 2pt; border-bottom: 1.5pt solid #000; break-after: avoid; }
+.sub { font-size: 9pt; color: #333; margin: 3pt 0 0; }
+table { width: 100%; border-collapse: collapse; }
+th { text-align: left; font-size: 7.5pt; text-transform: uppercase; letter-spacing: 0.05em; color: #333; font-weight: 600; padding: 4pt 4pt 2pt; border-bottom: 0.5pt solid #000; }
+td { padding: 3.5pt 4pt; border-bottom: 0.5pt solid #999; vertical-align: top; }
+tr { break-inside: avoid; }
+td.box { width: 18pt; padding-right: 0; }
+td.box i { display: inline-block; width: 10pt; height: 10pt; border: 1pt solid #000; border-radius: 1.5pt; vertical-align: -1.5pt; }
+td.q { width: 46pt; font-weight: 700; font-size: 11.5pt; line-height: 1.15; white-space: nowrap; font-variant-numeric: tabular-nums; }
+td.q small { display: block; font-weight: 400; font-size: 7.5pt; white-space: normal; }
+td.item { font-weight: 600; width: 42%; }
+table.lumber td.item { width: auto; }
+td.hint { font-size: 9.5pt; color: #222; }
+td.n, th.n { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+tr.total td { border-top: 1pt solid #000; border-bottom: 0; font-weight: 700; }
+.note { border: 1pt solid #000; border-radius: 3pt; padding: 6pt 8pt 5pt; margin: 8pt 0 0; font-size: 9.5pt; break-inside: avoid; }
+.note table { margin: 4pt 0; }
+.note td { font-size: 9pt; }
+.blank { display: inline-block; width: 44pt; border-bottom: 0.75pt solid #000; margin: 0 8pt 0 2pt; }
+.screen { display: flex; gap: 10px; align-items: center; margin: 0 0 12pt; font-size: 10pt; color: #333; }
+.screen button { font: inherit; padding: 6px 14px; border: 1px solid #000; border-radius: 6px; background: #fff; color: #000; cursor: pointer; }
+.screen button:hover { background: #eee; }
+.screen button:focus-visible { outline: 2px solid #000; outline-offset: 2px; }
+.wide { overflow-x: auto; }
+@media (max-width: 640px) { body { margin: 0; padding: 16px; box-shadow: none; } td.item { width: auto; } }
+@media print {
+  html { background: #fff; }
+  body { margin: 0; padding: 0; max-width: none; box-shadow: none; }
+  .screen { display: none; }
+  .wide { overflow: visible; }
+}
+</style>
+</head>
+<body>
+<div class="screen"><button type="button" onclick="window.print()">Print</button><span>Letter paper, black and white. The button and this line do not print.</span></div>
+<h1>Raised Bed Design: shopping list</h1>
+<p class="meta">From the bill of materials of 2026-11-15. Lumber prices are single-stick prices for #1 ground-contact pressure-treated pine at a big-box home center, checked 2026-11-08; nothing else is priced. Tick each line as it goes in the cart.</p>
+<h2>Lumber</h2>
+<p class="sub">#1 ground-contact pressure-treated pine. The bed columns say how many of each stick go to which bed.</p>
+<div class="wide"><table class="lumber"><thead><tr><th></th><th>Qty</th><th>Board</th><th class="n">Bed A</th><th class="n">Bed B</th><th class="n">Bed C</th><th class="n">Bed D</th><th class="n">Each</th><th class="n">Total</th></tr></thead><tbody><tr><td class="box"><i></i></td><td class="q">31</td><td class="item">2x8 x 8 ft</td><td class="n">2</td><td class="n">9</td><td class="n">10</td><td class="n">10</td><td class="n">$14.78</td><td class="n">$458.18</td></tr><tr><td class="box"><i></i></td><td class="q">4</td><td class="item">2x8 x 10 ft</td><td class="n">4</td><td class="n"></td><td class="n"></td><td class="n"></td><td class="n">$18.88</td><td class="n">$75.52</td></tr><tr><td class="box"><i></i></td><td class="q">14</td><td class="item">2x4 x 6 ft</td><td class="n">5</td><td class="n">3</td><td class="n">1</td><td class="n">5</td><td class="n">$5.28</td><td class="n">$73.92</td></tr><tr><td class="box"><i></i></td><td class="q">5</td><td class="item">2x4 x 8 ft</td><td class="n">1</td><td class="n">2</td><td class="n">2</td><td class="n"></td><td class="n">$7.08</td><td class="n">$35.40</td></tr><tr class="total"><td></td><td class="q">54</td><td>sticks, before tax</td><td class="n">12</td><td class="n">14</td><td class="n">13</td><td class="n">15</td><td></td><td class="n">$643.02</td></tr></tbody></table></div>
+<h2>Screws and washers</h2>
+<table><thead><tr><th></th><th>Qty</th><th>Item</th><th>Look for</th></tr></thead><tbody><tr><td class="box"><i></i></td><td class="q">136</td><td class="item">#9 x 3 in exterior structural screws, star drive</td><td class="hint">One 5 lb box (about 350); 1 lb boxes hold only about 70</td></tr><tr><td class="box"><i></i></td><td class="q">264</td><td class="item">#9 x 2.5 in exterior structural screws, star drive</td><td class="hint">One 5 lb box (about 450); 1 lb boxes hold only about 90</td></tr><tr><td class="box"><i></i></td><td class="q">20</td><td class="item">#9 x 1.25 in exterior screws, star drive</td><td class="hint">A 1 lb box holds about 180; same finish as the long screws</td></tr><tr><td class="box"><i></i></td><td class="q">20</td><td class="item">1/4 x 1 in galvanized fender washers</td><td class="hint">Under the panel screws</td></tr></tbody></table>
+<h2>Drip risers</h2>
+<table><thead><tr><th></th><th>Qty</th><th>Item</th><th>Look for</th></tr></thead><tbody><tr><td class="box"><i></i></td><td class="q">4</td><td class="item">3/4 x 3/4 x 3/4 in PVC tee, slip</td><td class="hint">All three sockets 3/4 in slip</td></tr><tr><td class="box"><i></i></td><td class="q">2<small>ft</small></td><td class="item">3/4 in PVC pipe</td><td class="hint">22 1/2 in needed in 4 stubs of 5 5/8 in</td></tr><tr><td class="box"><i></i></td><td class="q">4</td><td class="item">3/4 in slip x 1/2 in FPT PVC 90 degree reducing elbow</td><td class="hint">Slip socket to the stub, female thread up</td></tr><tr><td class="box"><i></i></td><td class="q">4</td><td class="item">1/2 in threaded PVC riser, 8 in</td><td class="hint">Male thread both ends. Measure the main first: see the box below</td></tr><tr><td class="box"><i></i></td><td class="q">4</td><td class="item">1/2 in threaded PVC riser, 6 in</td><td class="hint">Male thread both ends</td></tr><tr><td class="box"><i></i></td><td class="q">4</td><td class="item">1/2 in threaded PVC riser, 3 in</td><td class="hint">Male thread both ends</td></tr><tr><td class="box"><i></i></td><td class="q">4</td><td class="item">1/2 in threaded PVC riser, 4 in</td><td class="hint">Male thread both ends</td></tr><tr><td class="box"><i></i></td><td class="q">8</td><td class="item">1/2 in PVC 90 degree elbow, FPT x FPT</td><td class="hint">Female thread both ends</td></tr><tr><td class="box"><i></i></td><td class="q">4</td><td class="item">1/2 in PVC ball valve, FPT x FPT</td><td class="hint">Lever handle, about 3 in long</td></tr><tr><td class="box"><i></i></td><td class="q">4</td><td class="item">1/2 in FPT x 4-port 1/4 in barb drip manifold head</td><td class="hint">Threads straight onto the 4 in riser</td></tr><tr><td class="box"><i></i></td><td class="q">8</td><td class="item">1/2 in stand-off pipe clamp</td><td class="hint">Galvanized or UV-stable plastic</td></tr><tr><td class="box"><i></i></td><td class="q">16</td><td class="item">#8 x 1 in exterior pan-head screws</td><td class="hint">Same finish as the bed screws</td></tr><tr><td class="box"><i></i></td><td class="q">1<small>set</small></td><td class="item">PVC primer and cement, small cans</td><td class="hint">Slip joints only</td></tr><tr><td class="box"><i></i></td><td class="q">1<small>roll</small></td><td class="item">PTFE thread tape</td><td class="hint">Threaded joints</td></tr></tbody></table>
+<div class="note"><b>Before buying the lower risers:</b> measure how deep the centre of the existing 3/4 in main is at each bed, then pick the length. Write the depths here: Bed A <span class="blank"></span> Bed B <span class="blank"></span> Bed C <span class="blank"></span> Bed D <span class="blank"></span><table><thead><tr><th>Main&#x27;s centre below grade</th><th>Lower riser to buy</th><th>Where the hole lands, above grade</th></tr></thead><tbody><tr><td>4 1/8 to 7 3/4 in</td><td>1/2 x 8 in</td><td>17 3/8 in minus the depth; mid-board (10 7/8 in) with the main 6 1/2 in deep, as drawn</td></tr><tr><td>8 1/8 to 11 3/4 in</td><td>1/2 x 12 in</td><td>21 3/8 in minus the depth; mid-board (10 7/8 in) with the main 10 1/2 in deep</td></tr></tbody></table>The other three risers per bed do not depend on the main. Dry-fit the stack before boring the hole in the end board.</div>
+<h2>Trellis arch and hoops</h2>
+<table><thead><tr><th></th><th>Qty</th><th>Item</th><th>Look for</th></tr></thead><tbody><tr><td class="box"><i></i></td><td class="q">1</td><td class="item">Hog-wire / cattle panel, 16 ft long, 4 x 4 in mesh</td><td class="hint">4-gauge galvanized, 48 to 60 in wide</td></tr><tr><td class="box"><i></i></td><td class="q">6</td><td class="item">Low-tunnel hoop, 1 in tube, 40 in wide x 57 in tall</td><td class="hint">136 in of tube each (11.4 ft), 68 ft in all. 12 ft stock makes one-piece hoops</td></tr></tbody></table>
+<h2>Pavers</h2>
+<table><thead><tr><th></th><th>Qty</th><th>Item</th><th>Look for</th></tr></thead><tbody><tr><td class="box"><i></i></td><td class="q">74</td><td class="item">Concrete paver 12 x 12 x 1.5 in</td><td class="hint">about 18 lb each, 1,328 lb total</td></tr><tr><td class="box"><i></i></td><td class="q">25<small>0.5 cu ft bag</small></td><td class="item">Paver leveling base (crushed stone or all-purpose sand)</td><td class="hint">2 in under each paver, 12.3 cu ft</td></tr></tbody></table>
+<h2>Soil</h2>
+<table><thead><tr><th></th><th>Qty</th><th>Item</th><th>Look for</th></tr></thead><tbody><tr><td class="box"><i></i></td><td class="q">7.41<small>cu yd</small></td><td class="item">Raised-bed soil mix</td><td class="hint">200 cu ft at 14.5 in deep</td></tr></tbody></table>
+<h2>Optional</h2>
+<table><thead><tr><th></th><th>Qty</th><th>Item</th><th>Look for</th></tr></thead><tbody><tr><td class="box"><i></i></td><td class="q">56<small>lin ft</small></td><td class="item">Hardware cloth 1/2 in, 48 in wide (under beds)</td><td class="hint">Gopher / vole barrier</td></tr></tbody></table>
+</body>
+</html>

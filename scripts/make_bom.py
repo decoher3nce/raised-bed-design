@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-"""Generate BOM.md, BOM.csv, BOM-by-bed.csv and bom.html from data/model_extract.json.
+"""Generate BOM.md, BOM.csv, BOM-by-bed.csv, bom.html and shopping-list.html from data/model_extract.json.
+
+shopping-list.html is the sheet to print and take to the store: quantities and tick boxes only.
 
 Lumber is listed as store-length sticks to buy, chosen by scripts/cutstock.py from the
 lengths and prices in STOCK_PRICES, with the cuts each stick becomes.
@@ -2679,6 +2681,121 @@ HTML = f'''<!DOCTYPE html>
 </html>
 '''
 (ROOT / 'bom.html').write_text(HTML)
+# ================================================================== shopping-list.html
+# One sheet to print and take to the store: what to buy and how many, with a box to tick. No drawings, no cut lists.
+# It is made from the same rows as BOM.csv; reference rows (the existing main, the superseded tube arch) are left out.
+PRINT_GROUPS = [('Lumber', ('Lumber',)), ('Screws and washers', ('Hardware',)), ('Drip risers', ('Drip',)),
+                ('Trellis arch and hoops', ('Arches', 'Hoops')), ('Pavers', ('Pavers',)), ('Soil', ('Soil',)), ('Optional', ('Optional',))]
+BOX = '<td class="box"><i></i></td>'
+
+
+def print_hint(sec, item, spec, notes):
+    """The few words that help at the shelf: box sizes for screws, the spec for everything else."""
+    if sec == 'Hardware' and item.startswith('#9 x 3 in'):
+        return cap(buy_3)
+    if sec == 'Hardware' and item.startswith('#9 x 2.5 in'):
+        return cap(buy_25)
+    if sec == 'Hardware' and item.startswith(PANEL_SCREW):
+        return f'A 1 lb box holds about {PER_LB[1.25]}; same finish as the long screws'
+    if sec == 'Hoops':
+        return spec + '. ' + cap(notes.split('; ')[-1])
+    if 'Measure the main' in notes:
+        return spec + '. Measure the main first: see the box below'
+    return spec
+
+
+def print_qty(qty, unit):
+    q = f'{qty:g}' if isinstance(qty, float) else f'{qty}'
+    return q if unit == 'ea' else f'{q}<small>{esc(unit)}</small>'
+
+
+_letters = [r['letter'] for r in bed_rows]
+_sections = []
+for title, secs in PRINT_GROUPS:
+    if title == 'Lumber':
+        body = ''.join(
+            f"<tr>{BOX}<td class=\"q\">{x['qty']}</td><td class=\"item\">{esc(x['nom'])} x {x['ft']} ft</td>"
+            + ''.join(f"<td class=\"n\">{x['beds'].get(L, '') or ''}</td>" for L in _letters)
+            + f"<td class=\"n\">${x['price']:.2f}</td><td class=\"n\">${x['price'] * x['qty']:.2f}</td></tr>" for x in stock_rows)
+        body += (f"<tr class=\"total\"><td></td><td class=\"q\">{total_2x_boards + post_sticks}</td><td>sticks, before tax</td>"
+                 + ''.join(f"<td class=\"n\">{sum(x['beds'].get(L, 0) for x in stock_rows)}</td>" for L in _letters)
+                 + f"<td></td><td class=\"n\">${lumber_cost:.2f}</td></tr>")
+        head = ('<tr><th></th><th>Qty</th><th>Board</th>' + ''.join(f'<th class="n">Bed {L}</th>' for L in _letters)
+                + '<th class="n">Each</th><th class="n">Total</th></tr>')
+        _sections.append(f'<h2>{title}</h2>\n<p class="sub">{esc(cap(PRICE_GRADE))}. The bed columns say how many of each stick go to which bed.</p>\n'
+                         f'<div class="wide"><table class="lumber"><thead>{head}</thead><tbody>{body}</tbody></table></div>')
+        continue
+    rs = [x for x in rows if x[0] in secs]
+    if not rs:
+        continue
+    body = ''.join(f'<tr>{BOX}<td class="q">{print_qty(qty, unit)}</td><td class="item">{esc(item)}</td><td class="hint">{esc(print_hint(sec, item, spec, notes))}</td></tr>'
+                   for sec, item, qty, unit, spec, _src, notes in rs)
+    _sections.append(f'<h2>{title}</h2>\n<table><thead><tr><th></th><th>Qty</th><th>Item</th><th>Look for</th></tr></thead><tbody>{body}</tbody></table>')
+    if title == 'Drip risers' and drip_buy_table:
+        _sections.append('<div class="note"><b>Before buying the lower risers:</b> measure how deep the centre of the existing 3/4 in main is at each bed, then pick the length. '
+                         'Write the depths here: ' + ' '.join(f'Bed {L} <span class="blank"></span>' for L in _letters)
+                         + '<table><thead><tr>' + ''.join(f'<th>{esc(h)}</th>' for h in drip_buy_head) + '</tr></thead><tbody>'
+                         + ''.join('<tr>' + ''.join(f'<td>{esc(c)}</td>' for c in row) + '</tr>' for row in drip_buy_table)
+                         + '</tbody></table>The other three risers per bed do not depend on the main. Dry-fit the stack before boring the hole in the end board.</div>')
+
+PRINT_HTML = f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Raised Bed Shopping List</title>
+<style>
+/* a sheet of paper: black on white, no backgrounds to print, nothing told by colour */
+@page {{ size: letter; margin: 0.5in; }}
+* {{ box-sizing: border-box; }}
+html {{ background: #e6e5e0; }}
+body {{ margin: 16px auto; padding: 0.5in; max-width: 8.5in; background: #fff; color: #000; font: 10.5pt/1.35 "Helvetica Neue", Helvetica, Arial, sans-serif; box-shadow: 0 2px 14px rgba(0,0,0,0.18); }}
+h1 {{ font-size: 18pt; line-height: 1.15; margin: 0 0 3pt; }}
+.meta {{ font-size: 9pt; color: #333; margin: 0; }}
+h2 {{ font-size: 10.5pt; text-transform: uppercase; letter-spacing: 0.06em; margin: 13pt 0 0; padding-bottom: 2pt; border-bottom: 1.5pt solid #000; break-after: avoid; }}
+.sub {{ font-size: 9pt; color: #333; margin: 3pt 0 0; }}
+table {{ width: 100%; border-collapse: collapse; }}
+th {{ text-align: left; font-size: 7.5pt; text-transform: uppercase; letter-spacing: 0.05em; color: #333; font-weight: 600; padding: 4pt 4pt 2pt; border-bottom: 0.5pt solid #000; }}
+td {{ padding: 3.5pt 4pt; border-bottom: 0.5pt solid #999; vertical-align: top; }}
+tr {{ break-inside: avoid; }}
+td.box {{ width: 18pt; padding-right: 0; }}
+td.box i {{ display: inline-block; width: 10pt; height: 10pt; border: 1pt solid #000; border-radius: 1.5pt; vertical-align: -1.5pt; }}
+td.q {{ width: 46pt; font-weight: 700; font-size: 11.5pt; line-height: 1.15; white-space: nowrap; font-variant-numeric: tabular-nums; }}
+td.q small {{ display: block; font-weight: 400; font-size: 7.5pt; white-space: normal; }}
+td.item {{ font-weight: 600; width: 42%; }}
+table.lumber td.item {{ width: auto; }}
+td.hint {{ font-size: 9.5pt; color: #222; }}
+td.n, th.n {{ text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }}
+tr.total td {{ border-top: 1pt solid #000; border-bottom: 0; font-weight: 700; }}
+.note {{ border: 1pt solid #000; border-radius: 3pt; padding: 6pt 8pt 5pt; margin: 8pt 0 0; font-size: 9.5pt; break-inside: avoid; }}
+.note table {{ margin: 4pt 0; }}
+.note td {{ font-size: 9pt; }}
+.blank {{ display: inline-block; width: 44pt; border-bottom: 0.75pt solid #000; margin: 0 8pt 0 2pt; }}
+.screen {{ display: flex; gap: 10px; align-items: center; margin: 0 0 12pt; font-size: 10pt; color: #333; }}
+.screen button {{ font: inherit; padding: 6px 14px; border: 1px solid #000; border-radius: 6px; background: #fff; color: #000; cursor: pointer; }}
+.screen button:hover {{ background: #eee; }}
+.screen button:focus-visible {{ outline: 2px solid #000; outline-offset: 2px; }}
+.wide {{ overflow-x: auto; }}
+@media (max-width: 640px) {{ body {{ margin: 0; padding: 16px; box-shadow: none; }} td.item {{ width: auto; }} }}
+@media print {{
+  html {{ background: #fff; }}
+  body {{ margin: 0; padding: 0; max-width: none; box-shadow: none; }}
+  .screen {{ display: none; }}
+  .wide {{ overflow: visible; }}
+}}
+</style>
+</head>
+<body>
+<div class="screen"><button type="button" onclick="window.print()">Print</button><span>Letter paper, black and white. The button and this line do not print.</span></div>
+<h1>Raised Bed Design: shopping list</h1>
+<p class="meta">From the bill of materials of {TODAY}. Lumber prices are {esc(PRICE_SOURCE)}; nothing else is priced. Tick each line as it goes in the cart.</p>
+{chr(10).join(_sections)}
+</body>
+</html>
+"""
+(ROOT / 'shopping-list.html').write_text(PRINT_HTML)
+print('wrote', ROOT / 'shopping-list.html')
+
 print('wrote', ROOT / 'BOM.md', ROOT / 'BOM.csv', ROOT / 'BOM-by-bed.csv', ROOT / 'bom.html', f'({bed_lines_total} per-bed lines)')
 for _part, _lines in _planned.items():
     for _line in _lines:
